@@ -7,13 +7,13 @@ function App() {
   const [menuSelected, setMenuSelected] = useState("");
 
   const handleMenu = (pvalue: any) => {
-    setMenuSelected(pvalue);
+    setMenuSelected(pvalue); 
   }
 
   return (
     <div id='body-main'>
-      <AppHeader menuSelected={handleMenu} />
-      <AppBody menuSelected={menuSelected} />
+      <AppHeader getMenuSelected={handleMenu} />
+      <AppBody setMenuSelected={menuSelected} />
     </div>
   );
 }

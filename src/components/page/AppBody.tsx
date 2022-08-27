@@ -2,13 +2,13 @@ import { useEffect } from "react"
 import "../../style/App.scss"
 
 interface IProps {
-    menuSelected: string
+    setMenuSelected: string
 }
 
 const AppBody = (props: IProps) => {
     return (
         <>
-            {console.log(props.menuSelected)}
+            {console.log(props.setMenuSelected)}
         </>
     )
 }

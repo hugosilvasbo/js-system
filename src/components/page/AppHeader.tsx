@@ -2,7 +2,7 @@ import _ from "lodash";
 import "../../style/App.scss";
 
 interface IProps {
-    menuSelected: any;
+    getMenuSelected: any;
 }
 
 const MenuItems = [
@@ -18,7 +18,7 @@ const AppHeader = (props: IProps) => {
             <div id="header-main">
                 {
                     _.map(MenuItems, function (value: any) {
-                        return <button key={value.name} name={value.name} onClick={() => props.menuSelected(value.name)}>{value.caption}</button>;
+                        return <button key={value.name} name={value.name} onClick={() => props.getMenuSelected(value.name)}>{value.caption}</button>;
                     })
                 }
             </div>
