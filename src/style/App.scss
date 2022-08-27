@@ -1,0 +1,15 @@
+@import "vars.scss";
+
+#body-main {
+  background-color: pink;
+  height: 100%;
+  overflow: auto;
+  position: fixed;
+  width: 100%;
+}
+
+#header-main {
+  @extend .flex-r;
+  background-color: yellow;
+  width: 100%;
+}
