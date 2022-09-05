@@ -8,7 +8,6 @@ import Header from './components/Header';
 import './style/App.scss';
 
 function App(props: any) {
-
   const navigate = useNavigate();
 
   const menuitems = [
@@ -35,14 +34,12 @@ function App(props: any) {
   ]
 
   return (
-    <div className='App'>
+    <div className='main'>
       <Menubar model={menuitems} />
       <Header />
       <Footer />
-      <div id='main'>
-        <div className='content' id='content'>
-          {props.children}
-        </div>
+      <div className='content'>
+        {props.children}
       </div>
     </div>
   );
