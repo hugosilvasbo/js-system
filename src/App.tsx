@@ -32,9 +32,15 @@ function App(props: any) {
     }
   ]
 
+  const styleMenu = {
+    backgroundColor: "#dfdfdf",
+    height: "42px",
+    fontSize: "12px"
+  }
+
   return (
     <div className='main'>
-      <Menubar model={menuitems} />
+      <Menubar style={styleMenu} model={menuitems} />
       <div className='content'>
         {props.children}
       </div>

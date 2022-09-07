@@ -1,33 +1,27 @@
 import _ from 'lodash';
+import React from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
-const tabList = [
-    { caption: 'Consulta', id: 'cns', children: () => <TabConsulta /> },
-    { caption: 'Digitação', id: 'dig', children: () => <TabCadastro /> }
-];
-
-const Pessoa = () => {
-    return (
-        <>
-            <Tabs>
-                <TabList>
-                    {
-                        _.map(tabList, (tab: any) => {
-                            return <Tab key={tab.id + '_title'}>{tab.caption}</Tab>
-                        })
-                    }
-                </TabList>
-                {
-                    _.map(tabList, (tab: any) => {
-                        return <TabPanel key={tab.id + '_content'}>
-                            {tab.children}
-                        </TabPanel>
-                    })
-                }
-            </Tabs>
-        </>
-    )
+export default class Pessoa extends React.Component {
+    render() {
+        return (
+            <>
+                <Tabs>
+                    <TabList>
+                        <Tab>Consulta</Tab>
+                        <Tab>Digitação</Tab>
+                    </TabList>
+                    <TabPanel >
+                        <TabConsulta />
+                    </TabPanel>
+                    <TabPanel>
+                        <TabCadastro />
+                    </TabPanel>
+                </Tabs>
+            </>
+        )
+    }
 }
 
 const TabConsulta = () => {
@@ -45,5 +39,3 @@ const TabCadastro = () => {
         </>
     )
 }
-
-export default Pessoa;
