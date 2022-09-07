@@ -1,10 +1,9 @@
 import 'primeicons/primeicons.css';
 import { Menubar } from 'primereact/menubar';
 import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/nova/theme.css';
+import 'primereact/resources/themes/nova-accent/theme.css';
 import { useNavigate } from 'react-router-dom';
-import Footer from './components/Footer';
-import Header from './components/Header';
+import 'react-tabs/style/react-tabs.css';
 import './style/App.scss';
 
 function App(props: any) {
@@ -36,8 +35,6 @@ function App(props: any) {
   return (
     <div className='main'>
       <Menubar model={menuitems} />
-      <Header />
-      <Footer />
       <div className='content'>
         {props.children}
       </div>
