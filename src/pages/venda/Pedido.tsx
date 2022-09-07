@@ -2,7 +2,7 @@
 const PedidoVenda = () => {
     return (
         <>
-            <h4>Pedido de Venda</h4>
+            Inclusão de novos pedidos
         </>
     )
 }
