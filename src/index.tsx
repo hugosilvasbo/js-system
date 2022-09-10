@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import App from './App';
 import Pessoa from './pages/cadastro/Pessoa';
-import PedidoCompra from './pages/compra/Pedido';
+import Item from './pages/cadastro/Item';
 import Home from './pages/Home';
 import PedidoVenda from './pages/venda/Pedido';
 import './style/index.scss';
@@ -18,7 +18,7 @@ root.render(
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cadastro/pessoa" element={<Pessoa />} />
-          <Route path="/compra/pedido" element={<PedidoCompra />} />
+          <Route path="/cadastro/item" element={<Item />} />
           <Route path="/venda/pedido" element={<PedidoVenda />} />
         </Routes>
       </App>
