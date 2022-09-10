@@ -3,6 +3,7 @@ import Table from 'react-bootstrap/Table';
 
 interface IDefault {
     title: {};
+    dataDescription: {};
     data: {}
 }
 
@@ -23,9 +24,9 @@ function TableBootstrap(props: IDefault) {
                     _.map(props.data, (line: any, key: string) => {
                         return <tr key={key}>
                             {
-                                _.map(line, (col: any) => {
-                                    return <td>
-                                        {col}
+                                _.map(props.dataDescription, (d: string) => {
+                                    return <td key={d}>
+                                        {line[d]}
                                     </td>
                                 })
                             }

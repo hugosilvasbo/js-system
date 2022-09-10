@@ -1,10 +1,47 @@
+import axios from 'axios';
 import React from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import TableBootstrap from '../../components/TableBootstrap';
-import '../../style/pessoa.scss'
+import constantes from '../../storage/jsConstantes.json';
+import '../../style/pessoa.scss';
+import { Button } from 'primereact/button';
 
 export default class Pessoa extends React.Component {
+    state = {
+        data: {}
+    }
+
+    Consulta = () => {
+        const onConsultar = async () => {
+            try {
+                let resp = await axios.get(constantes.url_api_barber + 'person');
+                this.setState({ data: resp.data });
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        return (
+            <>
+                <Button icon="pi pi-search" className="p-button-sm" onClick={() => onConsultar()} />
+                <TableBootstrap
+                    title={["#", "Nome", "E-Mail", "Celular"]}
+                    data={this.state.data}
+                    dataDescription={["_id", "name", "email", "cellphone"]}
+                />
+            </>
+        )
+    }
+
+    Digitacao = () => {
+        return (
+            <>
+                Cadastro
+            </>
+        )
+    }
+
     render() {
         return (
             <>
@@ -14,51 +51,13 @@ export default class Pessoa extends React.Component {
                         <Tab>Digitação</Tab>
                     </TabList>
                     <TabPanel >
-                        <TabConsulta />
+                        <this.Consulta />
                     </TabPanel>
                     <TabPanel>
-                        <TabCadastro />
+                        <this.Digitacao />
                     </TabPanel>
                 </Tabs>
             </>
         )
     }
-}
-
-const TabConsulta = () => {
-    // apenas para teste!
-    const title = ["#", "Nome", "Celular", "Telefone"];
-    const data = [
-        ["1", "Hugo", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["2", "Gabi", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["3", "Maria", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["4", "André", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["5", "José", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["6", "Francisco", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["7", "Antônio", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["8", "Marcia", "(19) 9 8961-5184", "(19) 3454-0484"],
-        ["9", "Daniel", "(19) 9 8961-5184", "(19) 3454-0484"]
-    ]
-
-    return (
-        <>
-            <div id="filtro">
-                FIltragem
-            </div>
-            Consulta
-            <div>
-                Inclusão dos filtros.
-            </div>
-
-            <TableBootstrap title={title} data={data} />
-        </>
-    )
-}
-
-const TabCadastro = () => {
-    return (
-        <>
-            Cadastro
-        </>
-    )
 }

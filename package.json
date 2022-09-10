@@ -2,6 +2,7 @@
   "name": "server",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3000/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
@@ -11,14 +12,12 @@
     "@types/node": "^16.11.56",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
-<<<<<<< HEAD
     "axios": "^0.27.2",
-=======
     "bootstrap": "^5.2.1",
->>>>>>> 0daaa1b4c4c3d6ad7357fae153548b8c781689d3
     "classnames": "^2.3.1",
+    "cors": "^2.8.5",
     "primeicons": "^5.0.0",
-    "primereact": "^8.4.0",
+    "primereact": "^8.5.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
