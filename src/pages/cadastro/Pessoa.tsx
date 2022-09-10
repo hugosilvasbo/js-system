@@ -28,7 +28,7 @@ export default class Pessoa extends React.Component {
                 <TableBootstrap
                     title={["#", "Nome", "E-Mail", "Celular"]}
                     data={this.state.data}
-                    dataDescription={["_id", "name", "email", "cellphone"]}
+                    column={["_id", "name", "email", "cellphone"]}
                 />
             </>
         )
