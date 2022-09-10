@@ -1,11 +1,8 @@
 import React from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-<<<<<<< HEAD
+import TableBootstrap from '../../components/TableBootstrap';
 import '../../style/pessoa.scss'
-=======
-import TableBootstrap from './../../components/TableBootstrap';
->>>>>>> 0daaa1b4c4c3d6ad7357fae153548b8c781689d3
 
 export default class Pessoa extends React.Component {
     render() {
@@ -45,18 +42,15 @@ const TabConsulta = () => {
 
     return (
         <>
-<<<<<<< HEAD
             <div id="filtro">
                 FIltragem
             </div>
             Consulta
-=======
             <div>
                 Inclusão dos filtros.
             </div>
 
             <TableBootstrap title={title} data={data} />
->>>>>>> 0daaa1b4c4c3d6ad7357fae153548b8c781689d3
         </>
     )
 }
