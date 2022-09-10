@@ -1,18 +1,18 @@
 import axios from 'axios';
+import { Button } from 'primereact/button';
 import React from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import TableBootstrap from '../../components/TableBootstrap';
 import constantes from '../../storage/jsConstantes.json';
 import '../../style/pessoa.scss';
-import { Button } from 'primereact/button';
 
 export default class Pessoa extends React.Component {
     state = {
         data: {}
     }
 
-    Consulta = () => {
+    TabConsulta = () => {
         const onConsultar = async () => {
             try {
                 let resp = await axios.get(constantes.url_api_barber + 'person');
@@ -34,7 +34,7 @@ export default class Pessoa extends React.Component {
         )
     }
 
-    Digitacao = () => {
+    TabDigitacao = () => {
         return (
             <>
                 Cadastro
@@ -51,10 +51,10 @@ export default class Pessoa extends React.Component {
                         <Tab>Digitação</Tab>
                     </TabList>
                     <TabPanel >
-                        <this.Consulta />
+                        <this.TabConsulta />
                     </TabPanel>
                     <TabPanel>
-                        <this.Digitacao />
+                        <this.TabDigitacao />
                     </TabPanel>
                 </Tabs>
             </>

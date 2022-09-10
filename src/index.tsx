@@ -1,15 +1,15 @@
 import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import App from './App';
-import Pessoa from './pages/cadastro/Pessoa';
 import Item from './pages/cadastro/Item';
+import Pessoa from './pages/cadastro/Pessoa';
 import Home from './pages/Home';
 import PedidoVenda from './pages/venda/Pedido';
 import './style/index.scss';
-import { createRoot } from 'react-dom/client';
 
 const container = document.getElementById('root');
-const root = createRoot(container!); 
+const root = createRoot(container!);
 
 root.render(
   <React.StrictMode>

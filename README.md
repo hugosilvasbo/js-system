@@ -10,3 +10,6 @@ https://stackoverflow.com/questions/63124161/attempted-import-error-switch-is-no
 
 CORREÇAO DO WITHROUTER 
 https://stackoverflow.com/questions/62861269/attempted-import-error-usehistory-is-not-exported-from-react-router-dom
+
+******** ANOTACOES
+Trocar porta: $env:PORT=5000
