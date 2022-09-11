@@ -6,10 +6,22 @@ import 'react-tabs/style/react-tabs.css';
 import TableBootstrap from '../../components/TableBootstrap';
 import constantes from '../../storage/jsConstantes.json';
 import '../../style/pessoa.scss';
+import { InputText } from 'primereact/inputtext';
+import InputTextPrime from '../../components/InputTextPrime';
+import { Container, Row, Col } from 'react-bootstrap';
+import InputPasswordPrime from '../../components/InputPasswordPrime';
 
 export default class Pessoa extends React.Component {
     state = {
-        data: {}
+        data: {},
+        validation: {
+            name: '',
+            email: '',
+            tel: '',
+            cel: '',
+            user: '',
+            password: ''
+        }
     }
 
     TabConsulta = () => {
@@ -37,7 +49,24 @@ export default class Pessoa extends React.Component {
     TabDigitacao = () => {
         return (
             <>
-                Cadastro
+                <Container fluid>
+                    <Row>
+                        <Col><InputTextPrime id={'Name'} title={'Nome'} error={this.state.validation.name} /></Col>
+                        <Col><InputTextPrime id={'Email'} title={'E-Mail'} error={this.state.validation.email} /></Col>
+                        <Col><InputTextPrime id={'Tel'} title={'Telefone'} error={this.state.validation.tel} /></Col>
+                        <Col><InputTextPrime id={'Cel'} title={'Celular'} error={this.state.validation.cel} /></Col>
+                        <Col><InputTextPrime id={'User'} title={'Usuario'} error={this.state.validation.user} /></Col>
+                        <Col>
+                            <InputPasswordPrime
+                                id='Password'
+                                title='Senha'
+                                value={'Senha teste'}
+                                onChange={} -->>> terminar de passar as properties
+                            />
+                        </Col>
+                    </Row>
+                </Container>
+                {/**<button onClick={() => this.setState({ validation: { name: 'Teste de validação' } })}>Testando</button>**/}
             </>
         )
     }
