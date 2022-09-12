@@ -1,7 +1,6 @@
 import axios from 'axios';
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import { Prev } from 'react-bootstrap/esm/PageItem';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import CheckBoxPrime from '../../components/CheckBoxPrime';
