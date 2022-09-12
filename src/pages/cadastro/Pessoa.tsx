@@ -39,15 +39,12 @@ export default class Pessoa extends React.Component {
 
     onClickSave = async () => {
         try {
-            console.log({ dataPost: this.state.currentData })
             let resp = undefined;
 
-            if (this.state.currentData._id)
-                resp = await axios.patch(this.URL_PERSON + '/', this.state.currentData)
+            if (this.state.currentData._id !== undefined)
+                resp = await axios.patch(this.URL_PERSON + '/' + this.state.currentData._id, this.state.currentData)
             else
                 resp = await axios.post(this.URL_PERSON + '/', this.state.currentData)
-
-            console.log(resp)
         } catch (error) {
             console.log(error)
         }
@@ -60,7 +57,6 @@ export default class Pessoa extends React.Component {
     TabConsulta = () => {
         return (
             <>
-                <button onClick={() => console.log(this.state.currentData)}>Testando</button>
                 <TableBootstrap
                     title={["Nome", "E-Mail", "Celular"]}
                     data={this.state.data}
@@ -82,7 +78,7 @@ export default class Pessoa extends React.Component {
                                 title={'Nome'}
                                 defaultValue={this.state.currentData.name}
                                 error={this.state.validation.name}
-                                onChange={(e: string) => { this.setState(prevState => ({ currentData: { ...prevState, name: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, name: e } }))}
                             />
                         </Col>
                         <Col>
@@ -91,7 +87,7 @@ export default class Pessoa extends React.Component {
                                 title={'E-Mail'}
                                 defaultValue={this.state.currentData.email}
                                 error={this.state.validation.email}
-                                onChange={(e: string) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, email: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, email: e } }))}
                             />
                         </Col>
                         <Col>
@@ -99,7 +95,7 @@ export default class Pessoa extends React.Component {
                                 id={'Tel'}
                                 title={'Telefone'}
                                 defaultValue={this.state.currentData.telephone}
-                                onChange={(e: string) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, telephone: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, telephone: e } }))}
                                 error={this.state.validation.tel}
                             />
                         </Col>
@@ -109,7 +105,7 @@ export default class Pessoa extends React.Component {
                                 title={'Celular'}
                                 defaultValue={this.state.currentData.cellphone}
                                 error={this.state.validation.cel}
-                                onChange={(e: string) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, cellphone: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, cellphone: e } }))}
                             />
                         </Col>
                         <Col>
@@ -118,7 +114,7 @@ export default class Pessoa extends React.Component {
                                 title={'Usuario'}
                                 defaultValue={this.state.currentData.cellphone}
                                 error={this.state.validation.user}
-                                onChange={(e: string) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, user: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, user: e } }))}
                             />
                         </Col>
                         <Col>
@@ -126,19 +122,18 @@ export default class Pessoa extends React.Component {
                                 id='Password'
                                 title='Senha'
                                 value={this.state.currentData.password}
-                                onChange={(e: string) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, password: e } })) }}
+                                onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, password: e } }))}
                             />
                         </Col>
                         <Col>
                             <CheckBoxPrime
                                 caption='Resetar senha'
                                 checked={true}
-                                onChange={(e: boolean) => { this.setState(prevCurrentData => ({ currentData: { ...prevCurrentData, passwordReseted: e } })) }}
+                                onChange={(e: boolean) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, passwordReseted: e } }))}
                             />
                         </Col>
                     </Row>
                 </Container>
-                {/**<button onClick={() => this.setState({ validation: { name: 'Teste de validação' } })}>Testando</button>**/}
             </div>
         )
     }
@@ -170,8 +165,3 @@ export default class Pessoa extends React.Component {
         )
     }
 }
-
-
-
-
-ARRUMAR O SETSTATE DO USUARIO...
