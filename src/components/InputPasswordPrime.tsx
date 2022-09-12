@@ -5,7 +5,7 @@ interface IProps {
     title: string,
     error?: string,
     value: string,
-    onChange: any
+    onChange: any,
 }
 
 const InputPasswordPrime = (props: IProps) => {

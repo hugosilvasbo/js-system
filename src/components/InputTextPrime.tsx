@@ -3,7 +3,9 @@ import { InputText } from "primereact/inputtext";
 interface IProps {
     id: string,
     title: string,
-    error?: string
+    error?: string,
+    defaultValue: string,
+    onChange: any
 }
 
 const InputTextPrime = (props: IProps) => {
@@ -11,7 +13,13 @@ const InputTextPrime = (props: IProps) => {
         <>
             <div className="d-flex flex-column mb-3">
                 <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
-                <InputText id={'inpt' + props.id} aria-describedby={'err' + props.id} className="p-inputtext-sm block mb-2" />
+                <InputText
+                    id={'inpt' + props.id}
+                    defaultValue={props.defaultValue}
+                    aria-describedby={'err' + props.id}
+                    className="p-inputtext-sm block mb-2"
+                    onChange={(e) => props.onChange(e.target.value)}
+                />
                 {props.error !== '' ? <small id={'err' + props.id} className="p-error block">{props.error}</small> : ''}
             </div>
         </>
