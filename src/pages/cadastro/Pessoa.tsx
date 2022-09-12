@@ -12,6 +12,8 @@ import constantes from '../../storage/jsConstantes.json';
 import '../../style/pessoa.scss';
 
 export default class Pessoa extends React.Component {
+    URL_PERSON = constantes.url_api_barber + 'person/';
+
     state = {
         data: {},
         currentData: {} as any,
@@ -24,8 +26,6 @@ export default class Pessoa extends React.Component {
             password: ''
         }
     }
-
-    URL_PERSON = constantes.url_api_barber + 'person';
 
     onClickSearch = async () => {
         try {
@@ -41,16 +41,23 @@ export default class Pessoa extends React.Component {
             let resp = undefined;
 
             if (this.state.currentData._id !== undefined)
-                resp = await axios.patch(this.URL_PERSON + '/' + this.state.currentData._id, this.state.currentData)
+                resp = await axios.patch(this.URL_PERSON + this.state.currentData._id, this.state.currentData)
             else
-                resp = await axios.post(this.URL_PERSON + '/', this.state.currentData)
+                resp = await axios.post(this.URL_PERSON, this.state.currentData)
+
+            console.log('Registro alterado/incluso!')
         } catch (error) {
             console.log(error)
         }
     }
 
-    onClickDelete = () => {
-
+    onClickDelete = async () => {
+        try {
+            const res = await axios.delete(this.URL_PERSON + this.state.currentData._id);
+            console.log('Registro excluido!')
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     TabConsulta = () => {
