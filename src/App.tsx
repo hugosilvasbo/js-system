@@ -4,7 +4,6 @@ import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/nova-accent/theme.css';
 import { useNavigate } from 'react-router-dom';
 import 'react-tabs/style/react-tabs.css';
-import Footer from './components/Footer';
 import './style/App.scss';
 
 function App(props: any) {
@@ -41,11 +40,13 @@ function App(props: any) {
 
   return (
     <div className='main'>
-        <Menubar style={styleMenu} model={menuitems} />
+      <Menubar style={styleMenu} model={menuitems} />
       <div className='content'>
         {props.children}
       </div>
-      <Footer />
+      <div className='box'>
+        JS System - 2022 - Todos os direitos autorais reservados
+      </div>
     </div>
   );
 

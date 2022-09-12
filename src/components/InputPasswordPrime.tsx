@@ -13,7 +13,11 @@ const InputPasswordPrime = (props: IProps) => {
         <>
             <div className="d-flex flex-column mb-3">
                 <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
-                <Password id={'pass' + props.id} value={props.value} onChange={(e) => props.onChange(e.target.value)} />
+                <Password
+                    feedback={false}
+                    id={'pass' + props.id}
+                    value={props.value}
+                    onChange={(e) => props.onChange(e.target.value)} />
                 {props.error !== '' ? <small id={'err' + props.id} className="p-error block">{props.error}</small> : ''}
             </div>
         </>

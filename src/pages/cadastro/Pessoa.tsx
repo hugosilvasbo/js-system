@@ -1,15 +1,16 @@
 import axios from 'axios';
 import { Button } from 'primereact/button';
 import React from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import CheckBoxPrime from '../../components/CheckBoxPrime';
+import FrameCadButtons from '../../components/FrameCadButtons';
+import InputPasswordPrime from '../../components/InputPasswordPrime';
+import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
 import constantes from '../../storage/jsConstantes.json';
 import '../../style/pessoa.scss';
-import { InputText } from 'primereact/inputtext';
-import InputTextPrime from '../../components/InputTextPrime';
-import { Container, Row, Col } from 'react-bootstrap';
-import InputPasswordPrime from '../../components/InputPasswordPrime';
 
 export default class Pessoa extends React.Component {
     state = {
@@ -21,6 +22,10 @@ export default class Pessoa extends React.Component {
             cel: '',
             user: '',
             password: ''
+        },
+        inputs: {
+            password: '',
+            passwordReseted: false
         }
     }
 
@@ -48,7 +53,14 @@ export default class Pessoa extends React.Component {
 
     TabDigitacao = () => {
         return (
-            <>
+            <div>
+                <FrameCadButtons
+                    onClickNew={() => { }}
+                    onClickEdit={() => { }}
+                    onClickSave={() => { }}
+                    onClickDelete={() => { }}
+                    onClickCancel={() => { }}
+                />
                 <Container fluid>
                     <Row>
                         <Col><InputTextPrime id={'Name'} title={'Nome'} error={this.state.validation.name} /></Col>
@@ -60,14 +72,21 @@ export default class Pessoa extends React.Component {
                             <InputPasswordPrime
                                 id='Password'
                                 title='Senha'
-                                value={'Senha teste'}
-                                onChange={} -->>> terminar de passar as properties
+                                value={this.state.inputs.password}
+                                onChange={(e: string) => { this.setState({ inputs: { password: e } }) }}
+                            />
+                        </Col>
+                        <Col>
+                            <CheckBoxPrime
+                                caption='Resetar senha'
+                                checked={this.state.inputs.passwordReseted}
+                                onChange={(e: boolean) => this.setState({ inputs: { passwordReseted: e } })}
                             />
                         </Col>
                     </Row>
                 </Container>
                 {/**<button onClick={() => this.setState({ validation: { name: 'Teste de validação' } })}>Testando</button>**/}
-            </>
+            </div>
         )
     }
 
