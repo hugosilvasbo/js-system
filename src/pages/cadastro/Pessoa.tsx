@@ -47,6 +47,7 @@ export default class Pessoa extends React.Component {
             else
                 res = await axios.post(this.URL_PERSON, this.state.currentData)
 
+            console.log({respSave: res})
             toast.success(res.data.message);
         } catch (error) {
             toast.error('' + error);
