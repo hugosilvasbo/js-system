@@ -4,6 +4,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/nova-accent/theme.css';
 import { useNavigate } from 'react-router-dom';
 import 'react-tabs/style/react-tabs.css';
+import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';
 
 function App(props: any) {

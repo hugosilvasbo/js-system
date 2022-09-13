@@ -3,6 +3,7 @@ import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import { toast, ToastContainer } from 'react-toastify';
 import CheckBoxPrime from '../../components/CheckBoxPrime';
 import FrameCadButtons from '../../components/FrameCadButtons';
 import InputPasswordPrime from '../../components/InputPasswordPrime';
@@ -29,35 +30,41 @@ export default class Pessoa extends React.Component {
 
     onClickSearch = async () => {
         try {
-            let resp = await axios.get(this.URL_PERSON);
-            this.setState({ data: resp.data });
+            let res = await axios.get(this.URL_PERSON);
+            this.setState({ data: res.data });
         } catch (error) {
-            console.log(error)
+            toast.error('Falha na consulta de pessoas!');
+            console.log({ personFail: error })
         }
     }
 
     onClickSave = async () => {
         try {
-            let resp = undefined;
+            let res = undefined;
 
             if (this.state.currentData._id !== undefined)
-                resp = await axios.patch(this.URL_PERSON + this.state.currentData._id, this.state.currentData)
+                res = await axios.patch(this.URL_PERSON + this.state.currentData._id, this.state.currentData)
             else
-                resp = await axios.post(this.URL_PERSON, this.state.currentData)
+                res = await axios.post(this.URL_PERSON, this.state.currentData)
 
-            console.log('Registro alterado/incluso!')
+            toast.success(res.data.message);
         } catch (error) {
-            console.log(error)
+            toast.error('' + error);
+            console.log({ errorSavePerson: error })
         }
     }
 
     onClickDelete = async () => {
         try {
             const res = await axios.delete(this.URL_PERSON + this.state.currentData._id);
-            console.log('Registro excluido!')
+            toast.success(res.data.message);
         } catch (error) {
-            console.log(error)
+            toast.error('' + error)
         }
+    }
+
+    onClickNew = () => {
+        toast.warning('Desenvolver...')
     }
 
     TabConsulta = () => {
@@ -148,7 +155,7 @@ export default class Pessoa extends React.Component {
         return (
             <>
                 <FrameCadButtons
-                    onClickNew={() => console.log('Desenvolver...')}
+                    onClickNew={() => this.onClickNew()}
                     onClickEdit={() => console.log('Desenvolver...')}
                     onClickSave={() => this.onClickSave()}
                     onClickDelete={() => this.onClickDelete()}
@@ -167,6 +174,7 @@ export default class Pessoa extends React.Component {
                         <this.TabDigitacao />
                     </TabPanel>
                 </Tabs>
+                <ToastContainer />
             </>
         )
     }
