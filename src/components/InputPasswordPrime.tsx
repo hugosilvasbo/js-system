@@ -3,9 +3,9 @@ import { Password } from 'primereact/password';
 interface IProps {
     id: string,
     title: string,
-    error?: string,
     value: string,
     onChange: any,
+    errorMessage?: string
 }
 
 const InputPasswordPrime = (props: IProps) => {
@@ -18,7 +18,11 @@ const InputPasswordPrime = (props: IProps) => {
                     id={'pass' + props.id}
                     value={props.value || ''}
                     onChange={(e) => props.onChange(e.target.value)} />
-                {props.error !== '' ? <small id={'err' + props.id} className="p-error block">{props.error}</small> : ''}
+                {props.errorMessage !== '' ?
+                    <small id={'err' + props.id} className="p-error block">
+                        {props.errorMessage}
+                    </small> : ''
+                }
             </div>
         </>
     )

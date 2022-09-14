@@ -3,7 +3,7 @@ import { InputText } from "primereact/inputtext";
 interface IProps {
     id: string,
     title: string,
-    error?: string,
+    errorMessage?: string,
     value: string,
     onChange: any
 }
@@ -20,7 +20,11 @@ const InputTextPrime = (props: IProps) => {
                     className="p-inputtext-sm block mb-2"
                     onChange={(e) => props.onChange(e.target.value)}
                 />
-                {props.error !== '' ? <small id={'err' + props.id} className="p-error block">{props.error}</small> : ''}
+                {props.errorMessage !== '' ?
+                    <small id={'err' + props.id} className="p-error block">
+                        {props.errorMessage}
+                    </small> : ''
+                }
             </div>
         </>
     )
