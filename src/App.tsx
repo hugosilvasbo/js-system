@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import 'react-tabs/style/react-tabs.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';
+import './style/vars.scss'
 
 function App(props: any) {
   const navigate = useNavigate();
@@ -33,21 +34,20 @@ function App(props: any) {
     }
   ]
 
-  const styleMenu = {
-    backgroundColor: "rgb(235 235 235)",
-    fontSize: "12px",
-    height: "44px"
-  }
-
   return (
-    <div className='main'>
-      <Menubar style={styleMenu} model={menuitems} />
-      <div className='content'>
-        {props.children}
-      </div>
-      <div className='box'>
+    <div id='main_index'>
+      <Menubar
+        style={{
+          backgroundColor: "#f1f1f1",
+          fontSize: "12px",
+          height: "44px"
+        }}
+        model={menuitems}
+      />
+      <div className='content'>{props.children}</div>
+      <footer>
         JS System - 2022 - Todos os direitos autorais reservados
-      </div>
+      </footer>
     </div>
   );
 

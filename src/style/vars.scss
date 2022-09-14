@@ -1,3 +1,9 @@
+.h-100 {
+    height: 100%;
+    background-color: red;
+}
+
+//*** flex
 .flex-r {
     display: flex;
     flex-direction: row;
@@ -6,4 +12,13 @@
 .flex-c {
     display: flex;
     flex-direction: column;
+}
+
+//*** box shadow
+.bx_1 {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+}
+
+.bx_2 {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 30px;
 }

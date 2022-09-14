@@ -4,13 +4,14 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { toast, ToastContainer } from 'react-toastify';
+import constantes from '../../assets/jsConstantes.json';
 import CheckBoxPrime from '../../components/CheckBoxPrime';
 import FrameCadButtons from '../../components/FrameCadButtons';
 import InputPasswordPrime from '../../components/InputPasswordPrime';
 import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
-import constantes from '../../storage/jsConstantes.json';
 import '../../style/pessoa.scss';
+import '../../style/vars.scss';
 
 export default class Pessoa extends React.Component {
     URL_PERSON = constantes.url_api_barber + 'person/';
@@ -47,7 +48,7 @@ export default class Pessoa extends React.Component {
             else
                 res = await axios.post(this.URL_PERSON, this.state.currentData)
 
-            console.log({respSave: res})
+            console.log({ respSave: res })
             toast.success(res.data.message);
         } catch (error) {
             toast.error('' + error);
@@ -70,20 +71,18 @@ export default class Pessoa extends React.Component {
 
     TabConsulta = () => {
         return (
-            <>
-                <TableBootstrap
-                    title={["Nome", "E-Mail", "Celular"]}
-                    data={this.state.data}
-                    column={["name", "email", "cellphone"]}
-                    onItemClick={(e: any) => this.setState({ currentData: e })}
-                />
-            </>
+            <TableBootstrap
+                title={["Nome", "E-Mail", "Celular"]}
+                data={this.state.data}
+                column={["name", "email", "cellphone"]}
+                onItemClick={(e: any) => this.setState({ currentData: e })}
+            />
         )
     }
 
     TabDigitacao = () => {
         return (
-            <div>
+            <div className='bx_1'>
                 <Container fluid>
                     <Row>
                         <Col>
@@ -104,6 +103,8 @@ export default class Pessoa extends React.Component {
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, email: e } }))}
                             />
                         </Col>
+                    </Row>
+                    <Row>
                         <Col>
                             <InputTextPrime
                                 id={'Tel'}
@@ -122,7 +123,9 @@ export default class Pessoa extends React.Component {
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, cellphone: e } }))}
                             />
                         </Col>
-                        <Col>
+                    </Row>
+                    <Row>
+                        <Col sm>
                             <InputTextPrime
                                 id={'User'}
                                 title={'Usuario'}
@@ -131,7 +134,7 @@ export default class Pessoa extends React.Component {
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, user: e } }))}
                             />
                         </Col>
-                        <Col>
+                        <Col sm>
                             <InputPasswordPrime
                                 id='Password'
                                 title='Senha'
@@ -139,16 +142,19 @@ export default class Pessoa extends React.Component {
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, password: e } }))}
                             />
                         </Col>
-                        <Col>
+                    </Row>
+                    <Row>
+                        <Col sm>
                             <CheckBoxPrime
                                 caption='Resetar senha'
-                                checked={true}
+                                checked={this.state.currentData.passwordReseted}
                                 onChange={(e: boolean) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, passwordReseted: e } }))}
                             />
                         </Col>
                     </Row>
                 </Container>
-            </div>
+
+            </div >
         )
     }
 
