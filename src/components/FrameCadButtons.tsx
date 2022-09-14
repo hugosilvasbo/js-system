@@ -9,22 +9,49 @@ interface IProps {
     onSearch?: any
 }
 
-const style = {
-    display: 'flex',
-    justifyContent: 'end',
-    padding: '4px'
-}
-
 const FrameCadButtons = (props: IProps) => {
+    const craftButtons = [
+        {
+            icon: 'pi pi-user-plus',
+            onClick: props.onClickNew,
+            className: 'p-button-secondary ms-2 p-button-sm'
+        },
+        {
+            icon: 'pi pi-pencil',
+            onClick: props.onClickEdit,
+            className: 'p-button-secondary ms-2 p-button-sm'
+        },
+        {
+            icon: 'pi pi-trash',
+            onClick: props.onClickDelete,
+            className: 'p-button-danger ms-2 p-button-sm'
+        },
+        {
+            icon: 'pi pi-check',
+            onClick: props.onClickSave,
+            className: 'p-button-warning ms-2 p-button-sm',
+        },
+        {
+            icon: 'pi pi-undo',
+            onClick: props.onClickCancel,
+            className: 'p-button-warning ms-2 p-button-sm'
+        },
+        {
+            icon: 'pi pi-search',
+            onClick: props.onSearch,
+            className: 'p-button-primary ms-2 p-button-sm'
+        }
+    ]
+
     return (
         <>
-            <div style={style}>
-                {props.onClickNew ? <Button icon="pi pi-user-plus" className="p-button-secondary ms-2 p-button-sm" onClick={() => props.onClickNew()} /> : ''}
-                {props.onClickEdit ? <Button icon="pi pi-pencil" className="p-button-secondary ms-2 p-button-sm" onClick={() => props.onClickEdit()} /> : ''}
-                {props.onClickDelete ? <Button icon="pi pi-trash" className="p-button-secondary ms-2 p-button-sm" onClick={() => props.onClickDelete()} /> : ''}
-                {props.onClickSave ? <Button icon="pi pi-check" className="p-button-danger ms-2 p-button-sm" onClick={() => props.onClickSave()} /> : ''}
-                {props.onClickCancel ? <Button icon="pi pi-undo" className="p-button-danger ms-2 p-button-sm" onClick={() => props.onClickCancel()} /> : ''}
-                {props.onSearch ? <Button icon="pi pi-search" className="ms-2 p-button-sm" onClick={() => props.onSearch()} /> : ''}
+            <div style={{ display: 'flex', justifyContent: 'end', padding: '4px' }}>
+                {
+                    craftButtons.map((b: any) => {
+                        return b.onClick ?
+                            <Button icon={b.icon} className={b.className} onClick={() => b.onClick()} /> : ''
+                    })
+                }
             </div>
         </>
     )
