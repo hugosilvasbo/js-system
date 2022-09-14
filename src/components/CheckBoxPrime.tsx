@@ -11,7 +11,10 @@ const CheckBoxPrime = (props: IProps) => {
         <>
             <div className="field-checkbox d-flex flex-column mb-3">
                 <label htmlFor="binary">{props.caption}</label>
-                <Checkbox inputId="binary" checked={props.checked} onChange={e => props.onChange(e.checked)} />
+                <Checkbox
+                    inputId="binary"
+                    checked={!!props.checked}
+                    onChange={e => props.onChange(e.checked)} />
             </div>
         </>
     )

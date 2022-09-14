@@ -48,7 +48,6 @@ export default class Pessoa extends React.Component {
             else
                 res = await axios.post(this.URL_PERSON, this.state.currentData)
 
-            console.log({ respSave: res })
             toast.success(res.data.message);
         } catch (error) {
             toast.error('' + error);
@@ -66,7 +65,7 @@ export default class Pessoa extends React.Component {
     }
 
     onClickNew = () => {
-        toast.warning('Desenvolver...')
+        this.setState({ currentData: [{}]})
     }
 
     TabConsulta = () => {
@@ -89,7 +88,7 @@ export default class Pessoa extends React.Component {
                             <InputTextPrime
                                 id={'Name'}
                                 title={'Nome'}
-                                defaultValue={this.state.currentData.name}
+                                value={this.state.currentData.name}
                                 error={this.state.validation.name}
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, name: e } }))}
                             />
@@ -98,7 +97,7 @@ export default class Pessoa extends React.Component {
                             <InputTextPrime
                                 id={'Email'}
                                 title={'E-Mail'}
-                                defaultValue={this.state.currentData.email}
+                                value={this.state.currentData.email}
                                 error={this.state.validation.email}
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, email: e } }))}
                             />
@@ -109,7 +108,7 @@ export default class Pessoa extends React.Component {
                             <InputTextPrime
                                 id={'Tel'}
                                 title={'Telefone'}
-                                defaultValue={this.state.currentData.telephone}
+                                value={this.state.currentData.telephone}
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, telephone: e } }))}
                                 error={this.state.validation.tel}
                             />
@@ -118,7 +117,7 @@ export default class Pessoa extends React.Component {
                             <InputTextPrime
                                 id={'Cel'}
                                 title={'Celular'}
-                                defaultValue={this.state.currentData.cellphone}
+                                value={this.state.currentData.cellphone}
                                 error={this.state.validation.cel}
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, cellphone: e } }))}
                             />
@@ -129,7 +128,7 @@ export default class Pessoa extends React.Component {
                             <InputTextPrime
                                 id={'User'}
                                 title={'Usuario'}
-                                defaultValue={this.state.currentData.cellphone}
+                                value={this.state.currentData.user}
                                 error={this.state.validation.user}
                                 onChange={(e: string) => this.setState((prev: any) => ({ ...prev, currentData: { ...prev.currentData, user: e } }))}
                             />

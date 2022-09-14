@@ -4,7 +4,7 @@ interface IProps {
     id: string,
     title: string,
     error?: string,
-    defaultValue: string,
+    value: string,
     onChange: any
 }
 
@@ -15,7 +15,7 @@ const InputTextPrime = (props: IProps) => {
                 <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
                 <InputText
                     id={'inpt' + props.id}
-                    defaultValue={props.defaultValue}
+                    value={props.value || ''}
                     aria-describedby={'err' + props.id}
                     className="p-inputtext-sm block mb-2"
                     onChange={(e) => props.onChange(e.target.value)}

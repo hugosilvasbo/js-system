@@ -16,7 +16,7 @@ const InputPasswordPrime = (props: IProps) => {
                 <Password
                     feedback={false}
                     id={'pass' + props.id}
-                    value={props.value}
+                    value={props.value || ''}
                     onChange={(e) => props.onChange(e.target.value)} />
                 {props.error !== '' ? <small id={'err' + props.id} className="p-error block">{props.error}</small> : ''}
             </div>
