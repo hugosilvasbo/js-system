@@ -4,8 +4,7 @@ interface IProps {
     id: string,
     title: string,
     value: string,
-    onChange: any,
-    errorMessage?: string
+    onChange: any
 }
 
 const InputPasswordPrime = (props: IProps) => {
@@ -18,10 +17,10 @@ const InputPasswordPrime = (props: IProps) => {
                     id={'pass' + props.id}
                     value={props.value || ''}
                     onChange={(e) => props.onChange(e.target.value)} />
-                {props.errorMessage !== '' ?
+                {/*props.errorMessage !== '' ?
                     <small id={'err' + props.id} className="p-error block">
                         {props.errorMessage}
-                    </small> : ''
+                    </small> : ''*/
                 }
             </div>
         </>

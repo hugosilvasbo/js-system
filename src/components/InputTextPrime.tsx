@@ -14,7 +14,7 @@ const InputTextPrime = (props: IProps) => {
             <div className="d-flex flex-column mb-3">
                 <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
                 <InputText
-                    id={'inpt' + props.id}
+                    id={props.id}
                     value={props.value || ''}
                     aria-describedby={'err' + props.id}
                     className="p-inputtext-sm block mb-2"
