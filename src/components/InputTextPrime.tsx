@@ -15,8 +15,9 @@ const InputTextPrime = (props: IProps) => {
             <label>{props.caption}</label>
             <InputText
                 autoComplete="off"
-                id={props.id}
+                autoFocus
                 className="p-inputtext-sm block mb-2"
+                id={props.id}
                 {...props.register}
             />
 
