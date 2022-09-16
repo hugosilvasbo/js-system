@@ -85,14 +85,16 @@ const Pessoa = () => {
                             <InputTextPrime
                                 caption='Nome'
                                 register={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
-                                errors={errors} id={'name'}
+                                errors={errors} 
+                                id={'name'}
                             />
                         </Col>
                         <Col>
                             <InputTextPrime
                                 caption='E-Mail'
                                 register={{ ...register('email', { required: 'E-Mail é obrigatório!' }) }}
-                                errors={errors} id={'email'}
+                                errors={errors} 
+                                id={'email'}
                             />
                         </Col>
                     </Row>
@@ -101,7 +103,8 @@ const Pessoa = () => {
                             <InputTextPrime
                                 caption='Telefone'
                                 register={{ ...register('telephone') }}
-                                errors={errors} id={'telephone'}
+                                errors={errors} 
+                                id={'telephone'}
                             />
                         </Col>
                         <Col>
