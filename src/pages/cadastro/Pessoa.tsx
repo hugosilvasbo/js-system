@@ -1,4 +1,6 @@
+import { ErrorMessage } from '@hookform/error-message/dist';
 import axios from 'axios';
+import { Button } from "primereact/button";
 import { InputText } from 'primereact/inputtext';
 import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
@@ -8,101 +10,146 @@ import 'react-tabs/style/react-tabs.css';
 import { toast, ToastContainer } from 'react-toastify';
 import constantes from '../../assets/jsConstantes.json';
 import FrameCadButtons from '../../components/FrameCadButtons';
+import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
 import '../../style/pessoa.scss';
 import '../../style/vars.scss';
+import InputPasswordPrime from './../../components/InputPasswordPrime';
 
 const Pessoa = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm()
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm()
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [data, setData] = useState({});
-    const [currentData, setCurrentData] = useState({} as any);
 
     const onClickSearch = async () => {
         try {
             let res = await axios.get(URL_PERSON);
             setData(res.data)
         } catch (error) {
-            toast.error('Falha na consulta de pessoas!');
+            toast.error('Falha na consulta!');
             console.log({ personFail: error })
         }
     }
 
-    const onClickSave = async () => {
+    const onSubmit = async (data: any) => {
         try {
             let res = null;
 
-            if (currentData._id)
-                res = await axios.patch(URL_PERSON + currentData._id, currentData)
+            if (data._id)
+                res = await axios.patch(URL_PERSON + data._id, data)
             else
-                res = await axios.post(URL_PERSON, currentData)
+                res = await axios.post(URL_PERSON, data)
 
             toast.success(res.data.message)
         } catch (error) {
             toast.error('' + error);
-            console.log({ errorSavePerson: error })
         }
     }
 
     const onClickDelete = async () => {
-        try {
-            const res = await axios.delete(URL_PERSON + currentData._id);
+        /*try {
+            const res = await axios.delete(URL_PERSON + filterData._id);
             toast.success(res.data.message);
         } catch (error) {
             toast.error('' + error)
-        }
+        }*/
     }
 
-    const onClickNew = () => {
-        setCurrentData([{}])
+    const TabConsulta = () => {
+        return <>
+            <Button icon="pi pi-search" onClick={() => onClickSearch()} />
+            <TableBootstrap
+                column={["name", "email", "cellphone"]}
+                data={data}
+                onItemClick={(state: any) => setValue('name', 'teste')}
+                title={["Nome", "E-Mail", "Celular"]}
+            />
+        </>
+    }
+
+    const TabDigitacao = () => {
+        return <>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <FrameCadButtons
+                    onClickNew={() => { }}
+                    onClickEdit={() => console.log('Desenvolver...')}
+                    onClickSave={() => console.log('Save clicked')}
+                    onClickDelete={() => onClickDelete()}
+                    onClickCancel={() => console.log('Desenvolver...')}
+                />
+                <Container fluid>
+                    <Row>
+                        <Col>
+                            <InputTextPrime
+                                caption='Nome'
+                                register={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
+                                errors={errors} id={'name'}
+                            />
+                        </Col>
+                        <Col>
+                            <InputTextPrime
+                                caption='E-Mail'
+                                register={{ ...register('email', { required: 'E-Mail é obrigatório!' }) }}
+                                errors={errors} id={'email'}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <InputTextPrime
+                                caption='Telefone'
+                                register={{ ...register('telephone') }}
+                                errors={errors} id={'telephone'}
+                            />
+                        </Col>
+                        <Col>
+                            <InputTextPrime
+                                caption='Celular'
+                                register={{ ...register('cellphone') }}
+                                errors={errors}
+                                id={'cellphone'}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <InputTextPrime
+                                caption='Usuário'
+                                register={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
+                                errors={errors}
+                                id={'user'} />
+                        </Col>
+                        <Col>
+                            <InputPasswordPrime
+                                caption='Senha'
+                                register={{ ...register('password') }}
+                                error={errors.password?.message}
+                                id={'password'} />
+                        </Col>
+                        {/** Ainda não foram inclusos os checkbox's. */}
+                    </Row>
+                </Container>
+            </form >
+        </>
     }
 
     return (
         <>
-            <FrameCadButtons
-                onClickNew={() => onClickNew()}
-                onClickEdit={() => console.log('Desenvolver...')}
-                onClickSave={() => onClickSave()}
-                onClickDelete={() => onClickDelete()}
-                onClickCancel={() => console.log('Desenvolver...')}
-                onSearch={() => onClickSearch()}
-            />
             <Tabs>
                 <TabList>
                     <Tab>Consulta</Tab>
                     <Tab>Digitação</Tab>
                 </TabList>
-                <TabPanel >
-                    <TableBootstrap
-                        title={["Nome", "E-Mail", "Celular"]}
-                        data={data}
-                        column={["name", "email", "cellphone"]}
-                        onItemClick={(e: any) => setCurrentData({ e })}
-                    />
+                <TabPanel>
+                    <TabConsulta />
                 </TabPanel>
                 <TabPanel>
-                    <form onSubmit={handleSubmit(data => console.log({ dataform: data }))}>
-                        <Container fluid>
-                            <Row>
-                                <Col>
-                                    <InputText
-                                        id={'name'}
-                                        className="p-inputtext-sm block mb-2"
-                                        {...register('name', { required: 'Campo obrigatório!' })}
-                                    />
-                                    <span id='errorname' className='p-error block'>
-                                        <>{errors.name?.message}</>
-                                    </span>
-                                </Col>
-                            </Row>
-                            <button>Teste...</button>
-                        </Container>
-                    </form>
+                    <TabDigitacao />
                 </TabPanel>
-            </Tabs>
-            <ToastContainer />
+                <ToastContainer />
+            </Tabs >
         </>
     )
 }

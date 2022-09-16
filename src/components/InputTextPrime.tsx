@@ -1,33 +1,33 @@
 import { InputText } from "primereact/inputtext";
+import { ErrorMessage } from '@hookform/error-message/dist';
 
 interface IProps {
-    id: string,
-    title: string,
-    errorMessage?: string,
-    value: string,
-    onChange: any
+    caption: string,
+    register: any,
+    errors: any,
+    id?: any,
+    value?: any
 }
 
 const InputTextPrime = (props: IProps) => {
     return (
-        <>
-            <div className="d-flex flex-column mb-3">
-                <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
-                <InputText
-                    id={props.id}
-                    value={props.value || ''}
-                    aria-describedby={'err' + props.id}
-                    className="p-inputtext-sm block mb-2"
-                    onChange={(e) => props.onChange(e.target.value)}
-                />
-                {props.errorMessage !== '' ?
-                    <small id={'err' + props.id} className="p-error block">
-                        {props.errorMessage}
-                    </small> : ''
-                }
-            </div>
-        </>
+        <div className="d-flex flex-column mb-3">
+            <label>{props.caption}</label>
+            <InputText
+                autoComplete="off"
+                id={props.id}
+                className="p-inputtext-sm block mb-2"
+                {...props.register}
+            />
+
+            <ErrorMessage
+                errors={props.errors}
+                name={props.id}
+                render={({ message }: any) => <small>{message}</small>}
+            />
+        </div>
     )
+
 }
 
 export default InputTextPrime;

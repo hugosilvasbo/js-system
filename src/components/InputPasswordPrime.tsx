@@ -1,27 +1,26 @@
 import { Password } from 'primereact/password';
 
 interface IProps {
-    id: string,
-    title: string,
-    value: string,
-    onChange: any
+    caption: string,
+    register: any,
+    error: any,
+    id: string
 }
 
 const InputPasswordPrime = (props: IProps) => {
     return (
         <>
             <div className="d-flex flex-column mb-3">
-                <label htmlFor={'lbl' + props.id} className="block">{props.title}</label>
+                <label>{props.caption}</label>
                 <Password
+                    inputStyle={{ width: "100%" }}
+                    style={{ width: "100%" }}
+                    id={props.id}
                     feedback={false}
-                    id={'pass' + props.id}
-                    value={props.value || ''}
-                    onChange={(e) => props.onChange(e.target.value)} />
-                {/*props.errorMessage !== '' ?
-                    <small id={'err' + props.id} className="p-error block">
-                        {props.errorMessage}
-                    </small> : ''*/
-                }
+                    className="p-inputtext-sm block mb-2"
+                    {...props.register}
+                />
+                <small className="p-error block">{props.error}</small>
             </div>
         </>
     )
