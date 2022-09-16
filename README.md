@@ -13,3 +13,9 @@ https://stackoverflow.com/questions/62861269/attempted-import-error-usehistory-i
 
 ******** ANOTACOES
 Trocar porta: $env:PORT=5000
+
+------ Pendencias cadastro de pessoas
+* Incluir os checkbox's
+* Controlar password com o hook form
+* Controlar visibilidade dos botões conforme status atual (Desenvolver com enum)
+* Incluir modal validation, exemplo botão excluir
