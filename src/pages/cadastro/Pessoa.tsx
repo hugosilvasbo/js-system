@@ -11,7 +11,6 @@ import constantes from '../../assets/jsConstantes.json';
 import FrameCadButtons from '../../components/FrameCadButtons';
 import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
-import '../../style/pessoa.scss';
 import '../../style/vars.scss';
 import InputPasswordPrime from './../../components/InputPasswordPrime';
 
@@ -78,14 +77,7 @@ const Pessoa = () => {
 
     const TabDigitacao = () => {
         return <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <FrameCadButtons
-                    onClickNew={() => { }}
-                    onClickEdit={() => console.log('Desenvolver...')}
-                    onClickSave={() => { }}
-                    onClickDelete={() => onClickDelete()}
-                    onClickCancel={() => { }}
-                />
+            <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
                 <Container fluid>
                     <Row>
                         <Col>
@@ -147,19 +139,35 @@ const Pessoa = () => {
 
     return (
         <>
-            <Tabs>
-                <TabList>
-                    <Tab>Consulta</Tab>
-                    <Tab>Digitação</Tab>
-                </TabList>
-                <TabPanel>
-                    <TabConsulta />
-                </TabPanel>
-                <TabPanel>
-                    <TabDigitacao />
-                </TabPanel>
-                <ToastContainer />
-            </Tabs >
+            <Container fluid>
+                <Row>
+                    <Col md="auto">
+                        <FrameCadButtons
+                            onClickNew={() => { }}
+                            onClickEdit={() => console.log('Desenvolver...')}
+                            onClickSave={{ event: () => console.log('Save clicked'), formControl: 'formdigitacao' }}
+                            onClickDelete={() => onClickDelete()}
+                            onClickCancel={() => console.log('Desenvolver...')}
+                        />
+                    </Col>
+                    <Col style={{ width: 100, height: 100 }}>
+                        <Tabs>
+                            <TabList>
+                                <Tab>Consulta</Tab>
+                                <Tab>Digitação</Tab>
+                            </TabList>
+                            <TabPanel>
+                                <TabConsulta />
+                            </TabPanel>
+                            <TabPanel>
+                                <TabDigitacao />
+                            </TabPanel>
+                            <ToastContainer />
+                        </Tabs >
+                    </Col>
+                </Row>
+            </Container>
+
         </>
     )
 }
