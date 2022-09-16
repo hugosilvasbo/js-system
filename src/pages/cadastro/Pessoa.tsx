@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash';
 import { Button } from "primereact/button";
 import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
@@ -15,7 +16,14 @@ import '../../style/vars.scss';
 import InputPasswordPrime from './../../components/InputPasswordPrime';
 
 const Pessoa = () => {
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm()
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        getValues,
+        formState: { errors }
+    } = useForm()
+
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
@@ -47,12 +55,12 @@ const Pessoa = () => {
     }
 
     const onClickDelete = async () => {
-        /*try {
-            const res = await axios.delete(URL_PERSON + filterData._id);
+        try {
+            const res = await axios.delete(URL_PERSON + getValues('_id'));
             toast.success(res.data.message);
         } catch (error) {
             toast.error('' + error)
-        }*/
+        }
     }
 
     const TabConsulta = () => {
@@ -61,7 +69,7 @@ const Pessoa = () => {
             <TableBootstrap
                 column={["name", "email", "cellphone"]}
                 data={data}
-                onItemClick={(state: any) => setValue('name', 'teste')}
+                onItemClick={(obj: any) => _.mapValues(obj, (o: any, key: string) => { setValue(key, o) })}
                 title={["Nome", "E-Mail", "Celular"]}
             />
         </>
@@ -83,7 +91,7 @@ const Pessoa = () => {
                             <InputTextPrime
                                 caption='Nome'
                                 register={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
-                                errors={errors} 
+                                errors={errors}
                                 id={'name'}
                             />
                         </Col>
@@ -91,7 +99,7 @@ const Pessoa = () => {
                             <InputTextPrime
                                 caption='E-Mail'
                                 register={{ ...register('email', { required: 'E-Mail é obrigatório!' }) }}
-                                errors={errors} 
+                                errors={errors}
                                 id={'email'}
                             />
                         </Col>
@@ -101,7 +109,7 @@ const Pessoa = () => {
                             <InputTextPrime
                                 caption='Telefone'
                                 register={{ ...register('telephone') }}
-                                errors={errors} 
+                                errors={errors}
                                 id={'telephone'}
                             />
                         </Col>
