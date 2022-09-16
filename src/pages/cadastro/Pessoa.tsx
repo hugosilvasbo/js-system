@@ -41,6 +41,7 @@ const Pessoa = () => {
 
     const onSubmit = async (data: any) => {
         try {
+            console.log({ dataSubmit: data })
             let res = null;
 
             if (data._id)
@@ -81,9 +82,9 @@ const Pessoa = () => {
                 <FrameCadButtons
                     onClickNew={() => { }}
                     onClickEdit={() => console.log('Desenvolver...')}
-                    onClickSave={() => console.log('Save clicked')}
+                    onClickSave={() => { }}
                     onClickDelete={() => onClickDelete()}
-                    onClickCancel={() => console.log('Desenvolver...')}
+                    onClickCancel={() => { }}
                 />
                 <Container fluid>
                     <Row>
