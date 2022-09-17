@@ -1,14 +1,16 @@
 import { Button } from "primereact/button";
+import { Container, Row } from 'react-bootstrap';
 
 interface IProps {
     onClickNew?: any,
     onClickEdit?: any,
     onClickDelete?: any,
     onClickSave?: {
-        event?: any,
+        onClick?: any,
         formControl?: string
     }
-    onClickCancel?: any
+    onClickCancel?: any,
+    onClickSearch?: any
 }
 
 const FrameCadButtons = (props: IProps) => {
@@ -16,55 +18,62 @@ const FrameCadButtons = (props: IProps) => {
         {
             icon: 'pi pi-user-plus',
             onClick: props.onClickNew,
-            className: 'p-button-secondary p-button-sm',
             type: 'reset',
             key: 'new_button'
         },
         {
             icon: 'pi pi-pencil',
             onClick: props.onClickEdit,
-            className: 'p-button-secondary p-button-sm',
             type: 'button',
             key: 'edit_button'
         },
         {
             icon: 'pi pi-trash',
             onClick: props.onClickDelete,
-            className: 'p-button-danger p-button-sm',
             type: 'button',
             key: 'delete_button'
         },
         {
             icon: 'pi pi-check',
-            onClick: props.onClickSave,
-            className: 'p-button-primary p-button-sm',
+            onClick: props.onClickSave?.onClick,
             type: 'submit',
-            key: 'save_button'
+            key: 'save_button',
+            formcontrol: props.onClickSave?.formControl
         },
         {
             icon: 'pi pi-undo',
             onClick: props.onClickCancel,
-            className: 'p-button-primary p-button-sm',
             type: 'reset',
             key: 'undo_button'
+        },
+        {
+            icon: 'pi pi-search',
+            onClick: props.onClickSearch,
+            type: 'button',
+            key: 'search_button'
         }
     ]
 
     return (
-        <div className="d-flex flex-column">
+        <Container>
             {
                 craftButtons.map((b: any) => {
                     return b.onClick ?
-                        <Button
-                            type={b.type}
-                            icon={b.icon}
-                            className={b.className}
-                            key={b.key}
-                            form={b.formControl}
-                            onClick={() => b.onClick()} /> : ''
+                        <Row key={'btnrow_' + b.key}>
+                            <Button
+                                type={b.type}
+                                icon={b.icon}
+                                className={'p-button-secondary p-button-sm'}
+                                key={b.key}
+                                form={b.formcontrol}
+                                style={{ marginBottom: '0.4rem' }}
+                                onClick={() => b.onClick()} />
+                        </Row>
+                        : ''
                 })
             }
-        </div>
+
+        </Container>
     )
 }
 

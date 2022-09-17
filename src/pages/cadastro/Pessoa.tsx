@@ -1,13 +1,13 @@
 import axios from 'axios';
 import _ from 'lodash';
-import { Button } from "primereact/button";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { toast, ToastContainer } from 'react-toastify';
 import constantes from '../../assets/jsConstantes.json';
+import ConfirmDialogPrime from '../../components/ConfirmDialogPrime';
 import FrameCadButtons from '../../components/FrameCadButtons';
 import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
@@ -20,13 +20,35 @@ const Pessoa = () => {
         handleSubmit,
         setValue,
         getValues,
+        reset,
         formState: { errors }
     } = useForm()
-
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [data, setData] = useState({});
+    const [openDialogDelete, setOpenDialogDelete] = useState(false);
+    const [deletePerson, setDeletePerson] = useState(false);
+
+    useEffect(() => {
+        if (!deletePerson) return;
+
+        axios.delete(URL_PERSON + getValues('_id'))
+            .then((res: any) => {
+                toast.success(res.data.message);
+            })
+            .catch((e: any) => {
+                toast.error('' + e)
+            })
+            .finally(() => {
+                setDeletePerson(false);
+                setOpenDialogDelete(false);
+            })
+    }, [deletePerson])
+
+    const onClickNew = () => {
+        reset({ password_reseted: true });
+    }
 
     const onClickSearch = async () => {
         try {
@@ -34,13 +56,11 @@ const Pessoa = () => {
             setData(res.data)
         } catch (error) {
             toast.error('Falha na consulta!');
-            console.log({ personFail: error })
         }
     }
 
     const onSubmit = async (data: any) => {
         try {
-            console.log({ dataSubmit: data })
             let res = null;
 
             if (data._id)
@@ -55,17 +75,11 @@ const Pessoa = () => {
     }
 
     const onClickDelete = async () => {
-        try {
-            const res = await axios.delete(URL_PERSON + getValues('_id'));
-            toast.success(res.data.message);
-        } catch (error) {
-            toast.error('' + error)
-        }
+        setOpenDialogDelete(true);
     }
 
     const TabConsulta = () => {
         return <>
-            <Button icon="pi pi-search" onClick={() => onClickSearch()} />
             <TableBootstrap
                 column={["name", "email", "cellphone"]}
                 data={data}
@@ -141,16 +155,7 @@ const Pessoa = () => {
         <>
             <Container fluid>
                 <Row>
-                    <Col md="auto">
-                        <FrameCadButtons
-                            onClickNew={() => { }}
-                            onClickEdit={() => console.log('Desenvolver...')}
-                            onClickSave={{ event: () => console.log('Save clicked'), formControl: 'formdigitacao' }}
-                            onClickDelete={() => onClickDelete()}
-                            onClickCancel={() => console.log('Desenvolver...')}
-                        />
-                    </Col>
-                    <Col style={{ width: 100, height: 100 }}>
+                    <Col>
                         <Tabs>
                             <TabList>
                                 <Tab>Consulta</Tab>
@@ -165,9 +170,26 @@ const Pessoa = () => {
                             <ToastContainer />
                         </Tabs >
                     </Col>
+                    <Col md="auto">
+                        <FrameCadButtons
+                            onClickNew={() => onClickNew()}
+                            onClickEdit={() => console.log('Desenvolver...')}
+                            onClickSave={{ onClick: () => console.log('Save clicked'), formControl: 'formdigitacao' }}
+                            onClickDelete={() => onClickDelete()}
+                            onClickCancel={() => console.log('Desenvolver...')}
+                            onClickSearch={() => onClickSearch()}
+                        />
+                    </Col>
                 </Row>
             </Container>
-
+            <ConfirmDialogPrime
+                visible={openDialogDelete}
+                yes={() => setDeletePerson(true)}
+                no={() => setOpenDialogDelete(false)}
+                message={'Excluir pessoa ?'}
+                header={'Excluir pessoa'}
+                hide={openDialogDelete}  arrumar isso aqui...
+            />
         </>
     )
 }
