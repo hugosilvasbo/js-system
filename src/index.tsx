@@ -7,6 +7,7 @@ import Pessoa from './pages/cadastro/Pessoa';
 import Home from './pages/Home';
 import PedidoVenda from './pages/venda/Pedido';
 import './style/index.scss';
+import "antd/dist/antd.css";
 
 const container = document.getElementById('root');
 const root = createRoot(container!);

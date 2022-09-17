@@ -7,12 +7,12 @@ import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { toast, ToastContainer } from 'react-toastify';
 import constantes from '../../assets/jsConstantes.json';
+import InputText from '../../components/antdesign/InputText';
 import ConfirmDialogPrime from '../../components/ConfirmDialogPrime';
 import FrameCadButtons from '../../components/FrameCadButtons';
-import InputTextPrime from '../../components/InputTextPrime';
 import TableBootstrap from '../../components/TableBootstrap';
 import '../../style/vars.scss';
-import InputPasswordPrime from './../../components/InputPasswordPrime';
+import InputPassword from './../../components/antdesign/InputPassword';
 
 const Pessoa = () => {
     const {
@@ -21,13 +21,14 @@ const Pessoa = () => {
         setValue,
         getValues,
         reset,
+        control,
         formState: { errors }
     } = useForm()
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [data, setData] = useState({});
-    
+
     const [openDialogDelete, setOpenDialogDelete] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
 
@@ -96,50 +97,60 @@ const Pessoa = () => {
                 <Container fluid>
                     <Row>
                         <Col>
-                            <InputTextPrime
+                            <InputText
                                 caption='Nome'
-                                register={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
-                                errors={errors}
+                                hookForm={{
+                                    register: { ...register('name', { required: 'Nome é obrigatório!' }) },
+                                    control: { control },
+                                    errors: { errors }
+                                }}
                                 id={'name'}
+
                             />
                         </Col>
                         <Col>
-                            <InputTextPrime
+                            <InputText
                                 caption='E-Mail'
-                                register={{ ...register('email', { required: 'E-Mail é obrigatório!' }) }}
-                                errors={errors}
+                                hookForm={{
+                                    register: { ...register('email', { required: 'E-Mail é obrigatório!' }) },
+                                    control: { control },
+                                    errors: { errors }
+                                }}
                                 id={'email'}
                             />
                         </Col>
                     </Row>
                     <Row>
                         <Col>
-                            <InputTextPrime
+                            <InputText
                                 caption='Telefone'
                                 register={{ ...register('telephone') }}
                                 errors={errors}
                                 id={'telephone'}
+                                control={control}
                             />
                         </Col>
                         <Col>
-                            <InputTextPrime
+                            <InputText
                                 caption='Celular'
                                 register={{ ...register('cellphone') }}
                                 errors={errors}
                                 id={'cellphone'}
+                                control={control}
                             />
                         </Col>
                     </Row>
                     <Row>
                         <Col>
-                            <InputTextPrime
+                            <InputText
                                 caption='Usuário'
                                 register={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
                                 errors={errors}
+                                control={control}
                                 id={'user'} />
                         </Col>
                         <Col>
-                            <InputPasswordPrime
+                            <InputPassword
                                 caption='Senha'
                                 register={{ ...register('password') }}
                                 error={errors.password?.message}

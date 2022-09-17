@@ -7,6 +7,7 @@ import 'react-tabs/style/react-tabs.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';
 import './style/vars.scss'
+import "antd/dist/antd.css";
 
 function App(props: any) {
   const navigate = useNavigate();
