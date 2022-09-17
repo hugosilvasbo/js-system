@@ -7,12 +7,13 @@ import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { toast, ToastContainer } from 'react-toastify';
 import constantes from '../../assets/jsConstantes.json';
-import InputText from '../../components/antdesign/InputText';
+import CheckBoxAntd from '../../components/antdesign/CheckBoxAntd';
+import InputPassword from '../../components/antdesign/InputPasswordAntd';
+import InputText from '../../components/antdesign/InputTextAntd';
 import ConfirmDialogPrime from '../../components/ConfirmDialogPrime';
 import FrameCadButtons from '../../components/FrameCadButtons';
 import TableBootstrap from '../../components/TableBootstrap';
 import '../../style/vars.scss';
-import InputPassword from './../../components/antdesign/InputPassword';
 
 const Pessoa = () => {
     const {
@@ -28,8 +29,7 @@ const Pessoa = () => {
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [data, setData] = useState({});
-
-    const [openDialogDelete, setOpenDialogDelete] = useState(false);
+    const [dialogDelete, setDialogDelete] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
 
     useEffect(() => {
@@ -48,7 +48,7 @@ const Pessoa = () => {
     }, [deletePerson])
 
     const onClickNew = () => {
-        reset({ password_reseted: true });
+        reset();
     }
 
     const onClickSearch = async () => {
@@ -76,8 +76,7 @@ const Pessoa = () => {
     }
 
     const onClickDelete = () => {
-        console.log('click delete')
-        setOpenDialogDelete(true);
+        setDialogDelete(true);
     }
 
     const TabConsulta = () => {
@@ -99,11 +98,9 @@ const Pessoa = () => {
                         <Col>
                             <InputText
                                 caption='Nome'
-                                hookForm={{
-                                    register: { ...register('name', { required: 'Nome é obrigatório!' }) },
-                                    control: { control },
-                                    errors: { errors }
-                                }}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
                                 id={'name'}
 
                             />
@@ -111,11 +108,9 @@ const Pessoa = () => {
                         <Col>
                             <InputText
                                 caption='E-Mail'
-                                hookForm={{
-                                    register: { ...register('email', { required: 'E-Mail é obrigatório!' }) },
-                                    control: { control },
-                                    errors: { errors }
-                                }}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('email') }}
                                 id={'email'}
                             />
                         </Col>
@@ -124,19 +119,19 @@ const Pessoa = () => {
                         <Col>
                             <InputText
                                 caption='Telefone'
-                                register={{ ...register('telephone') }}
-                                errors={errors}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('telephone') }}
                                 id={'telephone'}
-                                control={control}
                             />
                         </Col>
                         <Col>
                             <InputText
                                 caption='Celular'
-                                register={{ ...register('cellphone') }}
-                                errors={errors}
                                 id={'cellphone'}
-                                control={control}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('cellphone') }}
                             />
                         </Col>
                     </Row>
@@ -144,19 +139,31 @@ const Pessoa = () => {
                         <Col>
                             <InputText
                                 caption='Usuário'
-                                register={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
-                                errors={errors}
-                                control={control}
-                                id={'user'} />
+                                id={'user'}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
+                            />
                         </Col>
                         <Col>
                             <InputPassword
                                 caption='Senha'
-                                register={{ ...register('password') }}
-                                error={errors.password?.message}
-                                id={'password'} />
+                                id={'password'}
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormRegister={{ ...register('password', { required: 'Senha é obrigatória!' }) }}
+                            />
                         </Col>
-                        {/** Ainda não foram inclusos os checkbox's. */}
+                    </Row>
+                    <Row>
+                        <Col>
+                            <CheckBoxAntd
+                                caption='Restaurar acesso'
+                                id={'password_reseted'}
+                                hookFormControl={control}
+                                hookFormRegister={{ ...register('password_reseted') }}
+                            />
+                        </Col>
                     </Row>
                 </Container>
             </form >
@@ -195,12 +202,12 @@ const Pessoa = () => {
                 </Row>
             </Container>
             <ConfirmDialogPrime
-                visible={openDialogDelete}
+                visible={dialogDelete}
                 yes={() => setDeletePerson(true)}
-                no={() => setOpenDialogDelete(false)}
+                no={() => setDialogDelete(false)}
                 message={'Excluir pessoa ?'}
                 header={'Excluir pessoa'}
-                hide={() => setOpenDialogDelete(false)}
+                hide={() => setDialogDelete(false)}
             />
         </>
     )

@@ -3,11 +3,9 @@ import { Input } from 'antd';
 import { Controller } from 'react-hook-form';
 
 interface IProps {
-    hookForm: {
-        register: any,
-        errors: any,
-        control: any
-    }
+    hookFormRegister: any,
+    hookFormErrors: any,
+    hookFormControl: any,
     caption: string,
     id?: any
 }
@@ -15,16 +13,16 @@ interface IProps {
 const InputText = (props: IProps) => {
     return (
         <div className="d-flex flex-column mb-3">
-            <label>{props.caption}</label>
+            <small>{props.caption}</small>
             <Controller
-                control={props.control}
+                control={props.hookFormControl}
                 name={props.id}
-                {...props.register}
-                render={({ field: { name, ref, onBlur, onChange, value } }) => (
+                render={({ field: { name, onBlur, onChange, value } }) => (
                     <Input
+                        placeholder={props.caption}
                         autoComplete="off"
                         id={name}
-                        ref={ref}
+                        ref={{ ...props.hookFormRegister }}
                         onBlur={onBlur}
                         onChange={onChange}
                         value={value}
@@ -32,7 +30,7 @@ const InputText = (props: IProps) => {
                 )}
             />
             <ErrorMessage
-                errors={props.errors}
+                errors={props.hookFormErrors}
                 name={props.id}
                 render={({ message }: any) => <small>{message}</small>}
             />
