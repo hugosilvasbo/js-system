@@ -27,23 +27,23 @@ const Pessoa = () => {
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [data, setData] = useState({});
+    
     const [openDialogDelete, setOpenDialogDelete] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
 
     useEffect(() => {
-        if (!deletePerson) return;
-
-        axios.delete(URL_PERSON + getValues('_id'))
-            .then((res: any) => {
-                toast.success(res.data.message);
-            })
-            .catch((e: any) => {
-                toast.error('' + e)
-            })
-            .finally(() => {
-                setDeletePerson(false);
-                setOpenDialogDelete(false);
-            })
+        if (deletePerson) {
+            axios.delete(URL_PERSON + getValues('_id'))
+                .then((res: any) => {
+                    toast.success(res.data.message);
+                })
+                .catch((e: any) => {
+                    toast.error('' + e)
+                })
+                .finally(() => {
+                    setDeletePerson(false);
+                })
+        }
     }, [deletePerson])
 
     const onClickNew = () => {
@@ -74,7 +74,8 @@ const Pessoa = () => {
         }
     }
 
-    const onClickDelete = async () => {
+    const onClickDelete = () => {
+        console.log('click delete')
         setOpenDialogDelete(true);
     }
 
@@ -188,7 +189,7 @@ const Pessoa = () => {
                 no={() => setOpenDialogDelete(false)}
                 message={'Excluir pessoa ?'}
                 header={'Excluir pessoa'}
-                hide={openDialogDelete}  arrumar isso aqui...
+                hide={() => setOpenDialogDelete(false)}
             />
         </>
     )
