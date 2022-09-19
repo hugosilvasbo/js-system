@@ -1,11 +1,10 @@
-import { AppstoreOutlined, HomeOutlined, TagOutlined, TeamOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, CalendarOutlined, HomeOutlined, TagOutlined, TeamOutlined } from "@ant-design/icons";
 import "antd/dist/antd.css";
 import Menu from 'antd/lib/menu';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/nova-accent/theme.css';
 import { useNavigate } from 'react-router-dom';
-import 'react-tabs/style/react-tabs.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';
 import './style/vars.scss';
@@ -37,6 +36,9 @@ function App(props: any) {
             Item
           </Menu.Item>
         </Menu.SubMenu>
+        <Menu.Item key="mnagenda" onClick={() => navigate('/agenda')} icon={<CalendarOutlined />}>
+          Agenda
+        </Menu.Item>
       </Menu>
       <div className='content'>{props.children}</div>
       <footer>
