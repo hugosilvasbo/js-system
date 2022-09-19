@@ -6,7 +6,9 @@ interface IProps {
     visible: boolean,
     message: string,
     header: string,
-    hide: any
+    hide: any,
+    acceptLabel?: string,
+    rejectLabel?: string
 }
 
 const ConfirmDialogPrime = (props: IProps) => {
@@ -20,7 +22,10 @@ const ConfirmDialogPrime = (props: IProps) => {
                 header={props.header}
                 icon="pi pi-info-circle"
                 accept={props.yes}
-                reject={props.no} />
+                reject={props.no} 
+                acceptLabel={props.acceptLabel ? props.acceptLabel : 'Sim'}
+                rejectLabel={props.rejectLabel ? props.rejectLabel : 'Não'}
+                />
         </>
     )
 }

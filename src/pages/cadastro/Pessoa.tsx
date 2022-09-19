@@ -46,56 +46,6 @@ const Pessoa = () => {
     const [deletePerson, setDeletePerson] = useState(false);
     const [inEdition, setInEdition] = useState(false)
 
-    useEffect(() => {
-        if (deletePerson) {
-            axios.delete(URL_PERSON + getValues('person._id'))
-                .then((res: any) => {
-                    toast.success(res.data.message);
-                })
-                .catch((e: any) => {
-                    toast.error('' + e)
-                })
-                .finally(() => {
-                    setDeletePerson(false);
-                })
-        }
-    }, [deletePerson])
-
-    const onClickNew = () => {
-        setInEdition(true)
-        reset();
-    }
-
-    const onClickSearch = async () => {
-        try {
-            let res = await axios.get(URL_PERSON);
-            setDataSource(res.data)
-        } catch (error) {
-            toast.error('Falha na consulta!');
-        }
-    }
-
-    const onSubmit = async (data: any) => {
-        try {
-            let res = null;
-
-            if (data.person._id)
-                res = await axios.patch(URL_PERSON + data.person._id, data.person)
-            else
-                res = await axios.post(URL_PERSON, data.person)
-
-            toast.success(res.data.message)
-        } catch (error) {
-            toast.error('' + error);
-        } finally {
-            setInEdition(false)
-        }
-    }
-
-    const onClickDelete = () => {
-        setDialogDelete(true);
-    }
-
     const tableColumns = [
         {
             title: 'Nome',
@@ -115,112 +65,36 @@ const Pessoa = () => {
 
     ]
 
-    const TabConsulta = () => {
-        return <>
-            <Table
-                dataSource={dataSource}
-                columns={tableColumns}
-                onRow={(record) => { return { onClick: () => { setValue("person", record) } }; }}
-            />
-        </>
-    }
+    useEffect(() => {
+        if (deletePerson) {
+            axios.delete(URL_PERSON + getValues('person._id'))
+                .then((res: any) => {
+                    toast.success(res.data.message);
+                })
+                .catch((e: any) => {
+                    toast.error('' + e)
+                })
+                .finally(() => {
+                    setDeletePerson(false);
+                })
+        }
+    }, [deletePerson])
 
-    const TabDigitacao = () => {
-        return <>
-            <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
-                <Container fluid>
-                    <Row>
-                        <Col>
-                            <InputText
-                                caption='ID'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person._id'}
-                                hookFormRegister={{ ...register('person._id') }}
-                                disabled={true}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <InputText
-                                caption='Nome'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.name'}
-                                hookFormRegister={{ ...register('person.name', { required: 'Nome é obrigatório!' }) }}
-                                disabled={!inEdition}
-                            />
-                        </Col>
-                        <Col>
-                            <InputText
-                                caption='E-Mail'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.email'}
-                                hookFormRegister={{ ...register('person.email') }}
-                                disabled={!inEdition}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <InputText
-                                caption='Telefone'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.telephone'}
-                                hookFormRegister={{ ...register('person.telephone') }}
-                                disabled={!inEdition}
-                            />
-                        </Col>
-                        <Col>
-                            <InputText
-                                caption='Celular'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.cellphone'}
-                                hookFormRegister={{ ...register('person.cellphone') }}
-                                disabled={!inEdition}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <InputText
-                                caption='Usuário'
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.user'}
-                                disabled={!inEdition}
-                                hookFormRegister={{ ...register('person.user', { required: 'Usuário é obrigatório!' }) }}
-                            />
-                        </Col>
-                        <Col>
-                            <InputPassword
-                                caption='Senha'
-                                disabled={!inEdition}
-                                hookFormControl={control}
-                                hookFormErrors={errors}
-                                hookFormControlName={'person.password'}
-                                hookFormRegister={{ ...register('person.password', { required: 'Senha é obrigatória!' }) }}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <CheckBoxAntd
-                                caption='Restaurar acesso'
-                                hookFormControl={control}
-                                hookFormControlName={'person.password_reseted'}
-                                disabled={!inEdition}
-                                hookFormRegister={{ ...register('person.password_reseted') }}
-                            />
-                        </Col>
-                    </Row>
-                </Container>
-            </form >
-        </>
+    const onSubmit = async (data: any) => {
+        try {
+            let res = null;
+
+            if (data.person._id)
+                res = await axios.patch(URL_PERSON + data.person._id, data.person)
+            else
+                res = await axios.post(URL_PERSON, data.person)
+
+            toast.success(res.data.message)
+        } catch (error) {
+            toast.error('' + error);
+        } finally {
+            setInEdition(false)
+        }
     }
 
     return (
@@ -234,22 +108,137 @@ const Pessoa = () => {
                                 <Tab>Digitação</Tab>
                             </TabList>
                             <TabPanel>
-                                <TabConsulta />
+                                <Table
+                                    dataSource={dataSource}
+                                    columns={tableColumns}
+                                    onRow={(record) => { return { onClick: () => { setValue("person", record) } }; }}
+                                />
                             </TabPanel>
                             <TabPanel>
-                                <TabDigitacao />
+                                <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
+                                    <Container fluid>
+                                        <Row>
+                                            <Col>
+                                                <InputText
+                                                    caption='ID'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person._id'}
+                                                    hookFormRegister={{ ...register('person._id') }}
+                                                    disabled={true}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <InputText
+                                                    caption='Nome'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.name'}
+                                                    hookFormRegister={{ ...register('person.name', { required: 'Nome é obrigatório!' }) }}
+                                                    disabled={!inEdition}
+                                                />
+                                            </Col>
+                                            <Col>
+                                                <InputText
+                                                    caption='E-Mail'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.email'}
+                                                    hookFormRegister={{ ...register('person.email') }}
+                                                    disabled={!inEdition}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <InputText
+                                                    caption='Telefone'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.telephone'}
+                                                    hookFormRegister={{ ...register('person.telephone') }}
+                                                    disabled={!inEdition}
+                                                />
+                                            </Col>
+                                            <Col>
+                                                <InputText
+                                                    caption='Celular'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.cellphone'}
+                                                    hookFormRegister={{ ...register('person.cellphone') }}
+                                                    disabled={!inEdition}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <InputText
+                                                    caption='Usuário'
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.user'}
+                                                    disabled={!inEdition}
+                                                    hookFormRegister={{ ...register('person.user', { required: 'Usuário é obrigatório!' }) }}
+                                                />
+                                            </Col>
+                                            <Col>
+                                                <InputPassword
+                                                    caption='Senha'
+                                                    disabled={!inEdition}
+                                                    hookFormControl={control}
+                                                    hookFormErrors={errors}
+                                                    hookFormControlName={'person.password'}
+                                                    hookFormRegister={{ ...register('person.password', { required: 'Senha é obrigatória!' }) }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <CheckBoxAntd
+                                                    caption='Restaurar acesso'
+                                                    hookFormControl={control}
+                                                    hookFormControlName={'person.password_reseted'}
+                                                    disabled={!inEdition}
+                                                    hookFormRegister={{ ...register('person.password_reseted') }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Container>
+                                </form >
                             </TabPanel>
                             <ToastContainer />
                         </Tabs >
                     </Col>
                     <Col md="auto">
                         <FrameCadButtons
-                            onClickNew={() => onClickNew()}
-                            onClickEdit={() => setInEdition(true)}
-                            onClickSave={{ onClick: () => console.log('Event submit'), formControl: 'formdigitacao' }}
-                            onClickDelete={() => onClickDelete()}
-                            onClickCancel={() => setInEdition(false)}
-                            onClickSearch={() => onClickSearch()}
+                            onClickNew={() => {
+                                setInEdition(true)
+                                reset();
+                            }}
+                            onClickEdit={() => {
+                                setInEdition(true)
+                            }}
+                            onClickSave={{
+                                onClick: () =>
+                                    console.log('Event submit'), formControl: 'formdigitacao'
+                            }}
+                            onClickDelete={() => {
+                                setDialogDelete(true);
+                            }}
+                            onClickCancel={() => {
+                                setInEdition(false)
+                            }}
+                            onClickSearch={async () => {
+                                try {
+                                    let res = await axios.get(URL_PERSON);
+                                    setDataSource(res.data)
+                                } catch (error) {
+                                    toast.error('Falha na consulta!');
+                                }
+                            }}
                             inEdition={inEdition}
                         />
                     </Col>
@@ -259,7 +248,7 @@ const Pessoa = () => {
                 visible={dialogDelete}
                 yes={() => setDeletePerson(true)}
                 no={() => setDialogDelete(false)}
-                message={'Excluir pessoa ?'}
+                message={'Deseja confirmar a exclusão?'}
                 header={'Excluir pessoa'}
                 hide={() => setDialogDelete(false)}
             />
