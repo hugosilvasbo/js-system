@@ -5,7 +5,7 @@ import App from './App';
 import Item from './pages/cadastro/Item';
 import Pessoa from './pages/cadastro/Pessoa';
 import Home from './pages/Home';
-import PedidoVenda from './pages/venda/Pedido';
+import PedidoVenda from './pages/gerencial/Pedido';
 import './style/index.scss';
 import "antd/dist/antd.css";
 
@@ -20,7 +20,7 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/cadastro/pessoa" element={<Pessoa />} />
           <Route path="/cadastro/item" element={<Item />} />
-          <Route path="/venda/pedido" element={<PedidoVenda />} />
+          <Route path="/gerencial/pedido" element={<PedidoVenda />} />
         </Routes>
       </App>
     </Router>

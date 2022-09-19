@@ -81,6 +81,7 @@ const Pessoa = () => {
     }, [deletePerson])
 
     const onSubmit = async (data: any) => {
+        console.log('onSubmit...')
         try {
             let res = null;
 
@@ -93,7 +94,8 @@ const Pessoa = () => {
         } catch (error) {
             toast.error('' + error);
         } finally {
-            setInEdition(false)
+            setInEdition(false);
+            console.log({ inEditionSubmit: inEdition })
         }
     }
 
@@ -209,6 +211,7 @@ const Pessoa = () => {
                                             </Col>
                                         </Row>
                                     </Container>
+                                    <button type="submit" />
                                 </form >
                             </TabPanel>
                             <ToastContainer />
@@ -222,10 +225,6 @@ const Pessoa = () => {
                             }}
                             onClickEdit={() => {
                                 setInEdition(true)
-                            }}
-                            onClickSave={{
-                                onClick: () =>
-                                    console.log('Event submit'), formControl: 'formdigitacao'
                             }}
                             onClickDelete={() => {
                                 setDialogDelete(true);
@@ -241,6 +240,9 @@ const Pessoa = () => {
                                     toast.error('Falha na consulta!');
                                 }
                             }}
+                            onClickSave={
+                                {formControl: 'formdigitacao', onClick: () => console.log('Submit')}
+                            }
                             inEdition={inEdition}
                         />
                     </Col>

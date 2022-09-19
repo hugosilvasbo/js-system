@@ -1,4 +1,5 @@
-import { Button } from "primereact/button";
+import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import { Container, Row } from 'react-bootstrap';
 
 interface IProps {
@@ -17,43 +18,41 @@ interface IProps {
 const FrameCadButtons = (props: IProps) => {
     const craftButtons = [
         {
-            icon: 'pi pi-user-plus',
             onClick: props.onClickNew,
             type: 'reset',
-            key: 'new_button'
+            key: 'new_button',
+            icon: <FolderAddOutlined />
         },
         {
-            icon: 'pi pi-pencil',
             onClick: props.onClickEdit,
             type: 'button',
-            key: 'edit_button'
+            key: 'edit_button',
+            icon: <EditOutlined />
         },
         {
-            icon: 'pi pi-trash',
             onClick: props.onClickDelete,
             type: 'button',
             key: 'delete_button',
-            className: 'p-button-danger p-button-sm'
+            icon: <DeleteOutlined />
         },
         {
-            icon: 'pi pi-check',
             onClick: props.onClickSave?.onClick,
             type: 'submit',
             key: 'save_button',
-            formcontrol: props.onClickSave?.formControl
+            formcontrol: props.onClickSave?.formControl,
+            icon: <CheckOutlined />
         },
         {
-            icon: 'pi pi-undo',
             onClick: props.onClickCancel,
             type: 'reset',
-            key: 'undo_button'
+            key: 'undo_button',
+            icon: <RedoOutlined />
         },
         {
-            icon: 'pi pi-search',
             onClick: props.onClickSearch,
             type: 'button',
             key: 'search_button',
-            className: 'p-button-warning p-button-sm'
+            icon: <SearchOutlined />
         }
     ]
 
@@ -77,17 +76,19 @@ const FrameCadButtons = (props: IProps) => {
         <Container>
             {
                 craftButtons.map((b: any) => {
+                    console.log({opa: b.type})
                     return b.onClick ?
                         <Row key={'btnrow_' + b.key}>
                             <Button
                                 type={b.type}
                                 icon={b.icon}
-                                className={b.className ? b.className : 'p-button-secondary p-button-sm'}
                                 key={b.key}
                                 form={b.formcontrol}
                                 style={{ marginBottom: '0.4rem' }}
                                 onClick={() => b.onClick()}
                                 disabled={disableControl(b.key)}
+                                shape={'circle'}
+                                size={'large'}
                             />
                         </Row>
                         : ''
