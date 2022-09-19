@@ -79,10 +79,10 @@ const Pessoa = () => {
         try {
             let res = null;
 
-            if (data._id)
-                res = await axios.patch(URL_PERSON + data._id, data)
+            if (data.person._id)
+                res = await axios.patch(URL_PERSON + data.person._id, data.person)
             else
-                res = await axios.post(URL_PERSON, data)
+                res = await axios.post(URL_PERSON, data.person)
 
             toast.success(res.data.message)
         } catch (error) {
@@ -129,6 +129,18 @@ const Pessoa = () => {
         return <>
             <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
                 <Container fluid>
+                    <Row>
+                        <Col>
+                            <InputText
+                                caption='ID'
+                                hookFormControl={control}
+                                hookFormErrors={errors}
+                                hookFormControlName={'person._id'}
+                                hookFormRegister={{ ...register('person._id') }}
+                                disabled={true}
+                            />
+                        </Col>
+                    </Row>
                     <Row>
                         <Col>
                             <InputText
