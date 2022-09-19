@@ -211,7 +211,6 @@ const Pessoa = () => {
                                             </Col>
                                         </Row>
                                     </Container>
-                                    <button type="submit" />
                                 </form >
                             </TabPanel>
                             <ToastContainer />
@@ -241,7 +240,7 @@ const Pessoa = () => {
                                 }
                             }}
                             onClickSave={
-                                {formControl: 'formdigitacao', onClick: () => console.log('Submit')}
+                                {form: 'formdigitacao', onClick: () => console.log('Submit')}
                             }
                             inEdition={inEdition}
                         />

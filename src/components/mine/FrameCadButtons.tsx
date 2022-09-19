@@ -8,7 +8,7 @@ interface IProps {
     onClickDelete?: any,
     onClickSave?: {
         onClick?: any,
-        formControl?: string
+        form?: string
     }
     onClickCancel?: any,
     onClickSearch?: any,
@@ -39,7 +39,7 @@ const FrameCadButtons = (props: IProps) => {
             onClick: props.onClickSave?.onClick,
             type: 'submit',
             key: 'save_button',
-            formcontrol: props.onClickSave?.formControl,
+            form: props.onClickSave?.form,
             icon: <CheckOutlined />
         },
         {
@@ -79,10 +79,9 @@ const FrameCadButtons = (props: IProps) => {
                     return b.onClick ?
                         <Row key={'btnrow_' + b.key}>
                             <Button
-                                type={b.type}
+                                htmlType={b.type}
                                 icon={b.icon}
-                                key={b.key}
-                                form={b.formcontrol}
+                                form={b.form}
                                 style={{ marginBottom: '0.4rem' }}
                                 onClick={() => b.onClick()}
                                 disabled={disableControl(b.key)}
