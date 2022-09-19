@@ -107,6 +107,7 @@ const Pessoa = () => {
                                 <Tab>Consulta</Tab>
                                 <Tab>Digitação</Tab>
                             </TabList>
+                            {/** consulta */}
                             <TabPanel>
                                 <Table
                                     dataSource={dataSource}
@@ -114,6 +115,7 @@ const Pessoa = () => {
                                     onRow={(record) => { return { onClick: () => { setValue("person", record) } }; }}
                                 />
                             </TabPanel>
+                            {/** digitação */}
                             <TabPanel>
                                 <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
                                     <Container fluid>
