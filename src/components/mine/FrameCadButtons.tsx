@@ -32,7 +32,8 @@ const FrameCadButtons = (props: IProps) => {
             icon: 'pi pi-trash',
             onClick: props.onClickDelete,
             type: 'button',
-            key: 'delete_button'
+            key: 'delete_button',
+            className: 'p-button-danger p-button-sm'
         },
         {
             icon: 'pi pi-check',
@@ -51,7 +52,8 @@ const FrameCadButtons = (props: IProps) => {
             icon: 'pi pi-search',
             onClick: props.onClickSearch,
             type: 'button',
-            key: 'search_button'
+            key: 'search_button',
+            className: 'p-button-warning p-button-sm'
         }
     ]
 
@@ -80,7 +82,7 @@ const FrameCadButtons = (props: IProps) => {
                             <Button
                                 type={b.type}
                                 icon={b.icon}
-                                className={'p-button-secondary p-button-sm'}
+                                className={b.className ? b.className : 'p-button-secondary p-button-sm'}
                                 key={b.key}
                                 form={b.formcontrol}
                                 style={{ marginBottom: '0.4rem' }}
