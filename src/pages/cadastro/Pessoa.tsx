@@ -1,3 +1,4 @@
+import { Table } from 'antd';
 import axios from 'axios';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -10,17 +11,16 @@ import constantes from '../../assets/jsConstantes.json';
 import CheckBoxAntd from '../../components/antdesign/CheckBoxAntd';
 import InputPassword from '../../components/antdesign/InputPasswordAntd';
 import InputText from '../../components/antdesign/InputTextAntd';
-import ConfirmDialogPrime from '../../components/primereact/ConfirmDialogPrime';
 import FrameCadButtons from '../../components/mine/FrameCadButtons';
-import TableBootstrap from '../../components/bootstrap/TableBootstrap';
+import ConfirmDialogPrime from '../../components/primereact/ConfirmDialogPrime';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
     const {
         register,
         handleSubmit,
-        setValue,
         getValues,
+        setValue,
         reset,
         control,
         formState: { errors }
@@ -28,7 +28,7 @@ const Pessoa = () => {
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
-    const [data, setData] = useState({});
+    const [dataSource, setDataSource] = useState([]);
     const [dialogDelete, setDialogDelete] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
     const [inEdition, setInEdition] = useState(false)
@@ -56,7 +56,7 @@ const Pessoa = () => {
     const onClickSearch = async () => {
         try {
             let res = await axios.get(URL_PERSON);
-            setData(res.data)
+            setDataSource(res.data)
         } catch (error) {
             toast.error('Falha na consulta!');
         }
@@ -83,13 +83,35 @@ const Pessoa = () => {
         setDialogDelete(true);
     }
 
+    const tableColumns = [
+        {
+            title: 'Nome',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'E-Mail',
+            dataIndex: 'email',
+            key: 'email',
+        },
+        {
+            title: 'Celular',
+            dataIndex: 'cellphone',
+            key: 'cellphone',
+        },
+
+    ]
+
     const TabConsulta = () => {
         return <>
-            <TableBootstrap
-                column={["name", "email", "cellphone"]}
-                data={data}
-                onItemClick={(obj: any) => _.mapValues(obj, (o: any, key: string) => { setValue(key, o) })}
-                title={["Nome", "E-Mail", "Celular"]}
+            <Table
+                dataSource={dataSource}
+                columns={tableColumns}
+                onRow={(record, rowIndex) => {
+                    return {
+                        onClick: event => { _.mapValues(record, (rec: any, key: string) => { setValue(key, rec) }) }
+                    };
+                }}
             />
         </>
     }
