@@ -1,6 +1,5 @@
 import { Table } from 'antd';
 import axios from 'axios';
-import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
