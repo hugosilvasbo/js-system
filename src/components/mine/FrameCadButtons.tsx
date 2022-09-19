@@ -76,7 +76,6 @@ const FrameCadButtons = (props: IProps) => {
         <Container>
             {
                 craftButtons.map((b: any) => {
-                    console.log({opa: b.type})
                     return b.onClick ?
                         <Row key={'btnrow_' + b.key}>
                             <Button
