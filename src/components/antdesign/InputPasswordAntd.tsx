@@ -7,9 +7,9 @@ interface IProps {
     hookFormRegister: any,
     hookFormErrors: any,
     hookFormControl: any,
+    hookFormControlName: string,
     caption: string,
-    disabled: boolean,
-    id?: any
+    disabled: boolean
 }
 
 const InputPassword = (props: IProps) => (
@@ -17,8 +17,8 @@ const InputPassword = (props: IProps) => (
         <small>{props.caption}</small>
         <Space direction="vertical">
             <Controller
+                name={props.hookFormControlName}
                 control={props.hookFormControl}
-                name={props.id}
                 render={({ field: { name, onBlur, onChange, value } }) => (
                     <Input.Password
                         iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
@@ -34,7 +34,7 @@ const InputPassword = (props: IProps) => (
             />
             <ErrorMessage
                 errors={props.hookFormErrors}
-                name={props.id}
+                name={'err'+props.hookFormControlName}
                 render={({ message }: any) => <small>{message}</small>}
             />
         </Space>

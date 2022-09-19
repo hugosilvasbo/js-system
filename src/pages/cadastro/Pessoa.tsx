@@ -24,7 +24,21 @@ const Pessoa = () => {
         reset,
         control,
         formState: { errors }
-    } = useForm()
+    } = useForm({
+        mode: "onChange",
+        defaultValues: {
+            person: {
+                _id: "",
+                name: "",
+                email: "",
+                telephone: "",
+                cellphone: "",
+                user: "",
+                password: "",
+                password_reseted: false
+            }
+        }
+    })
 
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
@@ -35,7 +49,7 @@ const Pessoa = () => {
 
     useEffect(() => {
         if (deletePerson) {
-            axios.delete(URL_PERSON + getValues('_id'))
+            axios.delete(URL_PERSON + getValues('person._id'))
                 .then((res: any) => {
                     toast.success(res.data.message);
                 })
@@ -107,11 +121,7 @@ const Pessoa = () => {
             <Table
                 dataSource={dataSource}
                 columns={tableColumns}
-                onRow={(record, rowIndex) => {
-                    return {
-                        onClick: event => { _.mapValues(record, (rec: any, key: string) => { setValue(key, rec) }) }
-                    };
-                }}
+                onRow={(record) => { return { onClick: () => { setValue("person", record) } }; }}
             />
         </>
     }
@@ -126,8 +136,8 @@ const Pessoa = () => {
                                 caption='Nome'
                                 hookFormControl={control}
                                 hookFormErrors={errors}
-                                hookFormRegister={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
-                                id={'name'}
+                                hookFormControlName={'person.name'}
+                                hookFormRegister={{ ...register('person.name', { required: 'Nome é obrigatório!' }) }}
                                 disabled={!inEdition}
                             />
                         </Col>
@@ -136,8 +146,8 @@ const Pessoa = () => {
                                 caption='E-Mail'
                                 hookFormControl={control}
                                 hookFormErrors={errors}
-                                hookFormRegister={{ ...register('email') }}
-                                id={'email'}
+                                hookFormControlName={'person.email'}
+                                hookFormRegister={{ ...register('person.email') }}
                                 disabled={!inEdition}
                             />
                         </Col>
@@ -148,18 +158,18 @@ const Pessoa = () => {
                                 caption='Telefone'
                                 hookFormControl={control}
                                 hookFormErrors={errors}
-                                hookFormRegister={{ ...register('telephone') }}
-                                id={'telephone'}
+                                hookFormControlName={'person.telephone'}
+                                hookFormRegister={{ ...register('person.telephone') }}
                                 disabled={!inEdition}
                             />
                         </Col>
                         <Col>
                             <InputText
                                 caption='Celular'
-                                id={'cellphone'}
                                 hookFormControl={control}
                                 hookFormErrors={errors}
-                                hookFormRegister={{ ...register('cellphone') }}
+                                hookFormControlName={'person.cellphone'}
+                                hookFormRegister={{ ...register('person.cellphone') }}
                                 disabled={!inEdition}
                             />
                         </Col>
@@ -168,21 +178,21 @@ const Pessoa = () => {
                         <Col>
                             <InputText
                                 caption='Usuário'
-                                id={'user'}
                                 hookFormControl={control}
                                 hookFormErrors={errors}
+                                hookFormControlName={'person.user'}
                                 disabled={!inEdition}
-                                hookFormRegister={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
+                                hookFormRegister={{ ...register('person.user', { required: 'Usuário é obrigatório!' }) }}
                             />
                         </Col>
                         <Col>
                             <InputPassword
                                 caption='Senha'
-                                id={'password'}
                                 disabled={!inEdition}
                                 hookFormControl={control}
                                 hookFormErrors={errors}
-                                hookFormRegister={{ ...register('password', { required: 'Senha é obrigatória!' }) }}
+                                hookFormControlName={'person.password'}
+                                hookFormRegister={{ ...register('person.password', { required: 'Senha é obrigatória!' }) }}
                             />
                         </Col>
                     </Row>
@@ -190,10 +200,10 @@ const Pessoa = () => {
                         <Col>
                             <CheckBoxAntd
                                 caption='Restaurar acesso'
-                                id={'password_reseted'}
                                 hookFormControl={control}
+                                hookFormControlName={'person.password_reseted'}
                                 disabled={!inEdition}
-                                hookFormRegister={{ ...register('password_reseted') }}
+                                hookFormRegister={{ ...register('person.password_reseted') }}
                             />
                         </Col>
                     </Row>

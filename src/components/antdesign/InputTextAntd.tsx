@@ -6,9 +6,9 @@ interface IProps {
     hookFormRegister: any,
     hookFormErrors: any,
     hookFormControl: any,
+    hookFormControlName: string,
     caption: string,
-    disabled: boolean,
-    id?: any
+    disabled: boolean
 }
 
 const InputText = (props: IProps) => {
@@ -17,23 +17,23 @@ const InputText = (props: IProps) => {
             <small>{props.caption}</small>
             <Controller
                 control={props.hookFormControl}
-                name={props.id}
+                name={props.hookFormControlName}
                 render={({ field: { name, onBlur, onChange, value } }) => (
                     <Input
                         placeholder={props.caption}
                         autoComplete="off"
-                        id={name}
-                        ref={{ ...props.hookFormRegister }}
                         onBlur={onBlur}
                         onChange={onChange}
                         value={value}
                         disabled={props.disabled}
+                        ref={{ ...props.hookFormRegister }}
+                        name={name}
                     />
                 )}
             />
             <ErrorMessage
                 errors={props.hookFormErrors}
-                name={props.id}
+                name={'err' + props.hookFormControlName}
                 render={({ message }: any) => <small>{message}</small>}
             />
         </div>
