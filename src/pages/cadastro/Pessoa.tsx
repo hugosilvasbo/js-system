@@ -10,9 +10,9 @@ import constantes from '../../assets/jsConstantes.json';
 import CheckBoxAntd from '../../components/antdesign/CheckBoxAntd';
 import InputPassword from '../../components/antdesign/InputPasswordAntd';
 import InputText from '../../components/antdesign/InputTextAntd';
-import ConfirmDialogPrime from '../../components/ConfirmDialogPrime';
-import FrameCadButtons from '../../components/FrameCadButtons';
-import TableBootstrap from '../../components/TableBootstrap';
+import ConfirmDialogPrime from '../../components/primereact/ConfirmDialogPrime';
+import FrameCadButtons from '../../components/mine/FrameCadButtons';
+import TableBootstrap from '../../components/bootstrap/TableBootstrap';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
@@ -31,6 +31,7 @@ const Pessoa = () => {
     const [data, setData] = useState({});
     const [dialogDelete, setDialogDelete] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
+    const [inEdition, setInEdition] = useState(false)
 
     useEffect(() => {
         if (deletePerson) {
@@ -48,6 +49,7 @@ const Pessoa = () => {
     }, [deletePerson])
 
     const onClickNew = () => {
+        setInEdition(true)
         reset();
     }
 
@@ -72,6 +74,8 @@ const Pessoa = () => {
             toast.success(res.data.message)
         } catch (error) {
             toast.error('' + error);
+        } finally {
+            setInEdition(false)
         }
     }
 
@@ -102,7 +106,7 @@ const Pessoa = () => {
                                 hookFormErrors={errors}
                                 hookFormRegister={{ ...register('name', { required: 'Nome é obrigatório!' }) }}
                                 id={'name'}
-
+                                disabled={!inEdition}
                             />
                         </Col>
                         <Col>
@@ -112,6 +116,7 @@ const Pessoa = () => {
                                 hookFormErrors={errors}
                                 hookFormRegister={{ ...register('email') }}
                                 id={'email'}
+                                disabled={!inEdition}
                             />
                         </Col>
                     </Row>
@@ -123,6 +128,7 @@ const Pessoa = () => {
                                 hookFormErrors={errors}
                                 hookFormRegister={{ ...register('telephone') }}
                                 id={'telephone'}
+                                disabled={!inEdition}
                             />
                         </Col>
                         <Col>
@@ -132,6 +138,7 @@ const Pessoa = () => {
                                 hookFormControl={control}
                                 hookFormErrors={errors}
                                 hookFormRegister={{ ...register('cellphone') }}
+                                disabled={!inEdition}
                             />
                         </Col>
                     </Row>
@@ -142,6 +149,7 @@ const Pessoa = () => {
                                 id={'user'}
                                 hookFormControl={control}
                                 hookFormErrors={errors}
+                                disabled={!inEdition}
                                 hookFormRegister={{ ...register('user', { required: 'Usuário é obrigatório!' }) }}
                             />
                         </Col>
@@ -149,6 +157,7 @@ const Pessoa = () => {
                             <InputPassword
                                 caption='Senha'
                                 id={'password'}
+                                disabled={!inEdition}
                                 hookFormControl={control}
                                 hookFormErrors={errors}
                                 hookFormRegister={{ ...register('password', { required: 'Senha é obrigatória!' }) }}
@@ -161,6 +170,7 @@ const Pessoa = () => {
                                 caption='Restaurar acesso'
                                 id={'password_reseted'}
                                 hookFormControl={control}
+                                disabled={!inEdition}
                                 hookFormRegister={{ ...register('password_reseted') }}
                             />
                         </Col>
@@ -192,11 +202,12 @@ const Pessoa = () => {
                     <Col md="auto">
                         <FrameCadButtons
                             onClickNew={() => onClickNew()}
-                            onClickEdit={() => console.log('Desenvolver...')}
-                            onClickSave={{ onClick: () => console.log('Save clicked'), formControl: 'formdigitacao' }}
+                            onClickEdit={() => setInEdition(true)}
+                            onClickSave={{ onClick: () => console.log('Event submit'), formControl: 'formdigitacao' }}
                             onClickDelete={() => onClickDelete()}
-                            onClickCancel={() => console.log('Desenvolver...')}
+                            onClickCancel={() => setInEdition(false)}
                             onClickSearch={() => onClickSearch()}
+                            inEdition={inEdition}
                         />
                     </Col>
                 </Row>

@@ -8,6 +8,7 @@ interface IProps {
     hookFormErrors: any,
     hookFormControl: any,
     caption: string,
+    disabled: boolean,
     id?: any
 }
 
@@ -26,6 +27,7 @@ const InputPassword = (props: IProps) => (
                         onBlur={onBlur}
                         onChange={onChange}
                         value={value}
+                        disabled={props.disabled}
                         placeholder={props.caption}
                     />
                 )}

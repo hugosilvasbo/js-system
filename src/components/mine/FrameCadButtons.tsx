@@ -10,7 +10,8 @@ interface IProps {
         formControl?: string
     }
     onClickCancel?: any,
-    onClickSearch?: any
+    onClickSearch?: any,
+    inEdition: boolean
 }
 
 const FrameCadButtons = (props: IProps) => {
@@ -54,6 +55,22 @@ const FrameCadButtons = (props: IProps) => {
         }
     ]
 
+    function disableControl(key: string) {
+        let disable;
+        switch (key) {
+            case "new_button":
+            case "edit_button":
+            case "delete_button":
+            case "search_button":
+                disable = props.inEdition;
+                break;
+            default:
+                disable = !props.inEdition;
+                break;
+        }
+        return disable;
+    }
+
     return (
         <Container>
             {
@@ -67,13 +84,15 @@ const FrameCadButtons = (props: IProps) => {
                                 key={b.key}
                                 form={b.formcontrol}
                                 style={{ marginBottom: '0.4rem' }}
-                                onClick={() => b.onClick()} />
+                                onClick={() => b.onClick()}
+                                disabled={disableControl(b.key)}
+                            />
                         </Row>
                         : ''
                 })
             }
 
-        </Container>
+        </Container >
     )
 }
 
