@@ -1,14 +1,14 @@
+import "antd/dist/antd.css";
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import App from './App';
+import Agenda from './pages/agenda/Agenda';
 import Item from './pages/cadastro/Item';
 import Pessoa from './pages/cadastro/Pessoa';
-import Home from './pages/Home';
 import PedidoVenda from './pages/gerencial/Pedido';
+import Home from './pages/Home';
 import './style/index.scss';
-import "antd/dist/antd.css";
-import Agenda from './pages/agenda/Agenda';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
