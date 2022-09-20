@@ -55,6 +55,7 @@ const Agenda = () => {
                                     //--> arrumar isso futuramente... filtrar os horários por funcionários...
                                     //onSelect={(e: any) => moment(e._d).format('YYYY-MM-DD HH:MM')}
                                     format="DD/MM/YYYY HH:mm"
+                                    minuteStep={15}
                                     disabledDate={(current: any) => {
                                         let customDate = moment().format("YYYY-MM-DD");
                                         return current && current < moment(customDate, "YYYY-MM-DD");
