@@ -2,43 +2,16 @@ import { Col, DatePicker, Form, Row, Table, Tabs } from "antd";
 import moment from "moment";
 import { useState } from "react";
 import { Container } from "react-bootstrap";
+import Agendamento from "../../components/antdesign/AgendamentoAntd";
 import FrameCadButtons from "../../components/mine/FrameCadButtons";
 
 const Agenda = () => {
 
-    const [dataSource, setDataSource] = useState([])
     const [dateTimeService, setDateTimeService] = useState()
-
-    const tableColumns = [
-        {
-            title: 'Data',
-            dataIndex: 'service-date',
-            key: 'service-date',
-        },
-        {
-            title: 'Hora',
-            dataIndex: 'service-time',
-            key: 'service-time',
-        },
-        {
-            title: 'Cliente',
-            dataIndex: 'client-name',
-            key: 'client-name',
-        },
-        {
-            title: 'Funcionário',
-            dataIndex: 'employee-name',
-            key: 'employee-name'
-        }
-
-    ]
 
     const FrameConsulta = () => {
         return <>
-            <Table
-                dataSource={dataSource}
-                columns={tableColumns}
-            />
+            <Agendamento />
         </>
     }
 
@@ -77,7 +50,7 @@ const Agenda = () => {
 
     const tabs = [
         { label: 'Consulta', key: 'tab-consulta', children: <FrameConsulta /> },
-        { label: 'Digitação', key: 'tab-digitacao', children: <FrameDigitacao /> },
+        { label: 'Agendar', key: 'tab-digitacao', children: <FrameDigitacao /> },
     ];
 
     return (

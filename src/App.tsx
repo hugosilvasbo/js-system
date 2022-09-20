@@ -24,7 +24,7 @@ function App(props: any) {
 
   return (
     <div id='main_index'>
-      <Menu mode="horizontal" defaultSelectedKeys={['mnhome']}>
+      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['mnhome']}>
         <Menu.Item key="mnhome" onClick={() => navigate('/')} icon={<HomeOutlined />}>
           Home
         </Menu.Item>
@@ -41,12 +41,8 @@ function App(props: any) {
         </Menu.Item>
       </Menu>
       <div className='content'>{props.children}</div>
-      <footer>
-        JS System - 2022 - Todos os direitos autorais reservados
-      </footer>
     </div >
   );
-
 }
 
 export default App;
