@@ -1,6 +1,5 @@
 import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
-import { Container, Row } from 'react-bootstrap';
+import { Button, Row } from 'antd';
 
 interface IProps {
     onClickNew?: any,
@@ -73,7 +72,7 @@ const FrameCadButtons = (props: IProps) => {
     }
 
     return (
-        <Container>
+        <>
             {
                 craftButtons.map((b: any) => {
                     return b.onClick ?
@@ -93,7 +92,7 @@ const FrameCadButtons = (props: IProps) => {
                 })
             }
 
-        </Container >
+        </>
     )
 }
 

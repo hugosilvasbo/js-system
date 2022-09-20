@@ -1,5 +1,5 @@
 import { ErrorMessage } from '@hookform/error-message/dist';
-import { Input } from 'antd';
+import { Col, Input } from 'antd';
 import { Controller } from 'react-hook-form';
 
 interface IProps {
@@ -13,7 +13,7 @@ interface IProps {
 
 const InputText = (props: IProps) => {
     return (
-        <div className="d-flex flex-column mb-3">
+        <Col>
             <small>{props.caption}</small>
             <Controller
                 control={props.hookFormControl}
@@ -36,7 +36,7 @@ const InputText = (props: IProps) => {
                 name={'err' + props.hookFormControlName}
                 render={({ message }: any) => <small>{message}</small>}
             />
-        </div>
+        </Col>
     )
 
 }

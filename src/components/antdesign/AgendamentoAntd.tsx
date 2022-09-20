@@ -1,4 +1,5 @@
 import { Badge, Calendar } from 'antd';
+import locale from 'antd/es/date-picker/locale/pt_BR';
 
 const getListData = (value: any) => {
   let listData;
@@ -99,7 +100,7 @@ const Agendamento = () => {
     );
   };
 
-  return <Calendar dateCellRender={dateCellRender} monthCellRender={monthCellRender} />;
+  return <Calendar locale={locale} dateCellRender={dateCellRender} monthCellRender={monthCellRender} />;
 };
 
 export default Agendamento;

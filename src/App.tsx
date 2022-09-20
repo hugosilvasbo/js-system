@@ -1,9 +1,8 @@
 import { AppstoreOutlined, CalendarOutlined, HomeOutlined, TagOutlined, TeamOutlined } from "@ant-design/icons";
+import { Layout } from "antd";
 import "antd/dist/antd.css";
+import { Content, Header } from "antd/lib/layout/layout";
 import Menu from 'antd/lib/menu';
-import 'primeicons/primeicons.css';
-import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/nova-accent/theme.css';
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';
@@ -12,18 +11,8 @@ import './style/vars.scss';
 function App(props: any) {
   const navigate = useNavigate();
 
-  const menuItems = [
-    { label: 'item 1', key: 'item-1' }, // remember to pass the key prop
-    { label: 'item 2', key: 'item-2' }, // which is required
-    {
-      label: 'sub menu',
-      key: 'submenu',
-      children: [{ label: 'item 3', key: 'submenu-item-1' }],
-    },
-  ];
-
   return (
-    <div id='main_index'>
+    <>
       <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['mnhome']}>
         <Menu.Item key="mnhome" onClick={() => navigate('/')} icon={<HomeOutlined />}>
           Home
@@ -40,8 +29,19 @@ function App(props: any) {
           Agenda
         </Menu.Item>
       </Menu>
-      <div className='content'>{props.children}</div>
-    </div >
+      <Layout style={{
+        minHeight: "100vh",
+        padding: '0.6rem',
+      }}>
+        <Content style={{
+          backgroundColor: '#fff',
+          padding: '1rem',
+          borderRadius: '0.6rem'
+        }} className='bx_10'>
+          {props.children}
+        </Content>
+      </Layout>
+    </>
   );
 }
 
