@@ -41,10 +41,8 @@ const Pessoa = () => {
             .then(async (values) => {
                 try {
                     let res = null;
-
-                    if (values._id)
-                        res = await axios.patch(URL_PERSON + values._id, values)
-                    else
+                    values._id ?
+                        res = await axios.patch(URL_PERSON + values._id, values) :
                         res = await axios.post(URL_PERSON, values)
 
                     toast.success(res.data.message)

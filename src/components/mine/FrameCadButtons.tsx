@@ -29,6 +29,7 @@ const FrameCadButtons = (props: IProps) => {
             onClick: props.onClickDelete,
             type: 'button',
             key: 'delete_button',
+            danger: true,
             icon: <DeleteOutlined />
         },
         {
@@ -76,11 +77,12 @@ const FrameCadButtons = (props: IProps) => {
                             <Button
                                 htmlType={b.type}
                                 icon={b.icon}
-                                style={{ marginBottom: '0.4rem' }}
+                                style={{ marginBottom: '0.8rem' }}
                                 onClick={() => b.onClick()}
                                 disabled={disableControl(b.key)}
                                 shape={'circle'}
                                 size={'large'}
+                                danger={b.danger}
                             />
                         </Row>
                         : ''
