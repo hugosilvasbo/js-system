@@ -11,7 +11,7 @@ import FrameCadButtons from "../../components/mine/FrameCadButtons";
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
     const [dataSource, setDataSource] = useState([]);
-    
+
     const URL_API = constantes.url_api_barber + 'employee/';
 
     const tableColumns = [
@@ -96,13 +96,20 @@ const Funcionario = () => {
                             setInEdition(true)
                         }}
                         onClickDelete={() => {
-
+                            // call the dialog
                         }}
                         onClickCancel={() => {
                             setInEdition(false)
                         }}
                         onClickSave={handleFormSubmit}
-                        onClickSearch={() => {}}
+                        onClickSearch={() => {
+                            axios.get(URL_API)
+                                .then((res) => {
+                                    setDataSource(res.data)
+                                }).catch((e) => {
+                                    toast.error(e.error);
+                                })
+                        }}
                         inEdition={inEdition}
                     />
                 </Col>
