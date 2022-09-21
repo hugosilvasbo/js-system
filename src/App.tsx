@@ -1,8 +1,7 @@
 import { AppstoreOutlined, CalendarOutlined, HomeOutlined, TagOutlined, TeamOutlined } from "@ant-design/icons";
-import { Layout } from "antd";
-import "antd/dist/antd.css";
-import { Content, Header } from "antd/lib/layout/layout";
-import Menu from 'antd/lib/menu';
+import { Layout, Menu } from "antd";
+import "antd/dist/antd.min.css"
+import { Content } from "antd/lib/layout/layout";
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './style/App.scss';

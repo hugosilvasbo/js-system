@@ -5,10 +5,7 @@ interface IProps {
     onClickNew?: any,
     onClickEdit?: any,
     onClickDelete?: any,
-    onClickSave?: {
-        onClick?: any,
-        form?: string
-    }
+    onClickSave?: any,
     onClickCancel?: any,
     onClickSearch?: any,
     inEdition: boolean
@@ -35,10 +32,9 @@ const FrameCadButtons = (props: IProps) => {
             icon: <DeleteOutlined />
         },
         {
-            onClick: props.onClickSave?.onClick,
+            onClick: props.onClickSave,
             type: 'submit',
             key: 'save_button',
-            form: props.onClickSave?.form,
             icon: <CheckOutlined />
         },
         {
@@ -80,7 +76,6 @@ const FrameCadButtons = (props: IProps) => {
                             <Button
                                 htmlType={b.type}
                                 icon={b.icon}
-                                form={b.form}
                                 style={{ marginBottom: '0.4rem' }}
                                 onClick={() => b.onClick()}
                                 disabled={disableControl(b.key)}

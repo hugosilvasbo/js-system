@@ -1,41 +1,13 @@
-import { Col, Modal, Row, Table, Tabs } from 'antd';
+import { Checkbox, Col, Form, Input, Modal, Row, Table, Tabs } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { toast, ToastContainer } from 'react-toastify';
 import constantes from '../../assets/jsConstantes.json';
-import CheckBoxAntd from '../../components/antdesign/CheckBoxAntd';
-import InputPassword from '../../components/antdesign/InputPasswordAntd';
-import InputText from '../../components/antdesign/InputTextAntd';
 import FrameCadButtons from '../../components/mine/FrameCadButtons';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
-    const {
-        register,
-        handleSubmit,
-        getValues,
-        setValue,
-        reset,
-        control,
-        formState: { errors }
-    } = useForm({
-        mode: "onChange",
-        defaultValues: {
-            person: {
-                _id: "",
-                name: "",
-                email: "",
-                telephone: "",
-                cellphone: "",
-                user: "",
-                password: "",
-                password_reseted: false
-            }
-        }
-    })
-
     const URL_PERSON = constantes.url_api_barber + 'person/';
 
     const [dataSource, setDataSource] = useState([]);
@@ -62,13 +34,36 @@ const Pessoa = () => {
 
     ]
 
+    const [formDigitacao] = Form.useForm();
+
+    const handleFormSubmit = () => {
+        formDigitacao.validateFields()
+            .then(async (values) => {
+                try {
+                    let res = null;
+
+                    if (values._id)
+                        res = await axios.patch(URL_PERSON + values._id, values)
+                    else
+                        res = await axios.post(URL_PERSON, values)
+
+                    toast.success(res.data.message)
+                } catch (error) {
+                    toast.error('' + error);
+                } finally {
+                    setInEdition(false);
+                }
+            })
+            .catch((errorInfo) => { toast.error(errorInfo) });
+    };
+
     const FrameConsulta = () => {
         return <>
             <Content>
                 <Table
                     dataSource={dataSource}
                     columns={tableColumns}
-                    onRow={(record) => { return { onClick: () => { setValue("person", record) } }; }}
+                    onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
                 />
             </Content>
         </>
@@ -76,98 +71,32 @@ const Pessoa = () => {
 
     const FrameDigitacao = () => {
         return <>
-            <form id='formdigitacao' onSubmit={handleSubmit(onSubmit)}>
-
-                <Row>
-                    <Col>
-                        <InputText
-                            caption='ID'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person._id'}
-                            hookFormRegister={{ ...register('person._id') }}
-                            disabled={true}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <InputText
-                            caption='Nome'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.name'}
-                            hookFormRegister={{ ...register('person.name', { required: 'Nome é obrigatório!' }) }}
-                            disabled={!inEdition}
-                        />
-                    </Col>
-                    <Col>
-                        <InputText
-                            caption='E-Mail'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.email'}
-                            hookFormRegister={{ ...register('person.email') }}
-                            disabled={!inEdition}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <InputText
-                            caption='Telefone'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.telephone'}
-                            hookFormRegister={{ ...register('person.telephone') }}
-                            disabled={!inEdition}
-                        />
-                    </Col>
-                    <Col>
-                        <InputText
-                            caption='Celular'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.cellphone'}
-                            hookFormRegister={{ ...register('person.cellphone') }}
-                            disabled={!inEdition}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <InputText
-                            caption='Usuário'
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.user'}
-                            disabled={!inEdition}
-                            hookFormRegister={{ ...register('person.user', { required: 'Usuário é obrigatório!' }) }}
-                        />
-                    </Col>
-                    <Col>
-                        <InputPassword
-                            caption='Senha'
-                            disabled={!inEdition}
-                            hookFormControl={control}
-                            hookFormErrors={errors}
-                            hookFormControlName={'person.password'}
-                            hookFormRegister={{ ...register('person.password', { required: 'Senha é obrigatória!' }) }}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <CheckBoxAntd
-                            caption='Restaurar acesso'
-                            hookFormControl={control}
-                            hookFormControlName={'person.password_reseted'}
-                            disabled={!inEdition}
-                            hookFormRegister={{ ...register('person.password_reseted') }}
-                        />
-                    </Col>
-                </Row>
-            </form >
+            <Form form={formDigitacao} layout="vertical">
+                <Form.Item label="ID" name={'_id'} >
+                    <Input disabled={true} />
+                </Form.Item>
+                <Form.Item label="Nome" name={'name'} >
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="E-Mail" name={'email'} >
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Telefone" name={'telephone'} >
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Celular" name={'cellphone'} >
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Usuário" name={'user'} >
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Senha" name={'password'} >
+                    <Input.Password disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Resetar senha" name={"password_reseted"}>
+                    <Checkbox disabled={!inEdition} defaultChecked={false} />
+                </Form.Item>
+            </Form>
         </>
     }
 
@@ -178,7 +107,7 @@ const Pessoa = () => {
 
     useEffect(() => {
         if (deletePerson) {
-            axios.delete(URL_PERSON + getValues('person._id'))
+            axios.delete(URL_PERSON + formDigitacao.getFieldValue('_id'))
                 .then((res: any) => {
                     toast.success(res.data.message);
                 })
@@ -188,36 +117,17 @@ const Pessoa = () => {
         }
     }, [deletePerson])
 
-    const onSubmit = async (data: any) => {
-        console.log('onSubmit...')
-        try {
-            let res = null;
-
-            if (data.person._id)
-                res = await axios.patch(URL_PERSON + data.person._id, data.person)
-            else
-                res = await axios.post(URL_PERSON, data.person)
-
-            toast.success(res.data.message)
-        } catch (error) {
-            toast.error('' + error);
-        } finally {
-            setInEdition(false);
-            console.log({ inEditionSubmit: inEdition })
-        }
-    }
-
     return (
         <>
             <Row>
                 <Col flex="auto">
                     <Tabs type="card" items={tabs} />
                 </Col>
-                <Col style={{marginLeft: '10px'}}>
+                <Col style={{ marginLeft: '10px' }}>
                     <FrameCadButtons
                         onClickNew={() => {
                             setInEdition(true)
-                            reset();
+                            formDigitacao.resetFields();
                         }}
                         onClickEdit={() => {
                             setInEdition(true)
@@ -236,9 +146,7 @@ const Pessoa = () => {
                                 toast.error('Falha na consulta!');
                             }
                         }}
-                        onClickSave={
-                            { form: 'formdigitacao', onClick: () => console.log('Submit') }
-                        }
+                        onClickSave={handleFormSubmit}
                         inEdition={inEdition}
                     />
                 </Col>
