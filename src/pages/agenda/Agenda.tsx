@@ -43,7 +43,7 @@ const Agenda = () => {
 
     const tabs = [
         { label: 'Consulta', key: 'tab-consulta', children: <FrameConsulta /> },
-        { label: 'Agendar', key: 'tab-digitacao', children: <FrameDigitacao /> },
+        { label: 'Digitação', key: 'tab-digitacao', children: <FrameDigitacao /> },
     ];
 
     return (

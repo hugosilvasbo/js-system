@@ -1,5 +1,4 @@
-
-const Item = () => {
+const Funcionario = () => {
     return (
         <>
             Em desenvolvimento...
@@ -7,4 +6,4 @@ const Item = () => {
     )
 }
 
-export default Item;
+export default Funcionario;

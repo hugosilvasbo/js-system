@@ -123,7 +123,7 @@ const Pessoa = () => {
                 <Col flex="auto">
                     <Tabs type="card" items={tabs} />
                 </Col>
-                <Col style={{ marginLeft: '10px' }}>
+                <Col style={{ marginLeft: '1rem' }}>
                     <FrameCadButtons
                         onClickNew={() => {
                             setInEdition(true)
