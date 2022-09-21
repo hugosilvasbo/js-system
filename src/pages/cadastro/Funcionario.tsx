@@ -1,6 +1,7 @@
-import { Col, Form, Row, Tabs } from "antd";
+import { Col, Form, Row, Table, Tabs } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Input from "antd/lib/input/Input";
+import { Content } from "antd/lib/layout/layout";
 import axios from "axios";
 import { useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
@@ -9,14 +10,30 @@ import FrameCadButtons from "../../components/mine/FrameCadButtons";
 
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
-    const [formDigitacao] = Form.useForm()
+    const [dataSource, setDataSource] = useState([]);
+    
     const URL_API = constantes.url_api_barber + 'employee/';
 
+    const tableColumns = [
+        {
+            title: 'Nome',
+            dataIndex: 'name',
+            key: 'name',
+        }
+    ]
+
+    const [formDigitacao] = Form.useForm()
+
     const TabConsulta = () => {
-        return (
-            <>
-            </>
-        )
+        return <>
+            <Content>
+                <Table
+                    dataSource={dataSource}
+                    columns={tableColumns}
+                    onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
+                />
+            </Content>
+        </>
     }
 
     const TabDigitacao = () => {
@@ -85,7 +102,7 @@ const Funcionario = () => {
                             setInEdition(false)
                         }}
                         onClickSave={handleFormSubmit}
-                        onClickSearch={handleFormSubmit}
+                        onClickSearch={() => {}}
                         inEdition={inEdition}
                     />
                 </Col>
