@@ -57,7 +57,6 @@ const Funcionario = () => {
     const handleFormSubmit = () => {
         formDigitacao.validateFields()
             .then(async (values) => {
-                console.log({ submit: values })
                 try {
                     let res = null
                     values._id ?
