@@ -15,18 +15,16 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 
 root.render(
-  <React.StrictMode>
-    <Router>
-      <App>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cadastro/pessoa" element={<Pessoa />} />
-          <Route path="/cadastro/item" element={<Item />} />
-          <Route path="/cadastro/funcionario" element={<Funcionario />} />
-          <Route path="/agenda" element={<Agenda />} />
-          <Route path="/gerencial/pedido" element={<PedidoVenda />} />
-        </Routes>
-      </App>
-    </Router>
-  </React.StrictMode>
+  <Router>
+    <App>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/cadastro/pessoa" element={<Pessoa />} />
+        <Route path="/cadastro/item" element={<Item />} />
+        <Route path="/cadastro/funcionario" element={<Funcionario />} />
+        <Route path="/agenda" element={<Agenda />} />
+        <Route path="/gerencial/pedido" element={<PedidoVenda />} />
+      </Routes>
+    </App>
+  </Router>
 );

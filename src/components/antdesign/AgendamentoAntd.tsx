@@ -1,48 +1,67 @@
+/**
+ * Anotações:
+ * - A colega do mês no componente começa do 0 (Janeiro) à 12 (Dezembro)
+ */
+
 import { Calendar } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import _ from 'lodash';
 import { Moment } from 'moment';
-import { useState } from 'react';
+import React from 'react';
 
-const Agendamento = () => {
-  const [currentDate, setCurrentDate] = useState({
-    month: 0,
-    year: 0
-  })
-
-  const getAgendamentosMensal = (month: any, year: any) => {
-    let dados = [
-      { name: 'Hugo', day: 1 },
-      { name: 'Anderson', day: 21 },
-    ]
-    return dados
+class Agendamento extends React.Component<{}, any> {
+  state = {
+    agendamentos: obterAgendamentos(11, 2022)
   }
 
-  const dateCellRender = (value: Moment) => {
-    let dados_mes;
-    const month = value.month()
-    const year = value.year()
-
-    if ((currentDate.month !== month) || (currentDate.year !== year)) {
-      dados_mes = getAgendamentosMensal(month, year);
-      setCurrentDate({ month, year })
-    }
-
-    return _.map(dados_mes, (d: any) => {
-      return <>
-        <li key={value.date() + d.name}>
-          {d.name + ' - ' + value.date()}
-        </li>
-      </>
-    })
+  dateCellRender = (value: Moment) => {
+    console.log('CellRender')
+    return (
+      <ul>
+        {
+          _.map(this.state.agendamentos, (item: any) => {
+            return <>
+              <li>
+                {item.name}
+              </li>
+            </>
+          })
+        }
+      </ul>
+    );
   }
 
-  return <>
-    <Calendar
-      locale={locale}
-      dateCellRender={dateCellRender}
-    />
-  </>
+  onPanelChange = (value: Moment) => {
+    console.log('onPanelChange... Teste alternando a data! :) ... Mês > ' + value.month())
+    this.setState({ agendamentos: obterAgendamentos(value.month(), value.year()) })
+  }
+
+  render() {
+    return <>
+      <Calendar
+        locale={locale}
+        dateCellRender={this.dateCellRender}
+        onPanelChange={this.onPanelChange}
+      />
+    </>
+  }
 };
 
 export default Agendamento;
+
+function obterAgendamentos(mes: number, ano: number) {
+  mes += 1
+
+  // teste...
+  // fazer a busca na api dos dados, manipular e retornar para o componente! =)
+  if (mes === 1) {
+    return [
+      { _id: '123123', name: 'Hugo', day: 1 },
+      { _id: '334342', name: 'Anderson', day: 21 }
+    ]
+  } else {
+    return [
+      { _id: '9999', name: 'Zezinha', day: 8 }
+    ]
+  }
+}
