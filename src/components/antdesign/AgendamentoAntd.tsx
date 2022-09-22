@@ -1,106 +1,48 @@
-import { Badge, Calendar } from 'antd';
+import { Calendar } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
-
-const getListData = (value: any) => {
-  let listData;
-
-  switch (value.date()) {
-    case 8:
-      listData = [
-        {
-          type: 'warning',
-          content: 'This is warning event.',
-        },
-        {
-          type: 'success',
-          content: 'This is usual event.',
-        },
-      ];
-      break;
-
-    case 10:
-      listData = [
-        {
-          type: 'warning',
-          content: 'This is warning event.',
-        },
-        {
-          type: 'success',
-          content: 'This is usual event.',
-        },
-        {
-          type: 'error',
-          content: 'This is error event.',
-        },
-      ];
-      break;
-
-    case 15:
-      listData = [
-        {
-          type: 'warning',
-          content: 'This is warning event',
-        },
-        {
-          type: 'success',
-          content: 'This is very long usual event。。....',
-        },
-        {
-          type: 'error',
-          content: 'This is error event 1.',
-        },
-        {
-          type: 'error',
-          content: 'This is error event 2.',
-        },
-        {
-          type: 'error',
-          content: 'This is error event 3.',
-        },
-        {
-          type: 'error',
-          content: 'This is error event 4.',
-        },
-      ];
-      break;
-
-    default:
-  }
-
-  return listData || [];
-};
-
-const getMonthData = (value: any) => {
-  if (value.month() === 8) {
-    return 1394;
-  }
-};
+import _ from 'lodash';
+import { Moment } from 'moment';
+import { useState } from 'react';
 
 const Agendamento = () => {
-  const monthCellRender = (value: any) => {
-    const num = getMonthData(value);
-    return num ? (
-      <div className="notes-month">
-        <section>{num}</section>
-        <span>Backlog number</span>
-      </div>
-    ) : null;
-  };
+  const [currentDate, setCurrentDate] = useState({
+    month: 0,
+    year: 0
+  })
 
-  const dateCellRender = (value: any) => {
-    const listData = getListData(value);
-    return (
-      <ul className="events">
-        {listData.map((item: any) => (
-          <li key={item.content}>
-            <Badge status={item.type} text={item.content} />
-          </li>
-        ))}
-      </ul>
-    );
-  };
+  const getAgendamentosMensal = (month: any, year: any) => {
+    let dados = [
+      { name: 'Hugo', day: 1 },
+      { name: 'Anderson', day: 21 },
+    ]
+    return dados
+  }
 
-  return <Calendar locale={locale} dateCellRender={dateCellRender} monthCellRender={monthCellRender} />;
+  const dateCellRender = (value: Moment) => {
+    let dados_mes;
+    const month = value.month()
+    const year = value.year()
+
+    if ((currentDate.month !== month) || (currentDate.year !== year)) {
+      dados_mes = getAgendamentosMensal(month, year);
+      setCurrentDate({ month, year })
+    }
+
+    return _.map(dados_mes, (d: any) => {
+      return <>
+        <li key={value.date() + d.name}>
+          {d.name + ' - ' + value.date()}
+        </li>
+      </>
+    })
+  }
+
+  return <>
+    <Calendar
+      locale={locale}
+      dateCellRender={dateCellRender}
+    />
+  </>
 };
 
 export default Agendamento;
