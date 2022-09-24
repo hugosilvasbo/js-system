@@ -7,25 +7,27 @@ import { Calendar } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import axios from 'axios';
 import _ from 'lodash';
-import moment from 'moment';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import React from 'react';
-import jconst from '../../assets/jsConstantes.json'
+import jconst from '../../assets/jsConstantes.json';
 
 class Agendamento extends React.Component<{}, any> {
   state = {
-    schedule: getScheduling(moment('2022-09-01'))
+    schedule: {}
+  }
+
+  async componentDidMount(): Promise<void> {
+    let res = await getScheduling(moment('2022-09-01'))
+    this.setState({ schedule: res.data })
   }
 
   dateCellRender = (value: Moment) => {
     return (
       <ul>
         {
-          _.map(this.state.schedule, (item: any) => {
+          _.map(this.state.schedule, (s: any) => {
             return <>
-              <li>
-                {item.name}
-              </li>
+              Extrair o dia aqui
             </>
           })
         }
@@ -33,8 +35,9 @@ class Agendamento extends React.Component<{}, any> {
     );
   }
 
-  onPanelChange = (value: Moment) => {
-    this.setState({ agendamentos: getScheduling(value) })
+  onPanelChange = async (value: Moment) => {
+    let res = await getScheduling(value)
+    this.setState({ agendamentos: res.data })
   }
 
   render() {
@@ -51,10 +54,20 @@ class Agendamento extends React.Component<{}, any> {
 export default Agendamento;
 
 async function getScheduling(value: Moment) {
+  let clone = value.clone()
+
+  let startdate = clone.startOf('month').format('YYYY-MM-DD')
+  let enddate = clone.endOf('month').format('YYYY-MM-DD')
+
+  console.log({ startdate })
+  console.log({ enddate })
+
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
-      date: value.date()
+      startdate: startdate,
+      enddate: enddate
     }
   })
-  console.log({ res })
+  console.log({ getScheduling: res.data })
+  return res.data;
 }
