@@ -1,25 +1,27 @@
 /**
  * Anotações:
- * - A colega do mês no componente começa do 0 (Janeiro) à 12 (Dezembro)
+ * - O mês do componente começa do 0 (Janeiro) à 12 (Dezembro)
  */
 
 import { Calendar } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
+import axios from 'axios';
 import _ from 'lodash';
+import moment from 'moment';
 import { Moment } from 'moment';
 import React from 'react';
+import jconst from '../../assets/jsConstantes.json'
 
 class Agendamento extends React.Component<{}, any> {
   state = {
-    agendamentos: obterAgendamentos(11, 2022)
+    schedule: getScheduling(moment('2022-09-01'))
   }
 
   dateCellRender = (value: Moment) => {
-    console.log('CellRender')
     return (
       <ul>
         {
-          _.map(this.state.agendamentos, (item: any) => {
+          _.map(this.state.schedule, (item: any) => {
             return <>
               <li>
                 {item.name}
@@ -32,8 +34,7 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   onPanelChange = (value: Moment) => {
-    console.log('onPanelChange... Teste alternando a data! :) ... Mês > ' + value.month())
-    this.setState({ agendamentos: obterAgendamentos(value.month(), value.year()) })
+    this.setState({ agendamentos: getScheduling(value) })
   }
 
   render() {
@@ -49,19 +50,11 @@ class Agendamento extends React.Component<{}, any> {
 
 export default Agendamento;
 
-function obterAgendamentos(mes: number, ano: number) {
-  mes += 1
-
-  // teste...
-  // fazer a busca na api dos dados, manipular e retornar para o componente! =)
-  if (mes === 1) {
-    return [
-      { _id: '123123', name: 'Hugo', day: 1 },
-      { _id: '334342', name: 'Anderson', day: 21 }
-    ]
-  } else {
-    return [
-      { _id: '9999', name: 'Zezinha', day: 8 }
-    ]
-  }
+async function getScheduling(value: Moment) {
+  let res = await axios.get(`${jconst.url_api_barber}schedule`, {
+    params: {
+      date: value.date()
+    }
+  })
+  console.log({ res })
 }
