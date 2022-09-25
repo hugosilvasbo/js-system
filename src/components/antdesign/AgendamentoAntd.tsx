@@ -31,12 +31,15 @@ class Agendamento extends React.Component<{}, any> {
       <ul>
         {
           _.map(this.state.schedule, (s: ISchedule) => {
-            let _date = moment(s.date).format('DD-MM-YYYY')
-            let _value = value.format('DD-MM-YYYY')
+            let _date = moment(s.date).format('DD/MM/YYYY')
+            let _value = value.format('DD/MM/YYYY')
 
             return <>
               {
-                _date == _value && <li>{_date + '-' + s.person.name}</li>
+                _date == _value &&
+                <li style={{ fontSize: '10px', marginBottom: '9px' }}>
+                  {moment(s.date).format('HH:MM') + ': ' + s.person.name}
+                </li>
               }
             </>
           })
