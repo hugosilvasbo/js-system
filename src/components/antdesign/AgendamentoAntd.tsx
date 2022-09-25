@@ -11,23 +11,33 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import jconst from '../../assets/jsConstantes.json';
 
+interface ISchedule {
+  date: string,
+  person: any
+}
+
 class Agendamento extends React.Component<{}, any> {
   state = {
     schedule: {}
   }
 
   async componentDidMount(): Promise<void> {
-    let res = await getScheduling(moment('2022-09-01'))
-    this.setState({ schedule: res.data })
+    let data = await getScheduling(moment('2022-09-01'))
+    this.setState({ schedule: data })
   }
 
   dateCellRender = (value: Moment) => {
     return (
       <ul>
         {
-          _.map(this.state.schedule, (s: any) => {
+          _.map(this.state.schedule, (s: ISchedule) => {
+            let _date = moment(s.date).format('DD-MM-YYYY')
+            let _value = value.format('DD-MM-YYYY')
+
             return <>
-              Extrair o dia aqui
+              {
+                _date == _value && <li>{_date + '-' + s.person.name}</li>
+              }
             </>
           })
         }
@@ -36,8 +46,9 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   onPanelChange = async (value: Moment) => {
-    let res = await getScheduling(value)
-    this.setState({ agendamentos: res.data })
+    let data = await getScheduling(value)
+    console.log({ onPanelChange: 'onPanelChange' })
+    this.setState({ agendamentos: data })
   }
 
   render() {
@@ -59,15 +70,13 @@ async function getScheduling(value: Moment) {
   let startdate = clone.startOf('month').format('YYYY-MM-DD')
   let enddate = clone.endOf('month').format('YYYY-MM-DD')
 
-  console.log({ startdate })
-  console.log({ enddate })
-
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
       startdate: startdate,
       enddate: enddate
     }
   })
-  console.log({ getScheduling: res.data })
+
+  console.log('getScheduling...')
   return res.data;
 }
