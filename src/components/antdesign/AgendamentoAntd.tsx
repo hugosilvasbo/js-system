@@ -20,17 +20,19 @@ const keyFormat = 'DDMMYYYY'
 async function getScheduling(value: Moment) {
   let clone = value.clone()
 
-  let first_day_of_month = clone.startOf('month').format('YYYY-MM-DD')
-  let last_day_of_month = clone.endOf('month').format('YYYY-MM-DD')
+  let ini = clone.startOf('month').utc().format('YYYY-MM-DD')
+  let fim = clone.endOf('month').utc().format('YYYY-MM-DD')
 
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
-      startdate: first_day_of_month,
-      enddate: last_day_of_month
+      startdate: ini,
+      enddate: fim
     }
   })
 
-  let _groupByDay = _.groupBy(res.data, (r: any) => moment(r.date).format(keyFormat))
+  let _groupformat = (r: any) => moment(r.date).utc().format(keyFormat)
+  let _groupByDay = _.groupBy(res.data, _groupformat)
+
   return _groupByDay;
 }
 
@@ -39,30 +41,33 @@ class Agendamento extends React.Component<{}, any> {
     schedule: {}
   }
 
-  style = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
+  style = {
+    fontSize: '12px',
+    marginBottom: '12px',
+    listStyleType: 'none'
+  }
 
   async componentDidMount(): Promise<void> {
-    let data = await getScheduling(moment('2022-09-01'))
+    let firstMoment = moment('2022-09-01').utc()
+    let data = await getScheduling(firstMoment)
     this.setState({ schedule: data })
   }
 
   /**
   * Renderiza as células do calendário.
-  * Aqui, é feito um filtro pela key (usando o pick), exemplo: 20220910 -> Traz apenas os registros do dia/mês/ano
-  * Com isto, é percorrido os elementos e mapeando o mesmo.
   * @function
   * @param {Moment} value - período a ser obtido.
   */
   dateCellRender = (value: Moment) => {
-    let key = value.format(keyFormat)
-    let scheduleInTheMonth = _.pick(this.state.schedule, key)
+    let _key = value.utc().format(keyFormat)
+    let _scheduleInDay = _.pick(this.state.schedule, _key)
 
     return (
-      _.map(scheduleInTheMonth, schedule =>
-        <ul key={schedule} onClick={() => console.log({ exemploClique: schedule })}>
-          {_.map(schedule, (item: any) => {
+      _.map(_scheduleInDay, inDay =>
+        <ul key={inDay} onClick={() => console.log({ exemploClique: inDay })}>
+          {_.map(inDay, (item: any) => {
             return <li style={this.style}>
-              {`${item.date} - ${item.person?.name}`}
+              {`${moment(item.date).utc()} - ${item.person?.name}`}
             </li>
           })}
         </ul>
