@@ -44,17 +44,21 @@ class Agendamento extends React.Component<{}, any> {
 
   dateCellRender = (value: Moment) => {
     let key = value.format(_groupBy)
+    //console.log(value.date())
 
     // exemplo: key = 21092022
     // no objeto agrupado por data, fazemos o filtro pela key
     // trazendo apenas os resultados do dia
-    let inDay = _.pick(this.state.schedule, key)
-    console.log(inDay)
+    let pick = _.pick(this.state.schedule, key)
+    console.log(pick)
+
+    // percorrer as keys
+    // e para cada uma, se igual a key let
+    // percorrer, guardar num obj e setar
 
     return (
       <ul>
         {
-         
         }
       </ul>
 
