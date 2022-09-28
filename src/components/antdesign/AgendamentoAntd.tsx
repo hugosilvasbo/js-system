@@ -48,9 +48,16 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   async componentDidMount(): Promise<void> {
-    let firstMoment = moment('2022-09-01').utc()
+    let firstMoment = moment('2022-09-01')
     let data = await getScheduling(firstMoment)
     this.setState({ schedule: data })
+  }
+
+  ListGuy = (props: any) => {
+    const time = moment(props.date).utc().format('HH:mm:ss')
+    return (
+      <li style={this.style}> {`${time} - ${props.person}`} </li>
+    )
   }
 
   /**
@@ -59,19 +66,14 @@ class Agendamento extends React.Component<{}, any> {
   * @param {Moment} value - período a ser obtido.
   */
   dateCellRender = (value: Moment) => {
-    let _key = value.utc().format(keyFormat)
-    let _scheduleInDay = _.pick(this.state.schedule, _key)
+    let formatado_data = value.utc().format(keyFormat)
+    let agendamentosNoDia = _.pick(this.state.schedule, formatado_data)
 
     return (
-      _.map(_scheduleInDay, inDay =>
-        <ul key={inDay} onClick={() => console.log({ exemploClique: inDay })}>
-          {_.map(inDay, (item: any) => {
-            return <li style={this.style}>
-              {`${moment(item.date).utc()} - ${item.person?.name}`}
-            </li>
-          })}
-        </ul>
-      )
+      _.map(agendamentosNoDia, (dia: any) =>
+        <ul key={dia} onClick={() => { console.log(dia) }}>{
+          _.map(dia, (i: any) => <this.ListGuy person={i.person.name} date={i.date} />)
+        }</ul>)
     );
   }
 
