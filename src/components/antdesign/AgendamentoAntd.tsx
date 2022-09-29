@@ -41,12 +41,6 @@ class Agendamento extends React.Component<{}, any> {
     schedule: {}
   }
 
-  style = {
-    fontSize: '12px',
-    marginBottom: '12px',
-    listStyleType: 'none'
-  }
-
   async componentDidMount(): Promise<void> {
     let firstMoment = moment('2022-09-01')
     let data = await getScheduling(firstMoment)
@@ -54,9 +48,11 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   ListGuy = (props: any) => {
+    const style = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
     const time = moment(props.date).utc().format('HH:mm:ss')
+    
     return (
-      <li style={this.style}> {`${time} - ${props.person}`} </li>
+      <li style={style}> {`${time} - ${props.person}`} </li>
     )
   }
 
