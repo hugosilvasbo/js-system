@@ -10,30 +10,28 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import jconst from '../../assets/jsConstantes.json';
 
-const keyFormat = 'DDMMYYYY'
-
 /**
  * Obtém os agendamentos do mês agrupados por data (DDMMYYYY).
  * @function
  * @param {Moment} value - período a ser obtido.
  */
-async function getScheduling(value: Moment) {
+async function obterAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
 
-  let ini = clone.startOf('month').utc().format('YYYY-MM-DD')
-  let fim = clone.endOf('month').utc().format('YYYY-MM-DD')
+  let data_inicial = clone.startOf('month').format('YYYY-MM-DD')
+  let data_final = clone.endOf('month').format('YYYY-MM-DD')
 
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
-      startdate: ini,
-      enddate: fim
+      startdate: data_inicial,
+      enddate: data_final
     }
   })
 
-  let _groupformat = (r: any) => moment(r.date).utc().format(keyFormat)
-  let _groupByDay = _.groupBy(res.data, _groupformat)
+  let formatado_do_grupo = (r: any) => moment(r.date).format('DDMMYYYY')
+  let objeto_agrupado_por_dia = _.groupBy(res.data, formatado_do_grupo)
 
-  return _groupByDay;
+  return objeto_agrupado_por_dia;
 }
 
 class Agendamento extends React.Component<{}, any> {
@@ -42,17 +40,18 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   async componentDidMount(): Promise<void> {
-    let firstMoment = moment('2022-09-01')
-    let data = await getScheduling(firstMoment)
+    let data = await obterAgendamentosDoMes(moment(new Date()))
     this.setState({ schedule: data })
   }
 
-  ListGuy = (props: any) => {
-    const style = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
-    const time = moment(props.date).utc().format('HH:mm:ss')
-    
+  ListaHTML = (props: any) => {
+    const estilo_css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
+    const hora_mes = moment(props.date).format('HH:mm:ss')
+
     return (
-      <li style={style}> {`${time} - ${props.person}`} </li>
+      <li key={props._id} style={estilo_css}>
+        {`${hora_mes} - ${props.person}`}
+      </li>
     )
   }
 
@@ -62,20 +61,20 @@ class Agendamento extends React.Component<{}, any> {
   * @param {Moment} value - período a ser obtido.
   */
   dateCellRender = (value: Moment) => {
-    let formatado_data = value.utc().format(keyFormat)
-    let agendamentosNoDia = _.pick(this.state.schedule, formatado_data)
+    let data_mascarada = value.format('DDMMYYYY')
+    let agendamento_no_dia = _.pick(this.state.schedule, data_mascarada)
 
     return (
-      _.map(agendamentosNoDia, (dia: any) =>
-        <ul key={dia} onClick={() => { console.log(dia) }}>{
-          _.map(dia, (i: any) => <this.ListGuy person={i.person.name} date={i.date} />)
+      _.map(agendamento_no_dia, (no_dia: any) =>
+        <ul key={no_dia} onClick={() => console.log('clickCelula', no_dia)}>{
+          _.map(no_dia, (i: any) => <this.ListaHTML _id={i._id} person={i.person.name} date={i.date} />)
         }</ul>)
     );
   }
 
   onPanelChange = async (value: Moment) => {
-    let data = await getScheduling(value)
-    this.setState({ agendamentos: data })
+    let res = await obterAgendamentosDoMes(value)
+    this.setState({ schedule: res })
   }
 
   render() {
