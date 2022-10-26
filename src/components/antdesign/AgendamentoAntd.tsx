@@ -2,7 +2,7 @@
  * @author Hugo S. Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar } from 'antd';
+import { Calendar, Modal, Row } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import axios from 'axios';
 import _ from 'lodash';
@@ -55,6 +55,10 @@ class Agendamento extends React.Component<{}, any> {
     )
   }
 
+  abrirDetalhes(dados_do_dia: any) {
+    console.log({ dados_do_dia })
+  }
+
   /**
   * Renderiza as células do calendário.
   * @function
@@ -66,7 +70,7 @@ class Agendamento extends React.Component<{}, any> {
 
     return (
       _.map(agendamento_no_dia, (no_dia: any) =>
-        <ul key={no_dia} onClick={() => console.log('clickCelula', no_dia)}>{
+        <ul key={no_dia} onClick={() => this.abrirDetalhes(no_dia)}>{
           _.map(no_dia, (i: any) => <this.ListaHTML _id={i._id} person={i.person.name} date={i.date} />)
         }</ul>)
     );
@@ -79,11 +83,18 @@ class Agendamento extends React.Component<{}, any> {
 
   render() {
     return <>
-      <Calendar
-        locale={locale}
-        dateCellRender={this.dateCellRender}
-        onPanelChange={this.onPanelChange}
-      />
+      <Row>
+        <Calendar
+          locale={locale}
+          dateCellRender={this.dateCellRender}
+          onPanelChange={this.onPanelChange}
+        />
+        <div>
+          Trazer as informações do dia aqui...
+          no lado esquerdo, e quando clicar sobre,
+          abrir um modal com o detalhamento
+        </div>
+      </Row>
     </>
   }
 };
