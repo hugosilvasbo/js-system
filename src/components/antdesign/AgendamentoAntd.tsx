@@ -2,7 +2,7 @@
  * @author Hugo S. Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar, Col, Row, Space, Typography } from 'antd';
+import { Calendar, Col, Modal, Row, Space, Typography } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import axios from 'axios';
@@ -33,7 +33,11 @@ async function obterAgendamentosDoMes(value: Moment) {
 class Agendamento extends React.Component<{}, any> {
   state = {
     dados: {},
-    agendamentosNoDia: {}
+    agendamentosNoDia: {} as any,
+    modal: {
+      openModal: false,
+      agendamentoSelecionado: {} as any
+    }
   }
 
   async componentDidMount(): Promise<void> {
@@ -58,21 +62,17 @@ class Agendamento extends React.Component<{}, any> {
 
     return (
       _.map(agendamentos, (agendamento: any) =>
-        <ul key={agendamento} onClick={() => this.setState({ agendamentosNoDia: agendamento })}>{
-          _.map(agendamento, (i: any) => <this.ListaHTML _id={i._id} person={i.person.name} date={i.date} />)
-        }</ul>)
+        <ul key={agendamento} onClick={() => this.setState({ agendamentosNoDia: agendamento })}  >
+          {_.map(agendamento, (a: any) =>
+            <this.ListaHTML _id={a._id} person={a.person.name} date={a.date} />
+          )}
+        </ul>)
     );
   }
 
   onPanelChange = async (value: Moment) => {
     let res = await obterAgendamentosDoMes(value)
     this.setState({ dados: res })
-  }
-
-  DetalhesDoDia() {
-    return _.map(this.state.agendamentosNoDia, (agendamento: any) => {
-      return agendamento._id
-    })
   }
 
   render() {
@@ -86,20 +86,37 @@ class Agendamento extends React.Component<{}, any> {
           />
         </Col>
         <Col span={6} style={{ padding: '1em' }}>
-          <Typography.Title style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }} level={5}>
+          <Typography.Title
+            style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }}
+            level={5}
+          >
             Agendamento(s) no dia
           </Typography.Title>
-          <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }}>
+          <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }} >
             {
               _.map(this.state.agendamentosNoDia, (agendamento: any) => {
                 return <>
-                  <Card title={agendamento.person.name} size="small">
+                  <Card
+                    title={agendamento.person.name}
+                    size="small"
+                    onClick={() => { this.setState({ modal: { openModal: true, agendamentoSelecionado: agendamento } }) }}
+                  >
                     <p>{agendamento.date}</p>
                     <p>{agendamento.cellphone}</p>
                   </Card>
+
                 </>
               })
             }
+            <Modal
+              title="Detalhamento"
+              centered
+              open={this.state.modal.openModal}
+              onOk={() => this.setState({ modal: { openModal: false } })}
+              onCancel={() => this.setState({ modal: { openModal: false } })}
+              width={1000}>
+              {this.state.modal.agendamentoSelecionado.date}
+            </Modal>
           </Space>
         </Col>
       </Row>
