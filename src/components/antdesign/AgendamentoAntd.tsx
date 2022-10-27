@@ -2,46 +2,43 @@
  * @author Hugo S. Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar, Modal, Row } from 'antd';
+import { Calendar, Col, Row, Space, Typography } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
+import Card from 'antd/lib/card/Card';
 import axios from 'axios';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React from 'react';
 import jconst from '../../assets/jsConstantes.json';
 
-/**
- * Obtém os agendamentos do mês agrupados por data (DDMMYYYY).
- * @function
- * @param {Moment} value - período a ser obtido.
- */
 async function obterAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
 
-  let data_inicial = clone.startOf('month').format('YYYY-MM-DD')
-  let data_final = clone.endOf('month').format('YYYY-MM-DD')
+  let dataInicio = clone.startOf('month').format('YYYY-MM-DD')
+  let dataFim = clone.endOf('month').format('YYYY-MM-DD')
 
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
-      startdate: data_inicial,
-      enddate: data_final
+      startdate: dataInicio,
+      enddate: dataFim
     }
   })
 
-  let formatado_do_grupo = (r: any) => moment(r.date).format('DDMMYYYY')
-  let objeto_agrupado_por_dia = _.groupBy(res.data, formatado_do_grupo)
+  let formato = (r: any) => moment(r.date).format('DDMMYYYY')
+  let agrupadoPorDia = _.groupBy(res.data, formato)
 
-  return objeto_agrupado_por_dia;
+  return agrupadoPorDia;
 }
 
 class Agendamento extends React.Component<{}, any> {
   state = {
-    schedule: {}
+    dados: {},
+    agendamentosNoDia: {}
   }
 
   async componentDidMount(): Promise<void> {
     let data = await obterAgendamentosDoMes(moment(new Date()))
-    this.setState({ schedule: data })
+    this.setState({ dados: data })
   }
 
   ListaHTML = (props: any) => {
@@ -55,45 +52,56 @@ class Agendamento extends React.Component<{}, any> {
     )
   }
 
-  abrirDetalhes(dados_do_dia: any) {
-    console.log({ dados_do_dia })
-  }
-
-  /**
-  * Renderiza as células do calendário.
-  * @function
-  * @param {Moment} value - período a ser obtido.
-  */
   dateCellRender = (value: Moment) => {
-    let data_mascarada = value.format('DDMMYYYY')
-    let agendamento_no_dia = _.pick(this.state.schedule, data_mascarada)
+    let data = value.format('DDMMYYYY')
+    let agendamentos = _.pick(this.state.dados, data)
 
     return (
-      _.map(agendamento_no_dia, (no_dia: any) =>
-        <ul key={no_dia} onClick={() => this.abrirDetalhes(no_dia)}>{
-          _.map(no_dia, (i: any) => <this.ListaHTML _id={i._id} person={i.person.name} date={i.date} />)
+      _.map(agendamentos, (agendamento: any) =>
+        <ul key={agendamento} onClick={() => this.setState({ agendamentosNoDia: agendamento })}>{
+          _.map(agendamento, (i: any) => <this.ListaHTML _id={i._id} person={i.person.name} date={i.date} />)
         }</ul>)
     );
   }
 
   onPanelChange = async (value: Moment) => {
     let res = await obterAgendamentosDoMes(value)
-    this.setState({ schedule: res })
+    this.setState({ dados: res })
+  }
+
+  DetalhesDoDia() {
+    return _.map(this.state.agendamentosNoDia, (agendamento: any) => {
+      return agendamento._id
+    })
   }
 
   render() {
     return <>
       <Row>
-        <Calendar
-          locale={locale}
-          dateCellRender={this.dateCellRender}
-          onPanelChange={this.onPanelChange}
-        />
-        <div>
-          Trazer as informações do dia aqui...
-          no lado esquerdo, e quando clicar sobre,
-          abrir um modal com o detalhamento
-        </div>
+        <Col span={18}>
+          <Calendar
+            locale={locale}
+            dateCellRender={this.dateCellRender}
+            onPanelChange={this.onPanelChange}
+          />
+        </Col>
+        <Col span={6} style={{ padding: '1em' }}>
+          <Typography.Title style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }} level={5}>
+            Agendamento(s) no dia
+          </Typography.Title>
+          <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }}>
+            {
+              _.map(this.state.agendamentosNoDia, (agendamento: any) => {
+                return <>
+                  <Card title={agendamento.person.name} size="small">
+                    <p>{agendamento.date}</p>
+                    <p>{agendamento.cellphone}</p>
+                  </Card>
+                </>
+              })
+            }
+          </Space>
+        </Col>
       </Row>
     </>
   }
