@@ -9,7 +9,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import jconst from '../../assets/jsConstantes.json';
+import jconst from '../../assets/jsConstantes.json'
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
@@ -40,17 +40,6 @@ class Agendamento extends React.Component<{}, any> {
     }
   }
 
-  FragListaHTML = (props: any) => {
-    const css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
-    const hora_mes = moment(props.date).format('HH:mm:ss')
-
-    return (
-      <li key={props._id} style={css}>
-        {`${hora_mes} - ${props.person}`}
-      </li>
-    )
-  }
-
   async componentDidMount(): Promise<void> {
     let data = await buscarNaAPIOsAgendamentosDoMes(moment(new Date()));
     this.setState({ dados: data });
@@ -60,11 +49,22 @@ class Agendamento extends React.Component<{}, any> {
     let data = value.format('DDMMYYYY')
     let agendamentos = _.pick(this.state.dados, data)
 
+    const FragListaHTML = (props: any) => {
+      const css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
+      const hora_mes = moment(props.date).format('HH:mm:ss')
+
+      return (
+        <li key={props._id} style={css}>
+          {`${hora_mes} - ${props.person}`}
+        </li>
+      )
+    }
+
     return (
       _.map(agendamentos, (agendamento: any) =>
         <ul key={agendamento} onClick={() => this.setState({ agendamentosNoDia: agendamento })}  >
           {_.map(agendamento, (a: any) =>
-            <this.FragListaHTML
+            <FragListaHTML
               _id={a._id}
               person={a.person.name}
               date={a.date}
@@ -81,13 +81,25 @@ class Agendamento extends React.Component<{}, any> {
   }
 
   FragAgendamentosNoDia = () => {
-    let stateSelecionado = this.state.agendamentoSelecionado;
-    let stateModal = this.state.modal;
-    let stateAgendadoNoDia = this.state.agendamentosNoDia;
+    const stateSelecionado = this.state.agendamentoSelecionado;
+    const stateModal = this.state.modal;
+    const stateAgendadoNoDia = this.state.agendamentosNoDia;
 
     const [form_digitacao] = Form.useForm();
-    
     form_digitacao.setFieldsValue(stateSelecionado);
+
+    const onSubmitForm = async () => {
+      form_digitacao.validateFields()
+        .then(async (value: any) => {
+          let res = await axios.post(`${jconst.url_api_barber}schedule`, value)
+            .then((value: any) => {
+              console.log({ resultadoAPI: value })
+            })
+            .catch((reason: any) => {
+              console.log({ falha: reason });
+            })
+        });
+    }
 
     return <>
       {
@@ -111,7 +123,7 @@ class Agendamento extends React.Component<{}, any> {
             title={"Manutenção"}
             centered
             open={stateModal.openModal}
-            onOk={() => this.setState({ modal: { openModal: false } })}
+            onOk={onSubmitForm}
             onCancel={() => this.setState({ modal: { openModal: false } })}
             width={1000}
             okText={"Gravar"}
