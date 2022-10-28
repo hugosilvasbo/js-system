@@ -1,5 +1,5 @@
 /**
- * @author Hugo S. Souza <hugosilva.souza@hotmail.com>
+ * @author Hugo S. de Souza <hugosilva.souza@hotmail.com>
  */
 
 import { Calendar, Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
