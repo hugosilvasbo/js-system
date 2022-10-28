@@ -2,7 +2,7 @@
  * @author Hugo S. Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar, Col, Modal, Row, Space, Typography } from 'antd';
+import { Calendar, Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import axios from 'axios';
@@ -11,7 +11,7 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import jconst from '../../assets/jsConstantes.json';
 
-async function obterAgendamentosDoMes(value: Moment) {
+async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
 
   let dataInicio = clone.startOf('month').format('YYYY-MM-DD')
@@ -34,26 +34,26 @@ class Agendamento extends React.Component<{}, any> {
   state = {
     dados: {},
     agendamentosNoDia: {} as any,
+    agendamentoSelecionado: {} as any,
     modal: {
-      openModal: false,
-      agendamentoSelecionado: {} as any
+      openModal: false
     }
   }
 
-  async componentDidMount(): Promise<void> {
-    let data = await obterAgendamentosDoMes(moment(new Date()))
-    this.setState({ dados: data })
-  }
-
-  ListaHTML = (props: any) => {
-    const estilo_css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
+  FragListaHTML = (props: any) => {
+    const css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
     const hora_mes = moment(props.date).format('HH:mm:ss')
 
     return (
-      <li key={props._id} style={estilo_css}>
+      <li key={props._id} style={css}>
         {`${hora_mes} - ${props.person}`}
       </li>
     )
+  }
+
+  async componentDidMount(): Promise<void> {
+    let data = await buscarNaAPIOsAgendamentosDoMes(moment(new Date()));
+    this.setState({ dados: data });
   }
 
   dateCellRender = (value: Moment) => {
@@ -64,15 +64,83 @@ class Agendamento extends React.Component<{}, any> {
       _.map(agendamentos, (agendamento: any) =>
         <ul key={agendamento} onClick={() => this.setState({ agendamentosNoDia: agendamento })}  >
           {_.map(agendamento, (a: any) =>
-            <this.ListaHTML _id={a._id} person={a.person.name} date={a.date} />
+            <this.FragListaHTML
+              _id={a._id}
+              person={a.person.name}
+              date={a.date}
+            />
           )}
-        </ul>)
+        </ul>
+      )
     );
   }
 
   onPanelChange = async (value: Moment) => {
-    let res = await obterAgendamentosDoMes(value)
+    let res = await buscarNaAPIOsAgendamentosDoMes(value);
     this.setState({ dados: res })
+  }
+
+  FragAgendamentosNoDia = () => {
+    let stateSelecionado = this.state.agendamentoSelecionado;
+    let stateModal = this.state.modal;
+    let stateAgendadoNoDia = this.state.agendamentosNoDia;
+
+    const [form_digitacao] = Form.useForm();
+    
+    form_digitacao.setFieldsValue(stateSelecionado);
+
+    return <>
+      {
+        <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }} >
+          {
+            _.map(stateAgendadoNoDia, (agendamento: any) => {
+              return <>
+                <Card
+                  title={agendamento.person.name}
+                  size="small"
+                  headStyle={{ background: '#f1f1f1' }}
+                  onClick={() => { this.setState({ modal: { openModal: true, }, agendamentoSelecionado: agendamento }) }}
+                >
+                  <p>{agendamento.date}</p>
+                  <p>{agendamento.cellphone}</p>
+                </Card>
+              </>
+            })
+          }
+          <Modal
+            title={"Manutenção"}
+            centered
+            open={stateModal.openModal}
+            onOk={() => this.setState({ modal: { openModal: false } })}
+            onCancel={() => this.setState({ modal: { openModal: false } })}
+            width={1000}
+            okText={"Gravar"}
+            cancelText={"Sair"}
+          >
+            <Form form={form_digitacao} layout={"vertical"}>
+              <Row>
+                <Col span={24} >
+                  {/** exemplo de como mostrar conteudo de sub objetos */}
+                  <Form.Item label={"Razão"} name={['person', 'name']}>
+                    <Input disabled={true} />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Col span={6}>
+                <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label={"Data"} name={"date"}>
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Form>
+          </Modal>
+        </Space>
+      }
+    </>
   }
 
   render() {
@@ -86,38 +154,10 @@ class Agendamento extends React.Component<{}, any> {
           />
         </Col>
         <Col span={6} style={{ padding: '1em' }}>
-          <Typography.Title
-            style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }}
-            level={5}
-          >
+          <Typography.Title style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }} level={5} >
             Agendamento(s) no dia
           </Typography.Title>
-          <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }} >
-            {
-              _.map(this.state.agendamentosNoDia, (agendamento: any) => {
-                return <>
-                  <Card
-                    title={agendamento.person.name}
-                    size="small"
-                    onClick={() => { this.setState({ modal: { openModal: true, agendamentoSelecionado: agendamento } }) }}
-                  >
-                    <p>{agendamento.date}</p>
-                    <p>{agendamento.cellphone}</p>
-                  </Card>
-
-                </>
-              })
-            }
-            <Modal
-              title="Detalhamento"
-              centered
-              open={this.state.modal.openModal}
-              onOk={() => this.setState({ modal: { openModal: false } })}
-              onCancel={() => this.setState({ modal: { openModal: false } })}
-              width={1000}>
-              {this.state.modal.agendamentoSelecionado.date}
-            </Modal>
-          </Space>
+          <this.FragAgendamentosNoDia />
         </Col>
       </Row>
     </>
