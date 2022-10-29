@@ -146,8 +146,7 @@ const Agendamento = () => {
               width={1000}
               okText={"Gravar"}
               cancelText={"Sair"}
-              forceRender
-            >
+              forceRender>
               <Form form={form_digitacao} layout={"vertical"}>
                 <Row>
                   <Col span={24} >
@@ -182,7 +181,7 @@ const Agendamento = () => {
     <Row justify='end'>
       <FrameCadButtons
         inEdition={false}
-        onClickNew={() => { }}
+        onClickNew={() => { setOpenModal(true) }}
         onClickSearch={() => setOpenModalConsulta(true)}
         onClickEdit={() => setHideNoDia(!hideNoDia)}
         orientation={'horizontal'}
