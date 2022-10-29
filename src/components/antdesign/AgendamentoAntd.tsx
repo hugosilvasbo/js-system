@@ -10,23 +10,25 @@ import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import jconst from '../../assets/jsConstantes.json';
+import jURL from '../../assets/jasonURLs.json';
+import jMask from '../../assets/jasonMask.json';
+import jCor from '../../assets/jasonCor.json';
 import FrameCadButtons from '../mine/FrameCadButtons';
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
 
-  let dataInicio = clone.startOf('month').format(jconst.mask_data_2)
-  let dataFim = clone.endOf('month').format(jconst.mask_data_2)
+  let dataInicio = clone.startOf('month').format(jMask.mask_data_2)
+  let dataFim = clone.endOf('month').format(jMask.mask_data_2)
 
-  let res = await axios.get(`${jconst.url_api_barber}schedule`, {
+  let res = await axios.get(`${jURL.url_api_barber}schedule`, {
     params: {
       startdate: dataInicio,
       enddate: dataFim
     }
   })
 
-  let formato = (r: any) => moment(r.date).format(jconst.mask_data_3)
+  let formato = (r: any) => moment(r.date).format(jMask.mask_data_3)
   let agrupadoPorDia = _.groupBy(res.data, formato)
 
   return agrupadoPorDia;
@@ -52,11 +54,11 @@ const Agendamento = () => {
   }, [])
 
   const dateCellRender = (value: Moment) => {
-    let data = value.format(jconst.mask_data_3)
+    let data = value.format(jMask.mask_data_3)
     let agendamentos = _.pick(dados, data)
 
     const FragListaHTML = (props: any) => {
-      const hora_mes = moment(props.date).format(jconst.mask_data_4)
+      const hora_mes = moment(props.date).format(jMask.mask_data_4)
 
       return (
         <li key={props._id} style={{ fontSize: '12px' }}>
@@ -92,7 +94,7 @@ const Agendamento = () => {
       try {
         let value = await form_digitacao.validateFields();
 
-        let _url = `${jconst.url_api_barber}schedule/${value._id}`
+        let _url = `${jURL.url_api_barber}schedule/${value._id}`
 
         let res = await axios.patch(_url, value);
 
@@ -107,7 +109,7 @@ const Agendamento = () => {
       {
         <Card
           title={"Atual"}
-          headStyle={{ background: jconst.corAzulEscuro, color: 'white' }}
+          headStyle={{ background: jCor.corAzulEscuro, color: 'white' }}
         >
           <Space direction={'vertical'} size={'small'} style={{ display: 'flex' }} >
             {
@@ -127,7 +129,7 @@ const Agendamento = () => {
                         setOpenModal(true)
                         setAgendamentoSelecionado(agendamento)
                       }}>
-                      <p>Data: {moment(agendamento.date).format(jconst.mask_data_1)}</p>
+                      <p>Data: {moment(agendamento.date).format(jMask.mask_data_1)}</p>
                       <p>Celular: {agendamento.person.cellphone}</p>
                     </Card>
                   </Tooltip>

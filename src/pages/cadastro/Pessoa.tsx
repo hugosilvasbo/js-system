@@ -3,13 +3,11 @@ import { Content } from 'antd/lib/layout/layout';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import constantes from '../../assets/jsConstantes.json';
+import jURL from '../../assets/jasonURLs.json';
 import FrameCadButtons from '../../components/mine/FrameCadButtons';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
-    const URL_PERSON = constantes.url_api_barber + 'person/';
-
     const [dataSource, setDataSource] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
@@ -39,11 +37,12 @@ const Pessoa = () => {
     const handleFormSubmit = () => {
         formDigitacao.validateFields()
             .then(async (values) => {
+                const _url = jURL.url_api_barber + 'person/';
                 try {
                     let res = null;
                     values._id ?
-                        res = await axios.patch(URL_PERSON + values._id, values) :
-                        res = await axios.post(URL_PERSON, values)
+                        res = await axios.patch(_url + values._id, values) :
+                        res = await axios.post(_url, values)
 
                     toast.success(res.data.message)
                 } catch (error) {
@@ -105,7 +104,7 @@ const Pessoa = () => {
 
     useEffect(() => {
         if (deletePerson) {
-            axios.delete(URL_PERSON + formDigitacao.getFieldValue('_id'))
+            axios.delete(jURL.url_api_barber + 'person/' + formDigitacao.getFieldValue('_id'))
                 .then((res: any) => {
                     toast.success(res.data.message);
                 })
@@ -138,7 +137,7 @@ const Pessoa = () => {
                         }}
                         onClickSearch={async () => {
                             try {
-                                let res = await axios.get(URL_PERSON);
+                                let res = await axios.get(jURL.url_api_barber + 'person/');
                                 setDataSource(res.data)
                             } catch (error) {
                                 toast.error('Falha na consulta!');

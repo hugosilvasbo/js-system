@@ -5,14 +5,14 @@ import { Content } from "antd/lib/layout/layout";
 import axios from "axios";
 import { useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
-import constantes from '../../assets/jsConstantes.json';
+import jURL from '../../assets/jasonURLs.json';
 import FrameCadButtons from "../../components/mine/FrameCadButtons";
 
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
     const [dataSource, setDataSource] = useState([]);
 
-    const URL_API = constantes.url_api_barber + 'employee/';
+    const URL_API = jURL.url_api_barber + 'employee/';
 
     const tableColumns = [
         {
