@@ -2,21 +2,22 @@
  * @author Hugo S. de Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar, Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
+import { Calendar, Col, Form, Input, Modal, Row, Space, Tooltip, Typography } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import axios from 'axios';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import jconst from '../../assets/jsConstantes.json';
+import FrameCadButtons from '../mine/FrameCadButtons';
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
 
-  let dataInicio = clone.startOf('month').format('YYYY-MM-DD')
-  let dataFim = clone.endOf('month').format('YYYY-MM-DD')
+  let dataInicio = clone.startOf('month').format(jconst.mask_data_2)
+  let dataFim = clone.endOf('month').format(jconst.mask_data_2)
 
   let res = await axios.get(`${jconst.url_api_barber}schedule`, {
     params: {
@@ -25,7 +26,7 @@ async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
     }
   })
 
-  let formato = (r: any) => moment(r.date).format('DDMMYYYY')
+  let formato = (r: any) => moment(r.date).format(jconst.mask_data_3)
   let agrupadoPorDia = _.groupBy(res.data, formato)
 
   return agrupadoPorDia;
@@ -36,6 +37,7 @@ const Agendamento = () => {
   const [agendamentosNoDia, setAgendamentosNoDia] = useState({} as any);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState({} as any);
   const [openModal, setOpenModal] = useState(false);
+  const [openModalConsulta, setOpenModalConsulta] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,15 +49,14 @@ const Agendamento = () => {
   }, [])
 
   const dateCellRender = (value: Moment) => {
-    let data = value.format('DDMMYYYY')
+    let data = value.format(jconst.mask_data_3)
     let agendamentos = _.pick(dados, data)
 
     const FragListaHTML = (props: any) => {
-      const css = { fontSize: '12px', marginBottom: '12px', listStyleType: 'none' }
-      const hora_mes = moment(props.date).format('HH:mm:ss')
+      const hora_mes = moment(props.date).format(jconst.mask_data_4)
 
       return (
-        <li key={props._id} style={css}>
+        <li key={props._id} style={{ fontSize: '12px' }}>
           {`${hora_mes} - ${props.person}`}
         </li>
       )
@@ -83,9 +84,6 @@ const Agendamento = () => {
         .then(async (res) => {
           let _url = `${jconst.url_api_barber}schedule/${res._id}`
 
-          console.log({ _url })
-          console.log({ res })
-
           await axios.patch(_url, res)
             .then((res: any) => {
               toast.success(res.message)
@@ -102,6 +100,7 @@ const Agendamento = () => {
     return <>
       {
         <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }} >
+
           {
             _.map(agendamentosNoDia, (agendamento: any) => {
               return <>
@@ -113,8 +112,8 @@ const Agendamento = () => {
                     setOpenModal(true)
                     setAgendamentoSelecionado(agendamento)
                   }}>
-                  <p>{agendamento.date}</p>
-                  <p>{agendamento.cellphone}</p>
+                  <p>Data: {moment(agendamento.date).format(jconst.mask_data_1)}</p>
+                  <p>Celular: {agendamento.person.cellphone}</p>
                 </Card>
               </>
             })
@@ -163,7 +162,7 @@ const Agendamento = () => {
 
   return <>
     <Row>
-      <Col span={18}>
+      <Col span={16}>
         <Calendar
           locale={locale}
           dateCellRender={dateCellRender}
@@ -173,11 +172,24 @@ const Agendamento = () => {
           }}
         />
       </Col>
-      <Col span={6} style={{ padding: '1em' }}>
-        <Typography.Title style={{ width: '100%', textAlign: 'center', marginBottom: '1em' }} level={5} >
-          Agendamento(s) no dia
-        </Typography.Title>
+      <Col span={7} style={{padding}}>
         <FragAgendamentosNoDia />
+      </Col>
+      <Col>
+        <FrameCadButtons
+          inEdition={false}
+          onClickNew={() => { }}
+          onClickSearch={() => setOpenModalConsulta(true)}
+        />
+        <Modal
+          title={"Buscar agendamento"}
+          centered
+          open={openModalConsulta}
+          onOk={() => { }}
+          onCancel={() => setOpenModalConsulta(false)}
+          width={800}
+          cancelText={"Sair"}
+        ></Modal>
       </Col>
     </Row>
   </>

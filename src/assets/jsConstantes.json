@@ -1,3 +1,7 @@
 {
-    "url_api_barber": "http://localhost:3000/"
+    "url_api_barber": "http://localhost:3000/",
+    "mask_data_1": "DD/MM/YYYY HH:mm",
+    "mask_data_2": "YYYY-MM-DD",
+    "mask_data_3": "DDMMYYYY",
+    "mask_data_4": "HH:mm"
 }

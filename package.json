@@ -19,6 +19,7 @@
     "bootstrap": "^5.2.1",
     "classnames": "^2.3.1",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.6",
     "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
