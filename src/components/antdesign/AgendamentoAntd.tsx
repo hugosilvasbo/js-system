@@ -2,7 +2,7 @@
  * @author Hugo S. de Souza <hugosilva.souza@hotmail.com>
  */
 
-import { Calendar, Col, Form, Input, Modal, Row, Space, Tooltip, Typography } from 'antd';
+import { Calendar, Col, Form, Input, Modal, Row, Space, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import axios from 'axios';
@@ -38,11 +38,14 @@ const Agendamento = () => {
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState({} as any);
   const [openModal, setOpenModal] = useState(false);
   const [openModalConsulta, setOpenModalConsulta] = useState(false);
+  const [hideNoDia, setHideNoDia] = useState(false);
 
   useEffect(() => {
+    setHideNoDia(true);
+
     const fetchData = async () => {
       let dados = await buscarNaAPIOsAgendamentosDoMes(moment(new Date()))
-      setDados(dados)
+      setDados(dados);
     }
 
     fetchData().catch(console.error)
@@ -63,106 +66,141 @@ const Agendamento = () => {
     }
 
     return (
-      _.map(agendamentos, (agendamento: any) =>
-        <ul key={agendamento} onClick={() => setAgendamentosNoDia(agendamento)}  >
+      _.map(agendamentos, (agendamento: any) => {
+        return <>
           {
-            _.map(agendamento, (a: any) =>
-              <FragListaHTML _id={a._id} person={a.person.name} date={a.date} />
-            )
+            <div style={{ height: '100%' }} onClick={() => setAgendamentosNoDia(agendamento)}>
+              {
+                _.map(agendamento, (a: any) =>
+                  <FragListaHTML _id={a._id} person={a.person.name} date={a.date} />
+                )
+              }
+            </div>
           }
-        </ul>
+        </>
+      }
       )
     );
   }
 
   const FragAgendamentosNoDia = () => {
     const [form_digitacao] = Form.useForm();
+
     form_digitacao.setFieldsValue(agendamentoSelecionado);
 
     const onSubmitForm = async () => {
-      await form_digitacao.validateFields()
-        .then(async (res) => {
-          let _url = `${jconst.url_api_barber}schedule/${res._id}`
+      try {
+        let value = await form_digitacao.validateFields();
 
-          await axios.patch(_url, res)
-            .then((res: any) => {
-              toast.success(res.message)
-            })
-            .catch((err: any) => {
-              toast.error("Falha na atualização...")
-            })
-        })
-        .catch((err: any) => {
-          toast.error("Falha na validação do formulário")
-        })
+        let _url = `${jconst.url_api_barber}schedule/${value._id}`
+
+        let res = await axios.patch(_url, value);
+
+        toast.success(res.data.message)
+
+      } catch (error) {
+        toast.error("" + error)
+      }
     }
 
     return <>
       {
-        <Space direction={'vertical'} size={'middle'} style={{ display: 'flex' }} >
+        <Card
+          title={"Atual"}
+          headStyle={{ background: jconst.corAzulEscuro, color: 'white' }}
+        >
+          <Space direction={'vertical'} size={'small'} style={{ display: 'flex' }} >
+            {
+              _.map(agendamentosNoDia, (agendamento: any) => {
+                console.log({ selecionad2: agendamento })
+                return <>
+                  <Tooltip
+                    key={'tool_' + agendamento._id}
+                    placement='bottomRight'
+                    title='Clique para alterar'>
 
-          {
-            _.map(agendamentosNoDia, (agendamento: any) => {
-              return <>
-                <Card
-                  title={agendamento.person.name}
-                  size="small"
-                  headStyle={{ background: '#f1f1f1' }}
-                  onClick={() => {
-                    setOpenModal(true)
-                    setAgendamentoSelecionado(agendamento)
-                  }}>
-                  <p>Data: {moment(agendamento.date).format(jconst.mask_data_1)}</p>
-                  <p>Celular: {agendamento.person.cellphone}</p>
-                </Card>
-              </>
-            })
-          }
+                    <Card
+                      title={agendamento.person.name}
+                      size="small"
+                      key={agendamento._id}
+                      onClick={() => {
+                        setOpenModal(true)
+                        setAgendamentoSelecionado(agendamento)
+                      }}>
+                      <p>Data: {moment(agendamento.date).format(jconst.mask_data_1)}</p>
+                      <p>Celular: {agendamento.person.cellphone}</p>
+                    </Card>
+                  </Tooltip>
+                </>
+              })
+            }
 
-          <Modal
-            title={"Manutenção"}
-            centered
-            open={openModal}
-            onOk={onSubmitForm}
-            onCancel={() => setOpenModal(false)}
-            width={1000}
-            okText={"Gravar"}
-            cancelText={"Sair"}
-            forceRender
-          >
-            <Form form={form_digitacao} layout={"vertical"}>
-              <Row>
-                <Col span={24} >
-                  <Form.Item label={'ID'} name={'_id'}>
-                    <Input disabled={true} />
-                  </Form.Item>
-                  {/** exemplo de como mostrar conteudo de sub objetos */}
-                  <Form.Item label={"Razão"} name={['person', 'name']}>
-                    <Input disabled={true} />
+            <Modal
+              title={"Manutenção"}
+              centered
+              open={openModal}
+              onOk={onSubmitForm}
+              onCancel={() => setOpenModal(false)}
+              width={1000}
+              okText={"Gravar"}
+              cancelText={"Sair"}
+              forceRender
+            >
+              <Form form={form_digitacao} layout={"vertical"}>
+                <Row>
+                  <Col span={24} >
+                    <Form.Item label={'ID'} name={'_id'}>
+                      <Input disabled={true} />
+                    </Form.Item>
+                    {/** exemplo de como mostrar conteudo de sub objetos */}
+                    <Form.Item label={"Razão"} name={['person', 'name']}>
+                      <Input disabled={true} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Col span={6}>
+                  <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                    <Input />
                   </Form.Item>
                 </Col>
-              </Row>
-              <Col span={6}>
-                <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label={"Data"} name={"date"}>
-                  <Input />
-                </Form.Item>
-              </Col>
-            </Form>
-            <ToastContainer />
-          </Modal>
-        </Space>
+                <Col span={6}>
+                  <Form.Item label={"Data"} name={"date"}>
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Form>
+            </Modal>
+          </Space>
+        </Card>
       }
     </>
   }
 
   return <>
+    <Row justify='end'>
+      <FrameCadButtons
+        inEdition={false}
+        onClickNew={() => { }}
+        onClickSearch={() => setOpenModalConsulta(true)}
+        onClickEdit={() => setHideNoDia(!hideNoDia)}
+        orientation={'horizontal'}
+      />
+
+      <Modal
+        title={"Buscar agendamento"}
+        centered
+        open={openModalConsulta}
+        onOk={() => { }}
+        onCancel={() => setOpenModalConsulta(false)}
+        width={800}
+        cancelText={"Sair"}
+      />
+    </Row>
     <Row>
-      <Col span={16}>
+      <Col hidden={hideNoDia} span={4} style={{ padding: '10px' }}>
+        <FragAgendamentosNoDia />
+      </Col>
+      <Col span={hideNoDia ? 24 : 20}>
         <Calendar
           locale={locale}
           dateCellRender={dateCellRender}
@@ -172,26 +210,8 @@ const Agendamento = () => {
           }}
         />
       </Col>
-      <Col span={7} style={{padding}}>
-        <FragAgendamentosNoDia />
-      </Col>
-      <Col>
-        <FrameCadButtons
-          inEdition={false}
-          onClickNew={() => { }}
-          onClickSearch={() => setOpenModalConsulta(true)}
-        />
-        <Modal
-          title={"Buscar agendamento"}
-          centered
-          open={openModalConsulta}
-          onOk={() => { }}
-          onCancel={() => setOpenModalConsulta(false)}
-          width={800}
-          cancelText={"Sair"}
-        ></Modal>
-      </Col>
     </Row>
+    <ToastContainer />
   </>
 };
 

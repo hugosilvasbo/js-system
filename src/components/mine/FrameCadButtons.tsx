@@ -1,5 +1,5 @@
 import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Row } from 'antd';
+import { Button, Row, Tooltip } from 'antd';
 
 interface IProps {
     onClickNew?: any,
@@ -8,7 +8,8 @@ interface IProps {
     onClickSave?: any,
     onClickCancel?: any,
     onClickSearch?: any,
-    inEdition: boolean
+    inEdition: boolean,
+    orientation?: 'horizontal' | 'vertical'
 }
 
 const FrameCadButtons = (props: IProps) => {
@@ -17,40 +18,50 @@ const FrameCadButtons = (props: IProps) => {
             onClick: props.onClickNew,
             type: 'reset',
             key: 'new_button',
-            icon: <FolderAddOutlined />
+            icon: <FolderAddOutlined />,
+            tooltipTitle: 'Novo'
         },
         {
             onClick: props.onClickEdit,
             type: 'button',
             key: 'edit_button',
-            icon: <EditOutlined />
+            icon: <EditOutlined />,
+            tooltipTitle: 'Alterar'
         },
         {
             onClick: props.onClickDelete,
             type: 'button',
             key: 'delete_button',
             danger: true,
-            icon: <DeleteOutlined />
+            icon: <DeleteOutlined />,
+            tooltipTitle: 'Excluir'
         },
         {
             onClick: props.onClickSave,
             type: 'submit',
             key: 'save_button',
-            icon: <CheckOutlined />
+            icon: <CheckOutlined />,
+            tooltipTitle: 'Gravar'
         },
         {
             onClick: props.onClickCancel,
             type: 'reset',
             key: 'undo_button',
-            icon: <RedoOutlined />
+            icon: <RedoOutlined />,
+            tooltipTitle: 'Cancelar'
         },
         {
             onClick: props.onClickSearch,
             type: 'button',
             key: 'search_button',
-            icon: <SearchOutlined />
+            icon: <SearchOutlined />,
+            tooltipTitle: 'Pesquisar'
         }
-    ]
+    ];
+
+    const _style = props.orientation === 'horizontal' ?
+        { marginLeft: '0.8em', marginBottom: '0.8em' } :
+        { marginBottom: '0.8em' };
 
     function disableControl(key: string) {
         let disable;
@@ -74,16 +85,18 @@ const FrameCadButtons = (props: IProps) => {
                 craftButtons.map((b: any) => {
                     return b.onClick ?
                         <Row key={'btnrow_' + b.key}>
-                            <Button
-                                htmlType={b.type}
-                                icon={b.icon}
-                                style={{ marginBottom: '0.8rem' }}
-                                onClick={() => b.onClick()}
-                                disabled={disableControl(b.key)}
-                                shape={'circle'}
-                                size={'large'}
-                                danger={b.danger}
-                            />
+                            <Tooltip placement='bottomRight' title={b.tooltipTitle}>
+                                <Button
+                                    htmlType={b.type}
+                                    icon={b.icon}
+                                    style={_style}
+                                    onClick={() => b.onClick()}
+                                    disabled={disableControl(b.key)}
+                                    shape={'circle'}
+                                    size={'large'}
+                                    danger={b.danger}
+                                />
+                            </Tooltip>
                         </Row>
                         : ''
                 })
