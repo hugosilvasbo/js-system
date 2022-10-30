@@ -2,6 +2,7 @@
  * @author Hugo S. de Souza <hugosilva.souza@hotmail.com>
  */
 
+import { DeleteOutlined } from '@ant-design/icons';
 import { Calendar, Col, Form, Input, Modal, Row, Space, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
@@ -10,9 +11,9 @@ import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import jURL from '../../assets/jasonURLs.json';
-import jMask from '../../assets/jasonMask.json';
 import jCor from '../../assets/jasonCor.json';
+import jMask from '../../assets/jasonMask.json';
+import jURL from '../../assets/jasonURLs.json';
 import FrameCadButtons from '../mine/FrameCadButtons';
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
@@ -40,7 +41,7 @@ const Agendamento = () => {
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState({} as any);
   const [openModal, setOpenModal] = useState(false);
   const [openModalConsulta, setOpenModalConsulta] = useState(false);
-  const [hideNoDia, setHideNoDia] = useState(false);
+  const [hideNoDia, setHideNoDia] = useState(true);
 
   useEffect(() => {
     setHideNoDia(true);
@@ -56,14 +57,26 @@ const Agendamento = () => {
   const dateCellRender = (value: Moment) => {
     let data = value.format(jMask.mask_data_3)
     let agendamentos = _.pick(dados, data)
+    let _style = {
+      background: jCor.corAzulClaro,
+      padding: '8px',
+      margin: '6px',
+      borderRadius: '10px',
+      color: 'white'
+    }
 
     const FragListaHTML = (props: any) => {
       const hora_mes = moment(props.date).format(jMask.mask_data_4)
+      let _conteudo = `${hora_mes} - ${props.person}`;
 
       return (
-        <li key={props._id} style={{ fontSize: '12px' }}>
-          {`${hora_mes} - ${props.person}`}
-        </li>
+        <Tooltip
+          placement='left'
+          title='Clique para mais detalhes'>
+          <p style={_style}>
+            {_conteudo}
+          </p>
+        </Tooltip>
       )
     }
 
@@ -71,7 +84,13 @@ const Agendamento = () => {
       _.map(agendamentos, (agendamento: any) => {
         return <>
           {
-            <div style={{ height: '100%' }} onClick={() => setAgendamentosNoDia(agendamento)}>
+            <div
+              style={{ height: 'auto' }}
+              onClick={() => {
+                setAgendamentosNoDia(agendamento)
+                setHideNoDia(!hideNoDia)
+              }
+              }>
               {
                 _.map(agendamento, (a: any) =>
                   <FragListaHTML _id={a._id} person={a.person.name} date={a.date} />
@@ -83,6 +102,11 @@ const Agendamento = () => {
       }
       )
     );
+  }
+
+  const panelChange = async (value: Moment) => {
+    let res = await buscarNaAPIOsAgendamentosDoMes(value)
+    setDados(res)
   }
 
   const FragAgendamentosNoDia = () => {
@@ -102,77 +126,94 @@ const Agendamento = () => {
 
       } catch (error) {
         toast.error("" + error)
+      } finally {
+        setOpenModal(false)
       }
+    }
+
+    const excluirAgendamento = (agendamento: any) => {
+      console.log({ agendamentoparaexcluir: agendamento })
+    }
+
+    const clickSobOAgendamento = (agendamento: any) => {
+      setOpenModal(true)
+      setAgendamentoSelecionado(agendamento)
     }
 
     return <>
       {
-        <Card
-          title={"Atual"}
-          headStyle={{ background: jCor.corAzulEscuro, color: 'white' }}
-        >
-          <Space direction={'vertical'} size={'small'} style={{ display: 'flex' }} >
-            {
-              _.map(agendamentosNoDia, (agendamento: any) => {
-                console.log({ selecionad2: agendamento })
-                return <>
-                  <Tooltip
-                    key={'tool_' + agendamento._id}
-                    placement='bottomRight'
-                    title='Clique para alterar'>
+        <Space
+          direction={'vertical'}
+          size={'small'}
+          style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
 
-                    <Card
-                      title={agendamento.person.name}
-                      size="small"
-                      key={agendamento._id}
-                      onClick={() => {
-                        setOpenModal(true)
-                        setAgendamentoSelecionado(agendamento)
-                      }}>
+          <p>Incluir o campo de filtro dos agendamentos do dia aqui</p>
+
+          {
+            _.map(agendamentosNoDia, (agendamento: any) => {
+              return <>
+                <Tooltip
+                  key={'tool_' + agendamento._id}
+                  title={`Clique para alterar o agendamento do ${agendamento.person.name}`}
+                  placement='right'>
+
+                  <Card
+                    title={agendamento.person.name}
+                    size="small"
+                    key={agendamento._id}>
+
+                    <div
+                      onClick={() => clickSobOAgendamento(agendamento)}
+                      style={{ cursor: 'pointer' }}>
                       <p>Data: {moment(agendamento.date).format(jMask.mask_data_1)}</p>
                       <p>Celular: {agendamento.person.cellphone}</p>
-                    </Card>
-                  </Tooltip>
-                </>
-              })
-            }
+                    </div>
 
-            <Modal
-              title={"Manutenção"}
-              centered
-              open={openModal}
-              onOk={onSubmitForm}
-              onCancel={() => setOpenModal(false)}
-              width={1000}
-              okText={"Gravar"}
-              cancelText={"Sair"}
-              forceRender>
-              <Form form={form_digitacao} layout={"vertical"}>
-                <Row>
-                  <Col span={24} >
-                    <Form.Item label={'ID'} name={'_id'}>
-                      <Input disabled={true} />
-                    </Form.Item>
-                    {/** exemplo de como mostrar conteudo de sub objetos */}
-                    <Form.Item label={"Razão"} name={['person', 'name']}>
-                      <Input disabled={true} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Col span={6}>
-                  <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-                    <Input />
+                    <DeleteOutlined
+                      onClick={() => excluirAgendamento(agendamento)}
+                      style={{ color: 'red', cursor: 'pointer' }} />
+                  </Card>
+                </Tooltip>
+              </>
+            })
+          }
+
+          <Modal
+            title={"Manutenção"}
+            centered
+            open={openModal}
+            onOk={onSubmitForm}
+            onCancel={() => setOpenModal(false)}
+            width={800}
+            okText={"Gravar"}
+            cancelText={"Sair"}
+            forceRender
+          >
+            <Form form={form_digitacao} layout={"vertical"}>
+              <Row>
+                <Col span={24} >
+                  <Form.Item label={'ID'} name={'_id'}>
+                    <Input disabled={true} />
+                  </Form.Item>
+                  {/** exemplo de como mostrar conteudo de sub objetos */}
+                  <Form.Item label={"Razão"} name={['person', 'name']}>
+                    <Input disabled={true} />
                   </Form.Item>
                 </Col>
-                <Col span={6}>
-                  <Form.Item label={"Data"} name={"date"}>
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Form>
-            </Modal>
-          </Space>
-        </Card>
+              </Row>
+              <Col span={6}>
+                <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label={"Data"} name={"date"}>
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Form>
+          </Modal>
+        </Space>
       }
     </>
   }
@@ -183,10 +224,8 @@ const Agendamento = () => {
         inEdition={false}
         onClickNew={() => { setOpenModal(true) }}
         onClickSearch={() => setOpenModalConsulta(true)}
-        onClickEdit={() => setHideNoDia(!hideNoDia)}
         orientation={'horizontal'}
       />
-
       <Modal
         title={"Buscar agendamento"}
         centered
@@ -198,17 +237,14 @@ const Agendamento = () => {
       />
     </Row>
     <Row>
-      <Col hidden={hideNoDia} span={4} style={{ padding: '10px' }}>
+      <Col span={hideNoDia ? 0 : 4}>
         <FragAgendamentosNoDia />
       </Col>
-      <Col span={hideNoDia ? 24 : 20}>
+      <Col span={hideNoDia ? 24 : 20} style={{ padding: '10px' }}>
         <Calendar
           locale={locale}
           dateCellRender={dateCellRender}
-          onPanelChange={async (value) => {
-            let res = await buscarNaAPIOsAgendamentosDoMes(value)
-            setDados(res)
-          }}
+          onPanelChange={panelChange}
         />
       </Col>
     </Row>
