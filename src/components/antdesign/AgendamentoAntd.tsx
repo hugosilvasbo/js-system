@@ -75,7 +75,10 @@ const Agendamento = () => {
         <Tooltip
           placement='left'
           title='Clique para mais detalhes'>
-          <p style={_style}> {_conteudo} </p>
+
+          <p style={_style}>
+            {_conteudo}
+          </p>
         </Tooltip>
       )
     }
@@ -121,9 +124,7 @@ const Agendamento = () => {
     const onSubmitForm = async () => {
       try {
         let value = await form_digitacao.validateFields();
-
         let _url = `${jURL.url_api_barber}schedule/${value._id}`
-
         let res = await axios.patch(_url, value);
 
         toast.success(res.data.message)
@@ -147,13 +148,29 @@ const Agendamento = () => {
           size={'small'}
           style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
 
-          <p>Incluir o campo de filtro dos agendamentos do dia aqui</p>
+          <p>
+            Incluir o campo de filtro dos agendamentos do dia aqui
+          </p>
 
           {
             _.map(agendamentosNoDia, (agendamento: any) => {
+              let _conteudo = <>
+                <p>
+                  Data: {moment(agendamento.date).format(jMask.mask_data_1)}
+                </p>
+                <p>
+                  Celular: {agendamento.person.cellphone}
+                </p>
+              </>
+
+              const _deleteIcon = <>
+                <DeleteOutlined
+                  onClick={() => setOpenConfirmDelete(true)}
+                  style={{ color: 'red', cursor: 'pointer' }} />
+              </>
+
               return <>
                 <Tooltip
-                  key={`tool_${agendamento._id}`}
                   title={`Clique para alterar o agendamento do(a) ${agendamento.person.name}`}
                   placement='right'>
 
@@ -166,14 +183,14 @@ const Agendamento = () => {
                       key={`div_no_dia_${agendamento._id}`}
                       onClick={() => clickSobOAgendamento(agendamento)}
                       style={{ cursor: 'pointer' }}>
-                      <p>Data: {moment(agendamento.date).format(jMask.mask_data_1)}</p>
-                      <p>Celular: {agendamento.person.cellphone}</p>
+                      {_conteudo}
                     </div>
 
-                    <DeleteOutlined
-                      onClick={() => setOpenConfirmDelete(true)}
-                      style={{ color: 'red', cursor: 'pointer' }} />
+                    <Tooltip placement='left' title={'Excluir'}>
+                      {_deleteIcon}
+                    </Tooltip>
                   </Card>
+
                 </Tooltip>
               </>
             })
