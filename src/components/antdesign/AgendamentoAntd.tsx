@@ -15,6 +15,7 @@ import jCor from '../../assets/jasonCor.json';
 import jMask from '../../assets/jasonMask.json';
 import jURL from '../../assets/jasonURLs.json';
 import FrameCadButtons from '../mine/FrameCadButtons';
+import ModalConfirm from './ModalConfirm';
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
   let clone = value.clone()
@@ -41,6 +42,7 @@ const Agendamento = () => {
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState({} as any);
   const [openModal, setOpenModal] = useState(false);
   const [openModalConsulta, setOpenModalConsulta] = useState(false);
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const [hideNoDia, setHideNoDia] = useState(true);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ const Agendamento = () => {
     }
 
     fetchData().catch(console.error)
-  }, [])
+  }, []);
 
   const dateCellRender = (value: Moment) => {
     let data = value.format(jMask.mask_data_3)
@@ -73,9 +75,7 @@ const Agendamento = () => {
         <Tooltip
           placement='left'
           title='Clique para mais detalhes'>
-          <p style={_style}>
-            {_conteudo}
-          </p>
+          <p style={_style}> {_conteudo} </p>
         </Tooltip>
       )
     }
@@ -93,7 +93,11 @@ const Agendamento = () => {
               }>
               {
                 _.map(agendamento, (a: any) =>
-                  <FragListaHTML _id={a._id} person={a.person.name} date={a.date} />
+                  <FragListaHTML
+                    _id={a._id}
+                    person={a.person.name}
+                    key={`fraglist_${a._id}`}
+                    date={a.date} />
                 )
               }
             </div>
@@ -131,10 +135,6 @@ const Agendamento = () => {
       }
     }
 
-    const excluirAgendamento = (agendamento: any) => {
-      console.log({ agendamentoparaexcluir: agendamento })
-    }
-
     const clickSobOAgendamento = (agendamento: any) => {
       setOpenModal(true)
       setAgendamentoSelecionado(agendamento)
@@ -153,16 +153,17 @@ const Agendamento = () => {
             _.map(agendamentosNoDia, (agendamento: any) => {
               return <>
                 <Tooltip
-                  key={'tool_' + agendamento._id}
-                  title={`Clique para alterar o agendamento do ${agendamento.person.name}`}
+                  key={`tool_${agendamento._id}`}
+                  title={`Clique para alterar o agendamento do(a) ${agendamento.person.name}`}
                   placement='right'>
 
                   <Card
                     title={agendamento.person.name}
                     size="small"
-                    key={agendamento._id}>
+                    key={`card_${agendamento._id}`}>
 
                     <div
+                      key={`div_no_dia_${agendamento._id}`}
                       onClick={() => clickSobOAgendamento(agendamento)}
                       style={{ cursor: 'pointer' }}>
                       <p>Data: {moment(agendamento.date).format(jMask.mask_data_1)}</p>
@@ -170,7 +171,7 @@ const Agendamento = () => {
                     </div>
 
                     <DeleteOutlined
-                      onClick={() => excluirAgendamento(agendamento)}
+                      onClick={() => setOpenConfirmDelete(true)}
                       style={{ color: 'red', cursor: 'pointer' }} />
                   </Card>
                 </Tooltip>
@@ -218,6 +219,10 @@ const Agendamento = () => {
     </>
   }
 
+  const excluirAgendamento = () => {
+    console.log("Excluir agendamento")
+  }
+
   return <>
     <Row justify='end'>
       <FrameCadButtons
@@ -225,15 +230,6 @@ const Agendamento = () => {
         onClickNew={() => { setOpenModal(true) }}
         onClickSearch={() => setOpenModalConsulta(true)}
         orientation={'horizontal'}
-      />
-      <Modal
-        title={"Buscar agendamento"}
-        centered
-        open={openModalConsulta}
-        onOk={() => { }}
-        onCancel={() => setOpenModalConsulta(false)}
-        width={800}
-        cancelText={"Sair"}
       />
     </Row>
     <Row>
@@ -249,6 +245,22 @@ const Agendamento = () => {
       </Col>
     </Row>
     <ToastContainer />
+    <ModalConfirm
+      abrir={openConfirmDelete}
+      clickOnOK={() => excluirAgendamento()}
+      clickOnCancel={() => { setOpenConfirmDelete(false) }}
+      tipo={'excluir'}
+      observacao={'Ao continuar, a ação não poderá ser desfeita.'}
+    />
+    <Modal
+      title={"Buscar agendamento"}
+      centered
+      open={openModalConsulta}
+      onOk={() => { }}
+      onCancel={() => setOpenModalConsulta(false)}
+      width={800}
+      cancelText={"Sair"}
+    />
   </>
 };
 
