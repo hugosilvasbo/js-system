@@ -88,7 +88,7 @@ const Agendamento = () => {
         return <>
           {
             <div
-              style={{ height: 'auto' }}
+              style={{ height: '100%' }}
               onClick={() => {
                 setAgendamentosNoDia(agendamento)
                 setHideNoDia(!hideNoDia)
