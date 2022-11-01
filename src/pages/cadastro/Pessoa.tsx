@@ -114,7 +114,7 @@ const Pessoa = () => {
         }
     }, [deletePerson])
 
-    const callback_botoes_frame = async (_tipo: enBotoes) => {
+    const callbackBotoesPrincipais = async (_tipo: enBotoes) => {
         switch (_tipo) {
             case enBotoes.eNovo:
                 setInEdition(true)
@@ -151,7 +151,7 @@ const Pessoa = () => {
                     <Tabs type="card" items={tabs} />
                 </Col>
                 <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons callbackClick={(e: enBotoes) => callback_botoes_frame(e)} inEdition={inEdition} />
+                    <FrameCadButtons callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)} inEdition={inEdition} />
                 </Col>
             </Row>
             <Modal

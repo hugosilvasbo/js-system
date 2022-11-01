@@ -79,7 +79,7 @@ const Funcionario = () => {
         { label: 'Digitação', key: 'tab-digitacao', children: <TabDigitacao /> }
     ]
 
-    const callback_frame = (_tipo: enBotoes) => {
+    const callbackBotoesPrincipais = (_tipo: enBotoes) => {
         switch (_tipo) {
             case enBotoes.eNovo: {
                 setInEdition(true)
@@ -114,7 +114,10 @@ const Funcionario = () => {
                     <Tabs type="card" items={tabs} />
                 </Col>
                 <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons callbackClick={(e: enBotoes) => callback_frame(e)} inEdition={inEdition} />
+                    <FrameCadButtons
+                        callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)}
+                        inEdition={inEdition}
+                    />
                 </Col>
             </Row>
             <ToastContainer />
