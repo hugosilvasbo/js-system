@@ -2,25 +2,6 @@
  * @author Hugo S. de Souza <hugosilva.souza@hotmail.com>
  */
 
-/**
- * O QUE FAZER...
- * na api, deve trazer os dados agrupados por dia... do mes
- * com isso, preencher os meses da mesma forma que está, ou seja, apenas com um objeto!
- * Feito isso, posso ate remover as tratativas no front end, ja que vou trazer tudo certinho.
- * Resumindo.. USAR APENAS UM OBJETO... estrutura...
- * 
- * 2022-10-31: {
- *    [
- *       saodjqwioj982391294o2k4m: {
- *           Atributos aqui  
- *       },
- * *     dwjidjwioj982391294o2k4m: {
- *           Atributos aqui  
- *       },
- *    ]
- * }
- */
-
 import { DeleteOutlined } from '@ant-design/icons';
 import { Calendar, Col, Form, Input, Modal, Row, Space, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
@@ -49,21 +30,21 @@ export enum EnTipoModal {
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 
-  const _obterDiaMes = (_primeiro: boolean) => {
+  const getFiltro = (_primeiro: boolean) => {
     let _retorno = _primeiro ? value.clone().startOf('month') : value.clone().endOf('month');
     return _retorno.format(jMask.mask_data_2)
   }
 
   let res = await axios.get(_urlPadrao, {
     params: {
-      startdate: _obterDiaMes(true),
-      enddate: _obterDiaMes(false)
+      dia_inicial: getFiltro(true),
+      dia_final: getFiltro(false)
     }
   })
 
-  let formato = (r: any) => moment(r.date).format(jMask.mask_data_3)
+  let _agrupar_por_data = _.groupBy(res.data, (r: any) => moment(r.date).format(jMask.mask_data_3));
 
-  return _.groupBy(res.data, formato);
+  return _agrupar_por_data;
 }
 
 const Agendamento = () => {
@@ -94,8 +75,8 @@ const Agendamento = () => {
   }, [showModal]);
 
   const dateCellRender = (value: Moment) => {
-    let data = value.format(jMask.mask_data_3)
-    let agendamentos = _.pick(dados, data)
+    let formato = value.format(jMask.mask_data_3)
+    let agendamentos = _.pick(dados, formato)
     let _style = {
       background: jCor.corAzulClaro,
       padding: '8px',
