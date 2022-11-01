@@ -1,61 +1,72 @@
 import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Row, Tooltip } from 'antd';
 
+export enum enBotoes {
+    eNovo,
+    eAlterar,
+    eExcluir,
+    eGravar,
+    eCancelar,
+    eProcurar
+}
+
 interface IProps {
-    onClickNew?: any,
-    onClickEdit?: any,
-    onClickDelete?: any,
-    onClickSave?: any,
-    onClickCancel?: any,
-    onClickSearch?: any,
+    callbackClick: any,
     inEdition: boolean,
-    orientation?: 'horizontal' | 'vertical'
+    orientation?: 'horizontal' | 'vertical',
+    invisible?: Array<enBotoes>
 }
 
 const FrameCadButtons = (props: IProps) => {
     const craftButtons = [
         {
-            onClick: props.onClickNew,
+            onClick: () => props.callbackClick(enBotoes.eNovo),
             type: 'reset',
             key: 'new_button',
             icon: <FolderAddOutlined />,
-            tooltipTitle: 'Novo'
+            tooltipTitle: 'Novo',
+            visible: !props.invisible?.includes(enBotoes.eNovo)
         },
         {
-            onClick: props.onClickEdit,
+            onClick: () => props.callbackClick(enBotoes.eAlterar),
             type: 'button',
             key: 'edit_button',
             icon: <EditOutlined />,
-            tooltipTitle: 'Alterar'
+            tooltipTitle: 'Alterar',
+            visible: !props.invisible?.includes(enBotoes.eAlterar)
         },
         {
-            onClick: props.onClickDelete,
+            onClick: () => props.callbackClick(enBotoes.eExcluir),
             type: 'button',
             key: 'delete_button',
             danger: true,
             icon: <DeleteOutlined />,
-            tooltipTitle: 'Excluir'
+            tooltipTitle: 'Excluir',
+            visible: !props.invisible?.includes(enBotoes.eExcluir)
         },
         {
-            onClick: props.onClickSave,
+            onClick: () => props.callbackClick(enBotoes.eGravar),
             type: 'submit',
             key: 'save_button',
             icon: <CheckOutlined />,
-            tooltipTitle: 'Gravar'
+            tooltipTitle: 'Gravar',
+            visible: !props.invisible?.includes(enBotoes.eGravar)
         },
         {
-            onClick: props.onClickCancel,
+            onClick: () => !props.callbackClick(enBotoes.eCancelar),
             type: 'reset',
             key: 'undo_button',
             icon: <RedoOutlined />,
-            tooltipTitle: 'Cancelar'
+            tooltipTitle: 'Cancelar',
+            visible: !props.invisible?.includes(enBotoes.eCancelar)
         },
         {
-            onClick: props.onClickSearch,
+            onClick: () => props.callbackClick(enBotoes.eProcurar),
             type: 'button',
             key: 'search_button',
             icon: <SearchOutlined />,
-            tooltipTitle: 'Pesquisar'
+            tooltipTitle: 'Pesquisar',
+            visible: !props.invisible?.includes(enBotoes.eProcurar)
         }
     ];
 
@@ -83,7 +94,7 @@ const FrameCadButtons = (props: IProps) => {
         <>
             {
                 craftButtons.map((b: any) => {
-                    return b.onClick ?
+                    return b.visible ?
                         <Row key={'btnrow_' + b.key}>
                             <Tooltip placement='bottomRight' title={b.tooltipTitle}>
                                 <Button

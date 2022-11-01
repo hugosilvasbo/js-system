@@ -3,13 +3,17 @@ import { Space } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React from "react";
 
+export enum EnRetorno {
+    clSim,
+    clNao
+}
+
 interface IProps {
     abrir: boolean,
     titulo?: string
     observacao?: string,
     tipo: "excluir" | "alterar" | "cancelar" | "gravar",
-    clickOnOK: any,
-    clickOnCancel: any
+    callback: any
 }
 
 class ModalConfirm extends React.Component<IProps, {}> {
@@ -34,13 +38,13 @@ class ModalConfirm extends React.Component<IProps, {}> {
             <Modal
                 open={this.props.abrir}
                 title={this._getTitulo()}
-                onOk={() => this.props.clickOnOK()}
+                onOk={() => this.props.callback(EnRetorno.clSim)}
                 okText={"Continuar"}
                 cancelText={"Cancelar"}
-                onCancel={() => this.props.clickOnCancel()}>
+                onCancel={() => this.props.callback(EnRetorno.clNao)}>
                 <Space>
                     <ExclamationCircleOutlined style={{ color: "red" }} />
-                    {this.props.observacao}
+                    {this.props.observacao ? this.props.observacao : 'Atenção! Se confirmar, a operação não poderá ser desfeita.'}
                 </Space>
             </Modal>
         </>

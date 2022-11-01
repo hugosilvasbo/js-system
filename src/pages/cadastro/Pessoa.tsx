@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import jURL from '../../assets/jasonURLs.json';
-import FrameCadButtons from '../../components/mine/FrameCadButtons';
+import FrameCadButtons, { enBotoes } from '../../components/mine/FrameCadButtons';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
@@ -114,6 +114,36 @@ const Pessoa = () => {
         }
     }, [deletePerson])
 
+    const callback_botoes_frame = async (_tipo: enBotoes) => {
+        switch (_tipo) {
+            case enBotoes.eNovo:
+                setInEdition(true)
+                formDigitacao.resetFields();
+                break;
+            case enBotoes.eAlterar:
+                setInEdition(true)
+                break;
+            case enBotoes.eExcluir:
+                setOpenDialog(true);
+                break;
+            case enBotoes.eCancelar:
+                setInEdition(false)
+                break;
+            case enBotoes.eGravar:
+                handleFormSubmit()
+                break;
+            case enBotoes.eProcurar: {
+                try {
+                    let res = await axios.get(jURL.url_api_barber + 'person/');
+                    setDataSource(res.data)
+                } catch (error) {
+                    toast.error('Falha na consulta!');
+                }
+                break;
+            }
+        }
+    }
+
     return (
         <>
             <Row>
@@ -121,31 +151,7 @@ const Pessoa = () => {
                     <Tabs type="card" items={tabs} />
                 </Col>
                 <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons
-                        onClickNew={() => {
-                            setInEdition(true)
-                            formDigitacao.resetFields();
-                        }}
-                        onClickEdit={() => {
-                            setInEdition(true)
-                        }}
-                        onClickDelete={() => {
-                            setOpenDialog(true);
-                        }}
-                        onClickCancel={() => {
-                            setInEdition(false)
-                        }}
-                        onClickSearch={async () => {
-                            try {
-                                let res = await axios.get(jURL.url_api_barber + 'person/');
-                                setDataSource(res.data)
-                            } catch (error) {
-                                toast.error('Falha na consulta!');
-                            }
-                        }}
-                        onClickSave={handleFormSubmit}
-                        inEdition={inEdition}
-                    />
+                    <FrameCadButtons callbackClick={(e: enBotoes) => callback_botoes_frame(e)} inEdition={inEdition} />
                 </Col>
             </Row>
             <Modal

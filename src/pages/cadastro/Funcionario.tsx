@@ -6,7 +6,7 @@ import axios from "axios";
 import { useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import jURL from '../../assets/jasonURLs.json';
-import FrameCadButtons from "../../components/mine/FrameCadButtons";
+import FrameCadButtons, { enBotoes } from "../../components/mine/FrameCadButtons";
 
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
@@ -79,6 +79,34 @@ const Funcionario = () => {
         { label: 'Digitação', key: 'tab-digitacao', children: <TabDigitacao /> }
     ]
 
+    const callback_frame = (_tipo: enBotoes) => {
+        switch (_tipo) {
+            case enBotoes.eNovo: {
+                setInEdition(true)
+                formDigitacao.resetFields()
+                break;
+            }
+            case enBotoes.eAlterar:
+                setInEdition(true)
+                break;
+            case enBotoes.eCancelar:
+                setInEdition(false)
+                break;
+            case enBotoes.eGravar:
+                handleFormSubmit()
+                break;
+            case enBotoes.eProcurar: {
+                axios.get(URL_API)
+                    .then((res) => {
+                        setDataSource(res.data)
+                    }).catch((e) => {
+                        toast.error(e.error);
+                    })
+                break;
+            }
+        }
+    }
+
     return (
         <>
             <Row>
@@ -86,31 +114,7 @@ const Funcionario = () => {
                     <Tabs type="card" items={tabs} />
                 </Col>
                 <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons
-                        onClickNew={() => {
-                            setInEdition(true)
-                            formDigitacao.resetFields()
-                        }}
-                        onClickEdit={() => {
-                            setInEdition(true)
-                        }}
-                        onClickDelete={() => {
-                            // call the dialog
-                        }}
-                        onClickCancel={() => {
-                            setInEdition(false)
-                        }}
-                        onClickSave={handleFormSubmit}
-                        onClickSearch={() => {
-                            axios.get(URL_API)
-                                .then((res) => {
-                                    setDataSource(res.data)
-                                }).catch((e) => {
-                                    toast.error(e.error);
-                                })
-                        }}
-                        inEdition={inEdition}
-                    />
+                    <FrameCadButtons callbackClick={(e: enBotoes) => callback_frame(e)} inEdition={inEdition} />
                 </Col>
             </Row>
             <ToastContainer />
