@@ -17,6 +17,8 @@ import jURL from '../../assets/jasonURLs.json';
 import FrameCadButtons, { enBotoes } from '../mine/FrameCadButtons';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
 
+// tentar trabalhar apenas com um elemento de dados
+
 const _urlPadrao = `${jURL.url_api_barber}schedule`
 
 export enum EnTipoModal {
@@ -26,6 +28,11 @@ export enum EnTipoModal {
   mManutencao,
   mAbrirModalConfirmExclusao,
   mInclusao
+}
+
+interface IGeral {
+  showModal: EnTipoModal,
+  data?: any
 }
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
@@ -50,8 +57,7 @@ async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 const Agendamento = () => {
   const [dados, setDados] = useState({} as any);
   const [agendamentosNoDia, setAgendamentosNoDia] = useState({} as any);
-  const [agendamentoSelecionado, setAgendamentoSelecionado] = useState({} as any);
-  const [showModal, setShowModal] = useState(undefined as unknown as EnTipoModal);
+  const [geral, setGeral] = useState({} as IGeral);
   const [hideNoDia, setHideNoDia] = useState(true);
 
   useEffect(() => {
@@ -66,13 +72,13 @@ const Agendamento = () => {
   }, []);
 
   useEffect(() => {
-    switch (showModal) {
+    switch (geral.showModal) {
       case EnTipoModal.mExclusao: {
 
         break;
       }
     }
-  }, [showModal]);
+  }, [geral]);
 
   const dateCellRender = (value: Moment) => {
     let formato = value.format(jMask.mask_data_3)
@@ -89,15 +95,8 @@ const Agendamento = () => {
       const hora_mes = moment(props.data.date).format(jMask.mask_data_4)
 
       return (
-        <Tooltip
-          placement='left'
-          title='Clique para mais detalhes'>
-
-          <p style={_style}>
-            {
-              `${hora_mes} - ${props.data.person}`
-            }
-          </p>
+        <Tooltip placement='left' title='Clique para mais detalhes'>
+          <p style={_style}>{`${hora_mes} - ${props.data.person}`}</p>
         </Tooltip>
       )
     }
@@ -133,7 +132,7 @@ const Agendamento = () => {
   const FragAgendamentosNoDia = () => {
     const [form_digitacao] = Form.useForm();
 
-    form_digitacao.setFieldsValue(agendamentoSelecionado);
+    form_digitacao.setFieldsValue(geral.showModal);
 
     const onSubmitForm = async () => {
       try {
@@ -146,21 +145,13 @@ const Agendamento = () => {
       } catch (error) {
         toast.error("" + error)
       } finally {
-        setShowModal(EnTipoModal.mIndefinido)
+        setGeral({ showModal: EnTipoModal.mIndefinido })
       }
-    }
-
-    const onClickAgendamentoLateral = (agendamento: any) => {
-      setShowModal(EnTipoModal.mManutencao)
-      setAgendamentoSelecionado(agendamento)
     }
 
     return <>
       {
-        <Space
-          direction={'vertical'}
-          size={'small'}
-          style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
+        <Space direction={'vertical'} size={'small'} style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
 
           <p>
             Incluir o campo de filtro dos agendamentos do dia aqui
@@ -170,15 +161,16 @@ const Agendamento = () => {
             _.map(agendamentosNoDia, (agendamento: any) => {
               return <>
                 <Tooltip title={`Clique para alterar o agendamento do(a) ${agendamento.person.name}`} placement='right'>
-                  <Card
-                    title={agendamento.person.name}
-                    size="small"
-                    key={`card_${agendamento._id}`} >
+                  <Card title={agendamento.person.name} size="small" key={`card_${agendamento._id}`} style={{ cursor: 'pointer' }} >
 
                     <div
                       key={`div_no_dia_${agendamento._id}`}
-                      onClick={() => onClickAgendamentoLateral(agendamento)}
-                      style={{ cursor: 'pointer' }}>
+                      onClick={() =>
+                        setGeral({
+                          showModal: EnTipoModal.mManutencao,
+                          data: agendamento
+                        })
+                      }>
                       <p>
                         Data: {moment(agendamento.date).format(jMask.mask_data_1)}
                       </p>
@@ -190,10 +182,12 @@ const Agendamento = () => {
                     <Tooltip placement='left' title={'Excluir'}>
                       <DeleteOutlined
                         onClick={() => {
-                          setAgendamentoSelecionado(agendamento);
-                          setShowModal(EnTipoModal.mAbrirModalConfirmExclusao)
+                          setGeral({
+                            showModal: EnTipoModal.mAbrirModalConfirmExclusao,
+                            data: agendamento
+                          })
                         }}
-                        style={{ color: 'red', cursor: 'pointer' }}
+                        style={{ color: 'red' }}
                       />
                     </Tooltip>
                   </Card>
@@ -205,9 +199,9 @@ const Agendamento = () => {
           <Modal
             title={"Manutenção"}
             centered
-            open={[EnTipoModal.mManutencao, EnTipoModal.mInclusao].includes(showModal)}
+            open={[EnTipoModal.mManutencao, EnTipoModal.mInclusao].includes(geral.showModal)}
             onOk={onSubmitForm}
-            onCancel={() => setShowModal(EnTipoModal.mIndefinido)}
+            onCancel={() => setGeral({ showModal: EnTipoModal.mIndefinido })}
             width={800}
             okText={"Gravar"}
             cancelText={"Sair"}
@@ -245,22 +239,31 @@ const Agendamento = () => {
   const callbackBotoesPrincipais = (_opcao: enBotoes) => {
     switch (_opcao) {
       case enBotoes.eNovo:
-        setShowModal(EnTipoModal.mInclusao)
+        setGeral({ showModal: EnTipoModal.mInclusao })
         break;
       case enBotoes.eProcurar:
-        setShowModal(EnTipoModal.mConsulta)
+        setGeral({ showModal: EnTipoModal.mConsulta })
         break;
     }
   }
 
-  const callbackConfirmDialog = (_opcao: EnRetorno) => {
-    switch (_opcao) {
-      case EnRetorno.clSim:
-        setShowModal(EnTipoModal.mExclusao)
-        break;
-      case EnRetorno.clNao:
-        setShowModal(EnTipoModal.mIndefinido)
-        break;
+  const _excluirAgendamento = async (_opcao: EnRetorno, _id: any) => {
+    try {
+      switch (_opcao) {
+        case EnRetorno.clSim: {
+          try {
+            let res = await axios.delete(`${_urlPadrao}/${_id}`);
+            console.log({ sucessoExclusao: res.data })
+            toast.success(res.data.message)
+          } catch (error) {
+            console.log({ falha_exclusao: error })
+            toast.error('Falha ao excluir...')
+          }
+        }
+          break;
+      }
+    } finally {
+      setGeral({ showModal: EnTipoModal.mIndefinido })
     }
   }
 
@@ -273,7 +276,6 @@ const Agendamento = () => {
         invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
       />
     </Row>
-
     <Row>
       <Col span={hideNoDia ? 0 : 4}>
         <FragAgendamentosNoDia />
@@ -286,25 +288,21 @@ const Agendamento = () => {
         />
       </Col>
     </Row>
-
-    <ToastContainer />
-
-    {/** declaração dos modais */}
     <ModalConfirm
-      abrir={showModal === EnTipoModal.mAbrirModalConfirmExclusao}
-      callback={(e: EnRetorno) => callbackConfirmDialog(e)}
+      abrir={geral.showModal === EnTipoModal.mAbrirModalConfirmExclusao}
+      callback={(_opcaoSelecionada: EnRetorno) => { _excluirAgendamento(_opcaoSelecionada, geral.data._id) }}
       tipo={'excluir'}
     />
-
     <Modal
       title={"Buscar agendamento"}
       centered
-      open={showModal === EnTipoModal.mConsulta}
+      open={geral.showModal === EnTipoModal.mConsulta}
       onOk={() => { }}
-      onCancel={() => setShowModal(EnTipoModal.mIndefinido)}
+      onCancel={() => setGeral({ showModal: EnTipoModal.mIndefinido })}
       width={800}
       cancelText={"Sair"}
     />
+    <ToastContainer />
   </>
 };
 
