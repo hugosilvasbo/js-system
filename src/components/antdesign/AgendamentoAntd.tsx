@@ -30,9 +30,9 @@ export enum EnTipoModal {
   mInclusao
 }
 
-interface IGeral {
+interface IModal {
   showModal: EnTipoModal,
-  data?: any
+  selecaoItem?: any
 }
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
@@ -56,9 +56,12 @@ async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 
 const Agendamento = () => {
   const [dados, setDados] = useState({} as any);
-  const [agendamentosNoDia, setAgendamentosNoDia] = useState({} as any);
-  const [geral, setGeral] = useState({} as IGeral);
   const [hideNoDia, setHideNoDia] = useState(true);
+  const [showModal, setShowModal] = useState(undefined as unknown as IModal)
+  //const [selecaoItem, setSelecaoItem] = useState({} as any);
+  const [agendamentosDoDia, setAgendamentosDoDia] = useState({} as any)
+
+  const [form_digitacao] = Form.useForm();
 
   useEffect(() => {
     setHideNoDia(true);
@@ -71,15 +74,6 @@ const Agendamento = () => {
     fetchData().catch(console.error)
   }, []);
 
-  useEffect(() => {
-    switch (geral.showModal) {
-      case EnTipoModal.mExclusao: {
-
-        break;
-      }
-    }
-  }, [geral]);
-
   const dateCellRender = (value: Moment) => {
     let formato = value.format(jMask.mask_data_3)
     let agendamentos = _.pick(dados, formato)
@@ -91,7 +85,7 @@ const Agendamento = () => {
       color: 'white'
     }
 
-    const FragListaHTML = (props: any) => {
+    const ItemLista = (props: any) => {
       const hora_mes = moment(props.data.date).format(jMask.mask_data_4)
 
       return (
@@ -102,7 +96,7 @@ const Agendamento = () => {
     }
 
     const onClickCedulaDoCalendario = (agendamento: any) => {
-      setAgendamentosNoDia(agendamento)
+      setAgendamentosDoDia(agendamento)
       setHideNoDia(!hideNoDia)
     }
 
@@ -111,11 +105,7 @@ const Agendamento = () => {
         return <>
           {
             <div style={{ height: '100%' }} onClick={() => onClickCedulaDoCalendario(agendamento)}>
-              {
-                _.map(agendamento, (a: any) =>
-                  <FragListaHTML data={{ person: a.person.name, date: a.date }} key={`fraglist_${a._id}`} />
-                )
-              }
+              {_.map(agendamento, (a: any) => <ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
             </div>
           }
         </>
@@ -129,11 +119,7 @@ const Agendamento = () => {
     setDados(res)
   }
 
-  const FragAgendamentosNoDia = () => {
-    const [form_digitacao] = Form.useForm();
-
-    form_digitacao.setFieldsValue(geral.showModal);
-
+  const SidebarSelecao = () => {
     const onSubmitForm = async () => {
       try {
         let value = await form_digitacao.validateFields();
@@ -145,92 +131,88 @@ const Agendamento = () => {
       } catch (error) {
         toast.error("" + error)
       } finally {
-        setGeral({ showModal: EnTipoModal.mIndefinido })
+        setShowModal({ showModal: EnTipoModal.mIndefinido })
       }
+    }
+
+    const Manutencao = (props: any) => {
+      form_digitacao.setFieldsValue(showModal?.selecaoItem);
+
+      return <>
+        <Card title={props.agendamento.person?.name} size="small" key={`card_${props.agendamento._id}`} style={{ cursor: 'pointer' }} >
+          <Row onClick={() => {
+            setShowModal({ showModal: EnTipoModal.mManutencao, selecaoItem: props.agendamento })
+          }}>
+            <Col>
+              <Row>
+                <Col>Data</Col>
+                <Col>{moment(props.agendamento.date).format(jMask.mask_data_1)}</Col>
+              </Row>
+              <Row>
+                <Col>Celular: </Col>
+                <Col>{props.agendamento.person?.cellphone}</Col>
+              </Row>
+            </Col>
+          </Row>
+          <Tooltip placement='left' title={'Excluir'}>
+            <DeleteOutlined
+              style={{ color: 'red' }}
+              onClick={() => {
+                setShowModal({ showModal: EnTipoModal.mAbrirModalConfirmExclusao, selecaoItem: props.agendamento })
+              }}
+            />
+          </Tooltip>
+        </Card>
+        <Modal
+          title={"Manutenção"}
+          centered
+          open={[EnTipoModal.mManutencao, EnTipoModal.mInclusao].includes(showModal?.showModal)}
+          onOk={onSubmitForm}
+          onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
+          width={800}
+          okText={"Gravar"}
+          cancelText={"Sair"}
+          forceRender
+        >
+          <Form form={form_digitacao} layout={"vertical"}>
+            <Row>
+              <Col span={24} >
+                <Form.Item label={'ID'} name={'_id'}>
+                  <Input disabled={true} />
+                </Form.Item>
+                {/** exemplo de como mostrar conteudo de sub objetos */}
+                <Form.Item label={"Razão"} name={['person', 'name']}>
+                  <Input disabled={true} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Col span={6}>
+              <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item label={"Data"} name={"date"}>
+                <Input />
+              </Form.Item>
+            </Col>
+          </Form>
+        </Modal>
+      </>
     }
 
     return <>
       {
         <Space direction={'vertical'} size={'small'} style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
-
-          <p>
-            Incluir o campo de filtro dos agendamentos do dia aqui
-          </p>
-
           {
-            _.map(agendamentosNoDia, (agendamento: any) => {
+            _.map(agendamentosDoDia, (agendamento: any) => {
               return <>
-                <Tooltip title={`Clique para alterar o agendamento do(a) ${agendamento.person.name}`} placement='right'>
-                  <Card title={agendamento.person.name} size="small" key={`card_${agendamento._id}`} style={{ cursor: 'pointer' }} >
-
-                    <div
-                      key={`div_no_dia_${agendamento._id}`}
-                      onClick={() =>
-                        setGeral({
-                          showModal: EnTipoModal.mManutencao,
-                          data: agendamento
-                        })
-                      }>
-                      <p>
-                        Data: {moment(agendamento.date).format(jMask.mask_data_1)}
-                      </p>
-                      <p>
-                        Celular: {agendamento.person.cellphone}
-                      </p>
-                    </div>
-
-                    <Tooltip placement='left' title={'Excluir'}>
-                      <DeleteOutlined
-                        onClick={() => {
-                          setGeral({
-                            showModal: EnTipoModal.mAbrirModalConfirmExclusao,
-                            data: agendamento
-                          })
-                        }}
-                        style={{ color: 'red' }}
-                      />
-                    </Tooltip>
-                  </Card>
+                <Tooltip title="Clique para alterar" placement='right'>
+                  <Manutencao agendamento={agendamento} />
                 </Tooltip>
               </>
             })
           }
-
-          <Modal
-            title={"Manutenção"}
-            centered
-            open={[EnTipoModal.mManutencao, EnTipoModal.mInclusao].includes(geral.showModal)}
-            onOk={onSubmitForm}
-            onCancel={() => setGeral({ showModal: EnTipoModal.mIndefinido })}
-            width={800}
-            okText={"Gravar"}
-            cancelText={"Sair"}
-            forceRender
-          >
-            <Form form={form_digitacao} layout={"vertical"}>
-              <Row>
-                <Col span={24} >
-                  <Form.Item label={'ID'} name={'_id'}>
-                    <Input disabled={true} />
-                  </Form.Item>
-                  {/** exemplo de como mostrar conteudo de sub objetos */}
-                  <Form.Item label={"Razão"} name={['person', 'name']}>
-                    <Input disabled={true} />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Col span={6}>
-                <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label={"Data"} name={"date"}>
-                  <Input />
-                </Form.Item>
-              </Col>
-            </Form>
-          </Modal>
         </Space>
       }
     </>
@@ -239,31 +221,34 @@ const Agendamento = () => {
   const callbackBotoesPrincipais = (_opcao: enBotoes) => {
     switch (_opcao) {
       case enBotoes.eNovo:
-        setGeral({ showModal: EnTipoModal.mInclusao })
+        setShowModal({ showModal: EnTipoModal.mInclusao })
         break;
       case enBotoes.eProcurar:
-        setGeral({ showModal: EnTipoModal.mConsulta })
+        setShowModal({ showModal: EnTipoModal.mConsulta })
         break;
     }
   }
 
-  const _excluirAgendamento = async (_opcao: EnRetorno, _id: any) => {
+  const onExcluir = async (_id: any) => {
     try {
-      switch (_opcao) {
-        case EnRetorno.clSim: {
-          try {
-            let res = await axios.delete(`${_urlPadrao}/${_id}`);
-            console.log({ sucessoExclusao: res.data })
-            toast.success(res.data.message)
-          } catch (error) {
-            console.log({ falha_exclusao: error })
-            toast.error('Falha ao excluir...')
-          }
-        }
-          break;
-      }
+      let res = await axios.delete(`${_urlPadrao}/${_id}`)
+      toast.success(res.data.message)
+    } catch (error) {
+      console.log({ exclusao: error })
+      toast.error('Falha ao excluir...')
     } finally {
-      setGeral({ showModal: EnTipoModal.mIndefinido })
+      setShowModal({ showModal: EnTipoModal.mIndefinido })
+    }
+  }
+
+  const onCallbackConfirmacao = (opcao: EnRetorno) => {
+    switch (opcao) {
+      case EnRetorno.clSim:
+        onExcluir(showModal.selecaoItem._id)
+        break;
+      default: {
+        setShowModal({ showModal: EnTipoModal.mIndefinido })
+      }
     }
   }
 
@@ -278,7 +263,7 @@ const Agendamento = () => {
     </Row>
     <Row>
       <Col span={hideNoDia ? 0 : 4}>
-        <FragAgendamentosNoDia />
+        <SidebarSelecao />
       </Col>
       <Col span={hideNoDia ? 24 : 20} style={{ padding: '20px' }}>
         <Calendar
@@ -289,16 +274,16 @@ const Agendamento = () => {
       </Col>
     </Row>
     <ModalConfirm
-      abrir={geral.showModal === EnTipoModal.mAbrirModalConfirmExclusao}
-      callback={(_opcaoSelecionada: EnRetorno) => { _excluirAgendamento(_opcaoSelecionada, geral.data._id) }}
       tipo={'excluir'}
+      abrir={showModal?.showModal === EnTipoModal.mAbrirModalConfirmExclusao}
+      callback={(_opcaoSelecionada: EnRetorno) => { onCallbackConfirmacao(_opcaoSelecionada) }}
     />
     <Modal
       title={"Buscar agendamento"}
       centered
-      open={geral.showModal === EnTipoModal.mConsulta}
+      open={showModal?.showModal === EnTipoModal.mConsulta}
       onOk={() => { }}
-      onCancel={() => setGeral({ showModal: EnTipoModal.mIndefinido })}
+      onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
       width={800}
       cancelText={"Sair"}
     />
