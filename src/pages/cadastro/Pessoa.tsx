@@ -13,6 +13,8 @@ const Pessoa = () => {
     const [deletePerson, setDeletePerson] = useState(false);
     const [inEdition, setInEdition] = useState(false)
 
+    const [formDigitacao] = Form.useForm();
+
     const tableColumns = [
         {
             title: 'Nome',
@@ -31,8 +33,6 @@ const Pessoa = () => {
         },
 
     ]
-
-    const [formDigitacao] = Form.useForm();
 
     const handleFormSubmit = () => {
         formDigitacao.validateFields()
