@@ -212,7 +212,7 @@ const Agendamento = () => {
       <PageHeader onBack={() => { setHideNoDia(true) }} subTitle={"Esconder"} backIcon={<ExpandAltOutlined />} />
       {
 
-        <Space direction={'vertical'} size={'small'} style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
+        <Space direction={'vertical'} size={'small'} style={{ height: '800px', display: 'flex', overflowY: 'auto' }} >
           {
             _.map(agendamentosDoDia, (agendamento: any) => {
               return <>
