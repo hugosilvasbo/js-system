@@ -1,4 +1,4 @@
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ExpandAltOutlined } from '@ant-design/icons';
 import { Calendar, Col, Form, Input, Modal, PageHeader, Row, Space, Spin, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
@@ -137,7 +137,7 @@ const Agendamento = () => {
     }
 
     const _onCallbackInputSearch = (e: any) => {
-      console.log({ callback: e })
+      console.log({ aqi_fora: e })
     }
 
     return <>
@@ -159,7 +159,11 @@ const Agendamento = () => {
                 <Input disabled={true} />
               </Form.Item>
               <Form.Item label={"Cliente"} name={['person', 'name']}>
-                <InputSearch placeHolder='Buscar cliente' tipo='cliente' onCallBack={_onCallbackInputSearch} />
+                <InputSearch
+                  tipo='cliente'
+                  placeHolder='Buscar cliente'
+                  onCallBack={_onCallbackInputSearch}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -180,9 +184,7 @@ const Agendamento = () => {
 
   const SidebarSelecao = () => {
     const _Manutencao = (props: any) => {
-      showModal?.showModal === EnTipoModal.mInclusao && form_digitacao.resetFields();
-
-      const _onClickRow = () => {
+      const _onClickItem = () => {
         form_digitacao.setFieldsValue(props.agendamento);
         setShowModal({ showModal: EnTipoModal.mManutencao })
       }
@@ -191,28 +193,23 @@ const Agendamento = () => {
         setShowModal({ showModal: EnTipoModal.mAbrirModalConfirmExclusao, agendamentoID: props.agendamento._id })
       }
 
+      const _extra = <>
+        <Tooltip placement='left' title={'Excluir'}>
+          <DeleteOutlined style={{ color: 'red' }} onClick={_onClickDelete} />
+        </Tooltip>
+      </>
+
       return <>
-        <Card size="small" title={props.agendamento.person?.name} style={{ cursor: 'pointer' }} >
-          <Row onClick={_onClickRow}>
-            <Col>
-              <Row>
-                <Col>Data</Col>
-                <Col>{moment(props.agendamento.date).format("DD/MM/YYYY HH:mm")}</Col>
-              </Row>
-              <Row>
-                <Col>Celular: </Col>
-                <Col>{props.agendamento.person?.cellphone}</Col>
-              </Row>
-            </Col>
+        <Card type="inner" title={moment(props.agendamento.date).format("DD/MM/YYYY HH:mm")} extra={_extra} style={{ cursor: 'pointer' }}>
+          <Row onClick={_onClickItem}>
+            <p>{props.agendamento.person?.name}</p>
+            <p>{props.agendamento.person?.cellphone}</p>
           </Row>
-          <Tooltip placement='left' title={'Excluir'}>
-            <DeleteOutlined style={{ color: 'red' }} onClick={_onClickDelete} />
-          </Tooltip>
         </Card>
       </>
     }
     return <>
-      <PageHeader onBack={() => { setHideNoDia(true) }} title={"Esconder"} />
+      <PageHeader onBack={() => { setHideNoDia(true) }} subTitle={"Esconder"} backIcon={<ExpandAltOutlined />} />
       {
 
         <Space direction={'vertical'} size={'small'} style={{ height: '600px', display: 'flex', overflowY: 'auto' }} >
@@ -246,6 +243,7 @@ const Agendamento = () => {
     const _callback = (_opcao: enBotoes) => {
       switch (_opcao) {
         case enBotoes.eNovo:
+          form_digitacao.resetFields();
           setShowModal({ showModal: EnTipoModal.mInclusao })
           break;
         case enBotoes.eProcurar:
@@ -302,10 +300,10 @@ const Agendamento = () => {
         <FrameBotoesPrincipais />
       </Row>
       <Row>
-        <Col span={hideNoDia ? 0 : 3}>
+        <Col span={hideNoDia ? 0 : 4}>
           <SidebarSelecao />
         </Col>
-        <Col span={hideNoDia ? 25 : 21} style={{ padding: '20px' }}>
+        <Col span={hideNoDia ? 24 : 20} style={{ padding: '20px' }}>
           <Calendar locale={locale} dateCellRender={dateCellRender} onPanelChange={panelChange} />
         </Col>
       </Row>

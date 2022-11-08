@@ -1,6 +1,6 @@
-import { Checkbox, Col, Form, Input, Modal, Row, Spin, Table, Tabs } from 'antd';
+import { Checkbox, Col, Form, Input, Row, Spin, Table, Tabs } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import Cliente from '../../classes/Cliente';
 import FrameCadButtons, { enBotoes } from '../../components/mine/FrameCadButtons';
@@ -8,8 +8,6 @@ import '../../style/vars.scss';
 
 const Pessoa = () => {
     const [dataSource, setDataSource] = useState([]);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [deletePerson, setDeletePerson] = useState(false);
     const [inEdition, setInEdition] = useState(false)
     const [loading, setLoading] = useState({ descritivo: "", visivel: false })
 
@@ -100,15 +98,6 @@ const Pessoa = () => {
         { label: 'Digitação', key: 'tab-digitacao', children: <FrameDigitacao /> },
     ];
 
-    useEffect(() => {
-        if (deletePerson) {
-            var _cliente = new Cliente({}, formDigitacao.getFieldValue('_id'));
-            _cliente.delete()
-                .then((res: any) => toast.success(res.data.message))
-                .catch((e: any) => toast.error('' + e));
-        }
-    }, [deletePerson])
-
     const callbackBotoesPrincipais = async (_tipo: enBotoes) => {
         switch (_tipo) {
             case enBotoes.eNovo:
@@ -119,7 +108,10 @@ const Pessoa = () => {
                 setInEdition(true)
                 break;
             case enBotoes.eExcluir:
-                setOpenDialog(true);
+                var _cliente = new Cliente({}, formDigitacao.getFieldValue('_id'));
+                _cliente.delete()
+                    .then((res: any) => toast.success(res.data.message))
+                    .catch((e: any) => toast.error('' + e));
                 break;
             case enBotoes.eCancelar:
                 setInEdition(false)
@@ -150,19 +142,6 @@ const Pessoa = () => {
                         <FrameCadButtons callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)} inEdition={inEdition} />
                     </Col>
                 </Row>
-                <Modal
-                    title="Exclusão"
-                    open={openDialog}
-                    onOk={function () {
-                        setOpenDialog(false);
-                        setDeletePerson(true);
-                    }}
-                    onCancel={() => setOpenDialog(false)}
-                    okText="Sim"
-                    cancelText="Não"
-                >
-                    <p>Deseja excluir o cadastro da pessoa?</p>
-                </Modal>
                 <ToastContainer />
             </Spin>
         </>

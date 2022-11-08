@@ -1,5 +1,7 @@
 import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Row, Tooltip } from 'antd';
+import Modal from 'antd/lib/modal/Modal';
+import { useState } from 'react';
 
 export enum enBotoes {
     eNovo,
@@ -14,10 +16,16 @@ interface IProps {
     callbackClick: any,
     inEdition: boolean,
     orientation?: 'horizontal' | 'vertical',
-    invisible?: Array<enBotoes>
+    invisible?: Array<enBotoes>,
+    deleteConfirmationOptions?: {
+        caption: string,
+        content: string
+    }
 }
 
 const FrameCadButtons = (props: IProps) => {
+    const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+
     const craftButtons = [
         {
             onClick: () => props.callbackClick(enBotoes.eNovo),
@@ -36,7 +44,9 @@ const FrameCadButtons = (props: IProps) => {
             visible: !props.invisible?.includes(enBotoes.eAlterar)
         },
         {
-            onClick: () => props.callbackClick(enBotoes.eExcluir),
+            onClick: () => {
+                setOpenDeleteConfirm(true)
+            },
             type: 'button',
             key: 'delete_button',
             danger: true,
@@ -90,8 +100,23 @@ const FrameCadButtons = (props: IProps) => {
         return disable;
     }
 
+    const _onClickConfirmation = () => {
+        setOpenDeleteConfirm(false);
+        props.callbackClick(enBotoes.eExcluir);
+    }
+
     return (
         <>
+            <Modal
+                title={props.deleteConfirmationOptions?.caption ? props.deleteConfirmationOptions.caption : "Excluir"}
+                open={openDeleteConfirm}
+                onOk={_onClickConfirmation}
+                onCancel={() => setOpenDeleteConfirm(false)}
+                okText="Sim"
+                cancelText="Não"
+            >
+                <p>{props.deleteConfirmationOptions?.content ? props.deleteConfirmationOptions?.content : 'Deseja confirmar a exclusão?'} </p>
+            </Modal>
             {
                 craftButtons.map((b: any) => {
                     return b.visible ?

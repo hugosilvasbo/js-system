@@ -4,7 +4,7 @@ import Input from "antd/lib/input/Input";
 import { Content } from "antd/lib/layout/layout";
 import { useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
-import FuncionarioModal from '../../classes/Funcionario';
+import FuncionarioClass from '../../classes/Funcionario';
 import FrameCadButtons, { enBotoes } from "../../components/mine/FrameCadButtons";
 
 const Funcionario = () => {
@@ -55,7 +55,7 @@ const Funcionario = () => {
     const handleFormSubmit = () => {
         formDigitacao.validateFields().then(async (values) => {
             setLoading({ descritivo: "Gravando...", visivel: true })
-            var _funcionario = new FuncionarioModal(values, values._id);
+            var _funcionario = new FuncionarioClass(values, values._id);
             _funcionario.send()
                 .then((res: any) => toast.success(res.data.message))
                 .catch((e: any) => toast.error('' + e))
@@ -72,10 +72,12 @@ const Funcionario = () => {
     ]
 
     const callbackBotoesPrincipais = (_tipo: enBotoes) => {
+        var _func = null;
+
         switch (_tipo) {
             case enBotoes.eNovo: {
+                formDigitacao.resetFields();
                 setInEdition(true)
-                formDigitacao.resetFields()
                 break;
             }
             case enBotoes.eAlterar:
@@ -88,7 +90,7 @@ const Funcionario = () => {
                 handleFormSubmit()
                 break;
             case enBotoes.eProcurar: {
-                var _func = new FuncionarioModal({}, "");
+                _func = new FuncionarioClass({}, "");
                 setLoading({ descritivo: "Carregando...", visivel: true })
                 _func.loadAll()
                     .then((res: any) => setDataSource(res.data))
@@ -96,6 +98,12 @@ const Funcionario = () => {
                     .finally(() => setLoading({ descritivo: "", visivel: false }))
                 break;
             }
+            case enBotoes.eExcluir:
+                _func = new FuncionarioClass({}, formDigitacao.getFieldValue("_id"));
+                _func.delete()
+                    .then((res: any) => toast.success(res.data.message))
+                    .catch((res: any) => toast.error("Falha na exclusão do funcionário!"));
+                break;
         }
     }
 
