@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import jCor from '../../assets/jasonCor.json';
 import jURL from '../../assets/jasonURLs.json';
+import AgendamentoModal from '../../classes/Agendamento';
 import FrameCadButtons, { enBotoes } from '../mine/FrameCadButtons';
 import InputSearch from './InputSearch';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
@@ -31,15 +32,15 @@ interface IModal {
 
 async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 
-  const getFiltro = (_primeiro: boolean) => {
+  const _getFiltro = (_primeiro: boolean) => {
     let _retorno = _primeiro ? value.clone().startOf('month') : value.clone().endOf('month');
     return _retorno.format("YYYY-MM-DD")
   }
 
   let res = await axios.get(_urlPadrao, {
     params: {
-      dia_inicial: getFiltro(true),
-      dia_final: getFiltro(false)
+      dia_inicial: _getFiltro(true),
+      dia_final: _getFiltro(false)
     }
   })
 
@@ -84,7 +85,7 @@ const Agendamento = () => {
       color: 'white'
     }
 
-    const ItemLista = (props: any) => {
+    const _ItemLista = (props: any) => {
       const hora_mes = moment(props.data.date).format("HH:mm")
 
       return (
@@ -94,7 +95,7 @@ const Agendamento = () => {
       )
     }
 
-    const onClickCedulaDoCalendario = (agendamento: any) => {
+    const _onClickCedulaDoCalendario = (agendamento: any) => {
       setAgendamentosDoDia(agendamento)
       setHideNoDia(false)
     }
@@ -103,8 +104,8 @@ const Agendamento = () => {
       _.map(agendamentos, (agendamento: any) => {
         return <>
           {
-            <div style={{ height: '100%' }} onClick={() => onClickCedulaDoCalendario(agendamento)}>
-              {_.map(agendamento, (a: any) => <ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
+            <div style={{ height: '100%' }} onClick={() => _onClickCedulaDoCalendario(agendamento)}>
+              {_.map(agendamento, (a: any) => <_ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
             </div>
           }
         </>
@@ -119,27 +120,23 @@ const Agendamento = () => {
   }
 
   const ModalManutencao = () => {
-    const onSubmitForm = async () => {
-      try {
-        setLoading({ descritivo: "Gravando...", visivel: true })
 
-        let values = await form_digitacao.validateFields();
-        let res = null;
+    const _onSubmitForm = async () => {
+      form_digitacao.validateFields()
+        .then((values: any) => {
+          var _agendamento = new AgendamentoModal(values, values._id);
 
-        values._id ?
-          res = await axios.patch(_urlPadrao + `/${values._id}`, values) :
-          res = await axios.post(_urlPadrao, values)
-
-        toast.success(res.data.message)
-      } catch (error) {
-        toast.error("" + error)
-      } finally {
-        setLoading({ descritivo: "", visivel: false })
-        setShowModal({ showModal: EnTipoModal.mIndefinido })
-      }
+          _agendamento.send()
+            .then((res: any) => toast.success(res.data.message))
+            .catch((e: any) => toast.error("" + e))
+            .finally(() => {
+              setLoading({ descritivo: "", visivel: false })
+              setShowModal({ showModal: EnTipoModal.mIndefinido })
+            })
+        }).catch((e) => toast.error(e))
     }
 
-    const onCallbackInputSearch = (e: any) => {
+    const _onCallbackInputSearch = (e: any) => {
       console.log({ callback: e })
     }
 
@@ -148,7 +145,7 @@ const Agendamento = () => {
         title={showModal?.showModal === EnTipoModal.mManutencao ? 'Manutenção' : 'Inclusão'}
         centered
         open={[EnTipoModal.mInclusao, EnTipoModal.mManutencao].includes(showModal?.showModal)}
-        onOk={onSubmitForm}
+        onOk={_onSubmitForm}
         onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
         width={800}
         okText={"Gravar"}
@@ -162,7 +159,7 @@ const Agendamento = () => {
                 <Input disabled={true} />
               </Form.Item>
               <Form.Item label={"Cliente"} name={['person', 'name']}>
-                <InputSearch placeHolder='Buscar cliente' tipo='cliente' onCallBack={onCallbackInputSearch} />
+                <InputSearch placeHolder='Buscar cliente' tipo='cliente' onCallBack={_onCallbackInputSearch} />
               </Form.Item>
             </Col>
           </Row>
@@ -182,21 +179,21 @@ const Agendamento = () => {
   }
 
   const SidebarSelecao = () => {
-    const Manutencao = (props: any) => {
+    const _Manutencao = (props: any) => {
       showModal?.showModal === EnTipoModal.mInclusao && form_digitacao.resetFields();
 
-      const onClickRow = () => {
+      const _onClickRow = () => {
         form_digitacao.setFieldsValue(props.agendamento);
         setShowModal({ showModal: EnTipoModal.mManutencao })
       }
 
-      const onClickDelete = () => {
+      const _onClickDelete = () => {
         setShowModal({ showModal: EnTipoModal.mAbrirModalConfirmExclusao, agendamentoID: props.agendamento._id })
       }
 
       return <>
         <Card size="small" title={props.agendamento.person?.name} style={{ cursor: 'pointer' }} >
-          <Row onClick={onClickRow}>
+          <Row onClick={_onClickRow}>
             <Col>
               <Row>
                 <Col>Data</Col>
@@ -209,7 +206,7 @@ const Agendamento = () => {
             </Col>
           </Row>
           <Tooltip placement='left' title={'Excluir'}>
-            <DeleteOutlined style={{ color: 'red' }} onClick={onClickDelete} />
+            <DeleteOutlined style={{ color: 'red' }} onClick={_onClickDelete} />
           </Tooltip>
         </Card>
       </>
@@ -223,7 +220,7 @@ const Agendamento = () => {
             _.map(agendamentosDoDia, (agendamento: any) => {
               return <>
                 <Tooltip title="Clique para alterar" placement='right'>
-                  <Manutencao agendamento={agendamento} />
+                  <_Manutencao agendamento={agendamento} />
                 </Tooltip>
               </>
             })
@@ -246,7 +243,7 @@ const Agendamento = () => {
   }
 
   const FrameBotoesPrincipais = () => {
-    const callback = (_opcao: enBotoes) => {
+    const _callback = (_opcao: enBotoes) => {
       switch (_opcao) {
         case enBotoes.eNovo:
           setShowModal({ showModal: EnTipoModal.mInclusao })
@@ -259,7 +256,7 @@ const Agendamento = () => {
 
     return <FrameCadButtons
       inEdition={false}
-      callbackClick={(e: enBotoes) => callback(e)}
+      callbackClick={(e: enBotoes) => _callback(e)}
       orientation={'horizontal'}
       invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
     />
@@ -267,20 +264,18 @@ const Agendamento = () => {
 
   const ModalDeConfirmacao = () => {
     const _excluirAgendamento = async (_id: any) => {
-      try {
-        setLoading({ descritivo: "Excluindo...", visivel: true })
-        let res = await axios.delete(`${_urlPadrao}/${_id}`)
-        toast.success(res.data.message)
-      } catch (error) {
-        console.log({ exclusao: error })
-        toast.error('Falha ao excluir...')
-      } finally {
-        setLoading({ descritivo: "", visivel: false })
-        setShowModal({ showModal: EnTipoModal.mIndefinido })
-      }
+      setLoading({ descritivo: "Excluindo agendamento...", visivel: true })
+      var _agendamento = new AgendamentoModal({}, _id);
+      _agendamento.delete()
+        .then((res: any) => toast.success(res.data.message))
+        .catch((e: any) => toast.error('Falha ao excluir...'))
+        .finally(() => {
+          setLoading({ descritivo: "", visivel: false })
+          setShowModal({ showModal: EnTipoModal.mIndefinido })
+        })
     }
 
-    const callback = (_opcaoSelecionada: EnRetorno) => {
+    const _callback = (_opcaoSelecionada: EnRetorno) => {
       switch (_opcaoSelecionada) {
         case EnRetorno.clSim:
           _excluirAgendamento(showModal.agendamentoID)
@@ -294,7 +289,7 @@ const Agendamento = () => {
     return <ModalConfirm
       tipo={'excluir'}
       abrir={showModal?.showModal === EnTipoModal.mAbrirModalConfirmExclusao}
-      callback={callback} />
+      callback={_callback} />
   }
 
   return <>

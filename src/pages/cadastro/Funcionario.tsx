@@ -1,18 +1,16 @@
-import { Col, Form, Row, Table, Tabs } from "antd";
+import { Col, Form, Row, Spin, Table, Tabs } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Input from "antd/lib/input/Input";
 import { Content } from "antd/lib/layout/layout";
-import axios from "axios";
 import { useState } from "react";
 import { toast, ToastContainer } from 'react-toastify';
-import jURL from '../../assets/jasonURLs.json';
+import FuncionarioModal from '../../classes/Funcionario';
 import FrameCadButtons, { enBotoes } from "../../components/mine/FrameCadButtons";
 
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
     const [dataSource, setDataSource] = useState([]);
-
-    const URL_API = jURL.url_api_barber + 'employee/';
+    const [loading, setLoading] = useState({ descritivo: "", visivel: false })
 
     const tableColumns = [
         {
@@ -55,23 +53,17 @@ const Funcionario = () => {
     }
 
     const handleFormSubmit = () => {
-        formDigitacao.validateFields()
-            .then(async (values) => {
-                try {
-                    let res = null
-                    values._id ?
-                        res = await axios.patch(URL_API + values._id, values) :
-                        res = await axios.post(URL_API, values)
-
-                    console.log({ onSubmit: res.data.message })
-                    toast.success(res.data.message)
-                } catch (error) {
-                    toast.error('' + error)
-                } finally {
-                    setInEdition(false)
-                }
-            })
-            .catch((errorInfo) => { toast.error(errorInfo) })
+        formDigitacao.validateFields().then(async (values) => {
+            setLoading({ descritivo: "Gravando...", visivel: true })
+            var _funcionario = new FuncionarioModal(values, values._id);
+            _funcionario.send()
+                .then((res: any) => toast.success(res.data.message))
+                .catch((e: any) => toast.error('' + e))
+                .finally(() => {
+                    setInEdition(false);
+                    setLoading({ descritivo: "", visivel: false })
+                })
+        }).catch((errorInfo) => { toast.error(errorInfo) })
     }
 
     const tabs = [
@@ -96,12 +88,12 @@ const Funcionario = () => {
                 handleFormSubmit()
                 break;
             case enBotoes.eProcurar: {
-                axios.get(URL_API)
-                    .then((res) => {
-                        setDataSource(res.data)
-                    }).catch((e) => {
-                        toast.error(e.error);
-                    })
+                var _func = new FuncionarioModal({}, "");
+                setLoading({ descritivo: "Carregando...", visivel: true })
+                _func.loadAll()
+                    .then((res: any) => setDataSource(res.data))
+                    .catch((e: any) => toast.error(e.error))
+                    .finally(() => setLoading({ descritivo: "", visivel: false }))
                 break;
             }
         }
@@ -109,18 +101,20 @@ const Funcionario = () => {
 
     return (
         <>
-            <Row>
-                <Col flex={'auto'}>
-                    <Tabs type="card" items={tabs} />
-                </Col>
-                <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons
-                        callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)}
-                        inEdition={inEdition}
-                    />
-                </Col>
-            </Row>
-            <ToastContainer />
+            <Spin tip={loading.descritivo} spinning={loading.visivel}>
+                <Row>
+                    <Col flex={'auto'}>
+                        <Tabs type="card" items={tabs} />
+                    </Col>
+                    <Col style={{ marginLeft: '1rem' }}>
+                        <FrameCadButtons
+                            callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)}
+                            inEdition={inEdition}
+                        />
+                    </Col>
+                </Row>
+                <ToastContainer />
+            </Spin>
         </>
     )
 }

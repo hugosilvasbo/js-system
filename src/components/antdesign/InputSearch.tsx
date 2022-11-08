@@ -1,24 +1,25 @@
-import { Input } from "antd";
-
-// criar a classe...
-// fazer as requisicoes lá dentro...
-// fazer os esquemas aki...
+import { Input, Modal } from "antd";
+import { useState } from 'react';
 
 interface IProps {
     placeHolder: string,
-    tipo: "cliente",
+    tipo: "cliente" | "funcionario" | "agendamento" | "item",
     onCallBack: any
 }
 
 const InputSearch = (props: IProps) => {
     const { Search } = Input;
 
+    const Cliente = () => {
+        return <>
+            <Modal open={props.tipo === "cliente"}>
+                Mostrar os dados dos cliente aqui... e criar filtragens.
+            </Modal>
+        </>
+    }
+
     const onSearch = (value: string) => {
-        switch (props.tipo) {
-            case "cliente":
-                props.onCallBack("batata")
-                break;
-        }
+        return <></>
     };
 
     return <>

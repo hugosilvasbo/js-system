@@ -1,9 +1,8 @@
-import { Checkbox, Col, Form, Input, Modal, Row, Table, Tabs } from 'antd';
+import { Checkbox, Col, Form, Input, Modal, Row, Spin, Table, Tabs } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import jURL from '../../assets/jasonURLs.json';
+import Cliente from '../../classes/Cliente';
 import FrameCadButtons, { enBotoes } from '../../components/mine/FrameCadButtons';
 import '../../style/vars.scss';
 
@@ -12,6 +11,7 @@ const Pessoa = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [deletePerson, setDeletePerson] = useState(false);
     const [inEdition, setInEdition] = useState(false)
+    const [loading, setLoading] = useState({ descritivo: "", visivel: false })
 
     const [formDigitacao] = Form.useForm();
 
@@ -37,19 +37,17 @@ const Pessoa = () => {
     const handleFormSubmit = () => {
         formDigitacao.validateFields()
             .then(async (values) => {
-                const _url = jURL.url_api_barber + 'person/';
-                try {
-                    let res = null;
-                    values._id ?
-                        res = await axios.patch(_url + values._id, values) :
-                        res = await axios.post(_url, values)
+                var _cliente = new Cliente(values, values._id);
 
-                    toast.success(res.data.message)
-                } catch (error) {
-                    toast.error('' + error);
-                } finally {
-                    setInEdition(false);
-                }
+                setLoading({ descritivo: "Salvando...", visivel: true });
+
+                _cliente?.send()
+                    .then((res: any) => toast.success(res.data.message))
+                    .catch((error: any) => toast.error('' + error))
+                    .finally(() => {
+                        setInEdition(false)
+                        setLoading({ descritivo: "", visivel: false })
+                    });
             })
             .catch((errorInfo) => { toast.error(errorInfo) });
     };
@@ -104,13 +102,10 @@ const Pessoa = () => {
 
     useEffect(() => {
         if (deletePerson) {
-            axios.delete(jURL.url_api_barber + 'person/' + formDigitacao.getFieldValue('_id'))
-                .then((res: any) => {
-                    toast.success(res.data.message);
-                })
-                .catch((e: any) => {
-                    toast.error('' + e)
-                });
+            var _cliente = new Cliente({}, formDigitacao.getFieldValue('_id'));
+            _cliente.delete()
+                .then((res: any) => toast.success(res.data.message))
+                .catch((e: any) => toast.error('' + e));
         }
     }, [deletePerson])
 
@@ -133,12 +128,12 @@ const Pessoa = () => {
                 handleFormSubmit()
                 break;
             case enBotoes.eProcurar: {
-                try {
-                    let res = await axios.get(jURL.url_api_barber + 'person/');
-                    setDataSource(res.data)
-                } catch (error) {
-                    toast.error('Falha na consulta!');
-                }
+                setLoading({ descritivo: "Carregando...", visivel: true })
+
+                new Cliente({}, "").loadAll()
+                    .then((res: any) => setDataSource(res.data))
+                    .catch((error: any) => toast.error("Falha na consulta..."))
+                    .finally(() => setLoading({ descritivo: "", visivel: false }))
                 break;
             }
         }
@@ -146,28 +141,30 @@ const Pessoa = () => {
 
     return (
         <>
-            <Row>
-                <Col flex="auto">
-                    <Tabs type="card" items={tabs} />
-                </Col>
-                <Col style={{ marginLeft: '1rem' }}>
-                    <FrameCadButtons callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)} inEdition={inEdition} />
-                </Col>
-            </Row>
-            <Modal
-                title="Exclusão"
-                open={openDialog}
-                onOk={function () {
-                    setOpenDialog(false);
-                    setDeletePerson(true);
-                }}
-                onCancel={() => setOpenDialog(false)}
-                okText="Sim"
-                cancelText="Não"
-            >
-                <p>Deseja excluir o cadastro da pessoa?</p>
-            </Modal>
-            <ToastContainer />
+            <Spin tip={loading.descritivo} spinning={loading.visivel}>
+                <Row>
+                    <Col flex="auto">
+                        <Tabs type="card" items={tabs} />
+                    </Col>
+                    <Col style={{ marginLeft: '1rem' }}>
+                        <FrameCadButtons callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)} inEdition={inEdition} />
+                    </Col>
+                </Row>
+                <Modal
+                    title="Exclusão"
+                    open={openDialog}
+                    onOk={function () {
+                        setOpenDialog(false);
+                        setDeletePerson(true);
+                    }}
+                    onCancel={() => setOpenDialog(false)}
+                    okText="Sim"
+                    cancelText="Não"
+                >
+                    <p>Deseja excluir o cadastro da pessoa?</p>
+                </Modal>
+                <ToastContainer />
+            </Spin>
         </>
     )
 }
