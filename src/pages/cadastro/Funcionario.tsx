@@ -26,6 +26,7 @@ const Funcionario = () => {
         return <>
             <Content>
                 <Table
+                    style={{ cursor: 'pointer' }}
                     dataSource={dataSource}
                     columns={tableColumns}
                     onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
@@ -52,11 +53,11 @@ const Funcionario = () => {
         )
     }
 
-    const handleFormSubmit = () => {
-        formDigitacao.validateFields().then(async (values) => {
+    const handleFormSubmit = async () => {
+        await formDigitacao.validateFields().then(async (values) => {
             setLoading({ descritivo: "Gravando...", visivel: true })
             var _funcionario = new FuncionarioClass(values, values._id);
-            _funcionario.send()
+            await _funcionario.send()
                 .then((res: any) => toast.success(res.data.message))
                 .catch((e: any) => toast.error('' + e))
                 .finally(() => {
@@ -71,7 +72,7 @@ const Funcionario = () => {
         { label: 'Digitação', key: 'tab-digitacao', children: <TabDigitacao /> }
     ]
 
-    const callbackBotoesPrincipais = (_tipo: enBotoes) => {
+    const callbackBotoesPrincipais = async (_tipo: enBotoes) => {
         var _func = null;
 
         switch (_tipo) {
@@ -92,7 +93,7 @@ const Funcionario = () => {
             case enBotoes.eProcurar: {
                 _func = new FuncionarioClass({}, "");
                 setLoading({ descritivo: "Carregando...", visivel: true })
-                _func.loadAll()
+                await _func.loadAll()
                     .then((res: any) => setDataSource(res.data))
                     .catch((e: any) => toast.error(e.error))
                     .finally(() => setLoading({ descritivo: "", visivel: false }))
@@ -100,7 +101,7 @@ const Funcionario = () => {
             }
             case enBotoes.eExcluir:
                 _func = new FuncionarioClass({}, formDigitacao.getFieldValue("_id"));
-                _func.delete()
+                await _func.delete()
                     .then((res: any) => toast.success(res.data.message))
                     .catch((res: any) => toast.error("Falha na exclusão do funcionário!"));
                 break;

@@ -30,7 +30,8 @@ export default abstract class _Geral {
      * exemplo: agendamento
      */
     async loadAll() {
-        let res = await axios.get(this.url, );
+        let res = await axios.get(this.url);
+        console.log({ geralts_res: res })
         return res;
     }
 }

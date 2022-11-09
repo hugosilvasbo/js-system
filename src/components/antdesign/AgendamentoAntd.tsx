@@ -58,6 +58,12 @@ const Agendamento = () => {
 
   const [form_digitacao] = Form.useForm();
 
+  const defaultModalProperties = {
+    centered: true,
+    width: '800px',
+    cancelText: 'Sair'
+  }
+
   useEffect(() => {
     setHideNoDia(true);
 
@@ -85,7 +91,7 @@ const Agendamento = () => {
       color: 'white'
     }
 
-    const _ItemLista = (props: any) => {
+    const ItemLista = (props: any) => {
       const hora_mes = moment(props.data.date).format("HH:mm")
 
       return (
@@ -105,7 +111,7 @@ const Agendamento = () => {
         return <>
           {
             <div style={{ height: '100%' }} onClick={() => _onClickCedulaDoCalendario(agendamento)}>
-              {_.map(agendamento, (a: any) => <_ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
+              {_.map(agendamento, (a: any) => <ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
             </div>
           }
         </>
@@ -122,11 +128,11 @@ const Agendamento = () => {
   const ModalManutencao = () => {
 
     const _onSubmitForm = async () => {
-      form_digitacao.validateFields()
-        .then((values: any) => {
+      await form_digitacao.validateFields()
+        .then(async (values: any) => {
           var _agendamento = new AgendamentoModal(values, values._id);
 
-          _agendamento.send()
+          await _agendamento.send()
             .then((res: any) => toast.success(res.data.message))
             .catch((e: any) => toast.error("" + e))
             .finally(() => {
@@ -136,22 +142,17 @@ const Agendamento = () => {
         }).catch((e) => toast.error(e))
     }
 
-    const _onCallbackInputSearch = (e: any) => {
-      console.log({ aqi_fora: e })
-    }
-
     return <>
       <Modal
+        {...defaultModalProperties}
         title={showModal?.showModal === EnTipoModal.mManutencao ? 'Manutenção' : 'Inclusão'}
-        centered
         open={[EnTipoModal.mInclusao, EnTipoModal.mManutencao].includes(showModal?.showModal)}
         onOk={_onSubmitForm}
         onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
-        width={800}
         okText={"Gravar"}
-        cancelText={"Sair"}
         forceRender
       >
+
         <Form form={form_digitacao} layout={"vertical"}>
           <Row>
             <Col span={24} >
@@ -162,7 +163,9 @@ const Agendamento = () => {
                 <InputSearch
                   tipo='cliente'
                   placeHolder='Buscar cliente'
-                  onCallBack={_onCallbackInputSearch}
+                  callback={(res: any) => {
+                    console.log({ objetoCapturadoDOInputSearch: res })
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -174,7 +177,8 @@ const Agendamento = () => {
           </Col>
           <Col span={6}>
             <Form.Item label={"Data"} name={"date"}>
-              <Input />
+
+              {/*<Input />*/}
             </Form.Item>
           </Col>
         </Form>
@@ -183,7 +187,7 @@ const Agendamento = () => {
   }
 
   const SidebarSelecao = () => {
-    const _Manutencao = (props: any) => {
+    const Manutencao = (props: any) => {
       const _onClickItem = () => {
         form_digitacao.setFieldsValue(props.agendamento);
         setShowModal({ showModal: EnTipoModal.mManutencao })
@@ -217,7 +221,7 @@ const Agendamento = () => {
             _.map(agendamentosDoDia, (agendamento: any) => {
               return <>
                 <Tooltip title="Clique para alterar" placement='right'>
-                  <_Manutencao agendamento={agendamento} />
+                  <Manutencao agendamento={agendamento} />
                 </Tooltip>
               </>
             })
@@ -229,13 +233,11 @@ const Agendamento = () => {
 
   const ModalBusca = () => {
     return <Modal
+      {...defaultModalProperties}
       title={"Buscar agendamento"}
-      centered
       open={showModal?.showModal === EnTipoModal.mConsulta}
       onOk={() => { }}
       onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
-      width={800}
-      cancelText={"Sair"}
     />
   }
 
@@ -264,7 +266,7 @@ const Agendamento = () => {
     const _excluirAgendamento = async (_id: any) => {
       setLoading({ descritivo: "Excluindo agendamento...", visivel: true })
       var _agendamento = new AgendamentoModal({}, _id);
-      _agendamento.delete()
+      await _agendamento.delete()
         .then((res: any) => toast.success(res.data.message))
         .catch((e: any) => toast.error('Falha ao excluir...'))
         .finally(() => {

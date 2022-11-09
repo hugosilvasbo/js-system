@@ -13,33 +13,14 @@ const Pessoa = () => {
 
     const [formDigitacao] = Form.useForm();
 
-    const tableColumns = [
-        {
-            title: 'Nome',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'E-Mail',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Celular',
-            dataIndex: 'cellphone',
-            key: 'cellphone',
-        },
-
-    ]
-
-    const handleFormSubmit = () => {
-        formDigitacao.validateFields()
+    const handleFormSubmit = async () => {
+        await formDigitacao.validateFields()
             .then(async (values) => {
                 var _cliente = new Cliente(values, values._id);
 
                 setLoading({ descritivo: "Salvando...", visivel: true });
 
-                _cliente?.send()
+                await _cliente?.send()
                     .then((res: any) => toast.success(res.data.message))
                     .catch((error: any) => toast.error('' + error))
                     .finally(() => {
@@ -51,9 +32,29 @@ const Pessoa = () => {
     };
 
     const FrameConsulta = () => {
+        const tableColumns = [
+            {
+                title: 'Nome',
+                dataIndex: 'name',
+                key: 'name',
+            },
+            {
+                title: 'E-Mail',
+                dataIndex: 'email',
+                key: 'email',
+            },
+            {
+                title: 'Celular',
+                dataIndex: 'cellphone',
+                key: 'cellphone',
+            },
+
+        ]
+
         return <>
             <Content>
                 <Table
+                    style={{ cursor: 'pointer' }}
                     dataSource={dataSource}
                     columns={tableColumns}
                     onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
@@ -109,7 +110,7 @@ const Pessoa = () => {
                 break;
             case enBotoes.eExcluir:
                 var _cliente = new Cliente({}, formDigitacao.getFieldValue('_id'));
-                _cliente.delete()
+                await _cliente.delete()
                     .then((res: any) => toast.success(res.data.message))
                     .catch((e: any) => toast.error('' + e));
                 break;
@@ -122,9 +123,9 @@ const Pessoa = () => {
             case enBotoes.eProcurar: {
                 setLoading({ descritivo: "Carregando...", visivel: true })
 
-                new Cliente({}, "").loadAll()
+                await new Cliente({}, "").loadAll()
                     .then((res: any) => setDataSource(res.data))
-                    .catch((error: any) => toast.error("Falha na consulta..."))
+                    .catch((e: any) => toast.error("Falha na consulta..."))
                     .finally(() => setLoading({ descritivo: "", visivel: false }))
                 break;
             }
