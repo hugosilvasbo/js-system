@@ -1,17 +1,18 @@
-import { Button, Col, Input, Modal, Row, Table } from "antd";
+import { Button, Col, FormInstance, Input, Modal, Row, Table } from "antd";
 import { useState } from "react";
 import ClienteClass from "../../classes/Cliente";
 
 interface IProps {
-    placeHolder: string,
     tipo: "cliente" | "funcionario" | "agendamento" | "item",
-    callback: any
+    value?: any,
+    formController: FormInstance,
+    formKeyName: any, // descrição da chave para fazer o bind dos _id. 
 }
 
 interface IChildren {
     open: boolean,
     onCancel: any,
-    selectedItem: any
+    callbackSelectedItem: any
 }
 
 const SearchCliente = (props: IChildren) => {
@@ -40,18 +41,15 @@ const SearchCliente = (props: IChildren) => {
     ];
 
     const onFetch = async () => {
-        //console.log("onFecth Input Search begin...")
-        setIsLoading(true)
-
+        setIsLoading(true);
         try {
             let _cliente = new ClienteClass({}, "");
             let res = await _cliente.loadAll();
-            //console.log({ resInputSearch: res })
             setDataSource(res.data)
         } catch (error) {
             console.log({ erro_inputsearch: error })
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
 
@@ -73,7 +71,7 @@ const SearchCliente = (props: IChildren) => {
                 onRow={(data: any) => {
                     return {
                         onClick: event => {
-                            props.selectedItem(data)
+                            props.callbackSelectedItem(data)
                         }
                     }
                 }}
@@ -85,24 +83,23 @@ const SearchCliente = (props: IChildren) => {
 const InputSearch = (props: IProps) => {
     const { Search } = Input;
     const [showModal, setShoModal] = useState(false);
-    const [value, setValue] = useState("")
+    const [internalValue, setInternalValue] = useState("")
 
     return <>
         {/** opções de modais quando clicar na lupinha */}
         <SearchCliente
             open={showModal && props.tipo === "cliente"}
             onCancel={() => setShoModal(false)}
-            selectedItem={(res: any) => {
-                setValue(res.name);
-                props.callback(res);
+            callbackSelectedItem={(data: any) => {
+                setInternalValue(data.name);
+                props.formController.setFieldValue(props.formKeyName, data._id)
                 setShoModal(false);
             }}
         />
         {/** componente final */}
         <Search
-            value={value}
-            placeholder={props.placeHolder}
             onSearch={() => setShoModal(true)}
+            value={internalValue ? internalValue : props.value}
         />
     </>
 }

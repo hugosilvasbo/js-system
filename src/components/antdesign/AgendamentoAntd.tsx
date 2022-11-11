@@ -156,28 +156,35 @@ const Agendamento = () => {
         <Form form={form_digitacao} layout={"vertical"}>
           <Row>
             <Col span={24} >
-              <Form.Item label={'ID'} name={'_id'} hidden={true}>
-                <Input disabled={true} />
+              {/** itens hidden apenas para controle dos _ids. */}
+              <Form.Item
+                label={'_id do agendamento'}
+                name={'_id'}
+                hidden={true}>
+                <Input />
               </Form.Item>
+              <Form.Item
+                label={'_id do cliente'}
+                name={['person', '_id']}
+                hidden={true}>
+                <Input />
+              </Form.Item>
+              {/** apenas para controle visual, quem manda é o "Cliente ID" invisível acima. */}
               <Form.Item label={"Cliente"} name={['person', 'name']}>
-                <InputSearch
-                  tipo='cliente'
-                  placeHolder='Buscar cliente'
-                  callback={(res: any) => {
-                    console.log({ objetoCapturadoDOInputSearch: res })
-                  }}
+                <InputSearch tipo={"cliente"}
+                  formController={form_digitacao}
+                  formKeyName={['person', '_id']}
                 />
               </Form.Item>
             </Col>
           </Row>
           <Col span={6}>
             <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-              <Input />
+              <Input  />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item label={"Data"} name={"date"}>
-
               {/*<Input />*/}
             </Form.Item>
           </Col>
