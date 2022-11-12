@@ -1,6 +1,6 @@
 import { AppstoreOutlined, CalendarOutlined, HomeOutlined, TagOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
-import "antd/dist/antd.min.css"
+import "./style/antd.customize.scss";
 import { Content } from "antd/lib/layout/layout";
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,9 +17,9 @@ function App(props: any) {
       key: 'mn-cadastro',
       icon: <AppstoreOutlined />,
       children: [
-        { label: 'Pessoa', key: 'mn-person', onClick: () => navigate('/cadastro/pessoa'), icon: < UserOutlined /> },
+        { label: 'Cliente', key: 'mn-person', onClick: () => navigate('/cadastro/pessoa'), icon: < UserOutlined /> },
         { label: 'Funcionário', key: 'mn-employee', onClick: () => navigate('/cadastro/funcionario'), icon: < TeamOutlined /> },
-        { label: 'Itens e Serviços', key: 'mn-items', onClick: () => navigate('/cadastro/item'), icon: < TagOutlined /> }
+        { label: 'Item e Serviço', key: 'mn-items', onClick: () => navigate('/cadastro/item'), icon: < TagOutlined /> }
       ],
     },
     { label: 'Agenda', key: 'mn-agenda', icon: <CalendarOutlined />, onClick: () => navigate('/agenda') }, // remember to pass the key prop

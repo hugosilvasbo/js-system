@@ -1,5 +1,5 @@
 import { DeleteOutlined, ExpandAltOutlined } from '@ant-design/icons';
-import { Calendar, Col, Form, Input, Modal, PageHeader, Row, Space, Spin, Tooltip } from 'antd';
+import { Calendar, Col, DatePicker, Form, Input, Modal, PageHeader, Row, Space, Spin, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import axios from 'axios';
@@ -10,7 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import jCor from '../../assets/jasonCor.json';
 import jURL from '../../assets/jasonURLs.json';
 import AgendamentoModal from '../../classes/Agendamento';
-import FrameCadButtons, { enBotoes } from '../mine/FrameCadButtons';
+import FrameCadButtons, { enBotoes } from '../mine/WrapperButtons';
 import InputSearch from './InputSearch';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
 
@@ -180,7 +180,7 @@ const Agendamento = () => {
           </Row>
           <Col span={6}>
             <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-              <Input  />
+              <Input />
             </Form.Item>
           </Col>
           <Col span={6}>

@@ -1,0 +1,19 @@
+@import 'antd/dist/antd.min.css';
+
+$color_selected: #347bc0;
+
+.ant-menu-dark.ant-menu-horizontal>.ant-menu-item:hover {
+    background-color: $color_selected;
+}
+
+.ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected,
+.ant-menu.ant-menu-dark .ant-menu-item-selected {
+    background-color: $color_selected;
+}
+
+.ant-menu-dark .ant-menu-sub,
+.ant-menu.ant-menu-dark,
+.ant-menu.ant-menu-dark .ant-menu-sub {
+    color: hsla(0deg, 0%, 100%, 0.65);
+    background: #1d5891;
+}

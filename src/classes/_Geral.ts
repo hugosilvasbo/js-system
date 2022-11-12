@@ -31,7 +31,7 @@ export default abstract class _Geral {
      */
     async loadAll() {
         let res = await axios.get(this.url);
-        console.log({ geralts_res: res })
+        //console.log({ geralts_res: res })
         return res;
     }
 }

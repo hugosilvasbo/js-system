@@ -1,34 +1,36 @@
-import { Col, Form, Row, Spin, Table, Tabs } from "antd";
+import { Form, Table } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Input from "antd/lib/input/Input";
 import { Content } from "antd/lib/layout/layout";
 import { useState } from "react";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import FuncionarioClass from '../../classes/Funcionario';
-import FrameCadButtons, { enBotoes } from "../../components/mine/FrameCadButtons";
+import { enBotoes } from "../../components/mine/WrapperButtons";
+import WrapperManutencao from "../../components/mine/WrapperManutencao";
 
 const Funcionario = () => {
     const [inEdition, setInEdition] = useState(false)
     const [dataSource, setDataSource] = useState([]);
-    const [loading, setLoading] = useState({ descritivo: "", visivel: false })
+    const [loading, setLoading] = useState({ descritivo: "", visivel: false });
 
-    const tableColumns = [
-        {
-            title: 'Nome',
-            dataIndex: 'name',
-            key: 'name',
-        }
-    ]
-
-    const [formDigitacao] = Form.useForm()
+    const [formDigitacao] = Form.useForm();
 
     const TabConsulta = () => {
+        const tableColumns = [
+            {
+                title: 'Nome',
+                dataIndex: 'name',
+                key: 'name',
+            }
+        ]
+
         return <>
             <Content>
                 <Table
                     style={{ cursor: 'pointer' }}
                     dataSource={dataSource}
                     columns={tableColumns}
+                    rowKey={(record: any) => record._id}
                     onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
                 />
             </Content>
@@ -39,8 +41,8 @@ const Funcionario = () => {
         return (
             <>
                 <Form form={formDigitacao} layout="vertical">
-                    <Form.Item label="ID" name={'_id'} >
-                        <Input disabled={true} />
+                    <Form.Item label="ID" name={'_id'} hidden={true}>
+                        <Input />
                     </Form.Item>
                     <Form.Item label="Nome" name={'name'} >
                         <Input disabled={!inEdition} />
@@ -54,7 +56,7 @@ const Funcionario = () => {
     }
 
     const handleFormSubmit = async () => {
-        await formDigitacao.validateFields().then(async (values) => {
+        formDigitacao.validateFields().then(async (values) => {
             setLoading({ descritivo: "Gravando...", visivel: true })
             var _funcionario = new FuncionarioClass(values, values._id);
             await _funcionario.send()
@@ -70,11 +72,10 @@ const Funcionario = () => {
     const tabs = [
         { label: 'Consulta', key: 'tab-consulta', children: <TabConsulta /> },
         { label: 'Digitação', key: 'tab-digitacao', children: <TabDigitacao /> }
-    ]
+    ];
 
     const callbackBotoesPrincipais = async (_tipo: enBotoes) => {
         var _func = null;
-
         switch (_tipo) {
             case enBotoes.eNovo: {
                 formDigitacao.resetFields();
@@ -85,7 +86,8 @@ const Funcionario = () => {
                 setInEdition(true)
                 break;
             case enBotoes.eCancelar:
-                setInEdition(false)
+                formDigitacao.resetFields();
+                setInEdition(false);
                 break;
             case enBotoes.eGravar:
                 handleFormSubmit()
@@ -109,22 +111,13 @@ const Funcionario = () => {
     }
 
     return (
-        <>
-            <Spin tip={loading.descritivo} spinning={loading.visivel}>
-                <Row>
-                    <Col flex={'auto'}>
-                        <Tabs type="card" items={tabs} />
-                    </Col>
-                    <Col style={{ marginLeft: '1rem' }}>
-                        <FrameCadButtons
-                            callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)}
-                            inEdition={inEdition}
-                        />
-                    </Col>
-                </Row>
-                <ToastContainer />
-            </Spin>
-        </>
+        <WrapperManutencao
+            callbackClickBotoes={callbackBotoesPrincipais}
+            inEdition={inEdition}
+            tabs={tabs}
+            loading={loading}
+            key="wrapper_funcionario"
+        />
     )
 }
 

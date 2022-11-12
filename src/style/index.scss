@@ -12,3 +12,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.tabsContainer {
+  .ant-tabs-tab-active {
+    background: #fff266;
+    color: #31365c;
+
+    &:hover {
+      color: darken(#31365c, 5%);
+    }
+  }
+
+  .ant-tabs-ink-bar {
+    background: #fff266;
+  }
+}

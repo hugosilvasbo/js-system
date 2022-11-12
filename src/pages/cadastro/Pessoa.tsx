@@ -1,9 +1,10 @@
-import { Checkbox, Col, Form, Input, Row, Spin, Table, Tabs } from 'antd';
+import { Checkbox, Form, Input, Table } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
 import { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Cliente from '../../classes/Cliente';
-import FrameCadButtons, { enBotoes } from '../../components/mine/FrameCadButtons';
+import { enBotoes } from '../../components/mine/WrapperButtons';
+import WrapperManutencao from '../../components/mine/WrapperManutencao';
 import '../../style/vars.scss';
 
 const Pessoa = () => {
@@ -57,6 +58,7 @@ const Pessoa = () => {
                     style={{ cursor: 'pointer' }}
                     dataSource={dataSource}
                     columns={tableColumns}
+                    rowKey={(record: any) => record._id}
                     onRow={(record) => { return { onClick: () => { formDigitacao.setFieldsValue(record) } }; }}
                 />
             </Content>
@@ -66,8 +68,8 @@ const Pessoa = () => {
     const FrameDigitacao = () => {
         return <>
             <Form form={formDigitacao} layout="vertical">
-                <Form.Item label="ID" name={'_id'} >
-                    <Input disabled={true} />
+                <Form.Item label="ID" name={'_id'} hidden={true}>
+                    <Input />
                 </Form.Item>
                 <Form.Item label="Nome" name={'name'} >
                     <Input disabled={!inEdition} />
@@ -134,17 +136,13 @@ const Pessoa = () => {
 
     return (
         <>
-            <Spin tip={loading.descritivo} spinning={loading.visivel}>
-                <Row>
-                    <Col flex="auto">
-                        <Tabs type="card" items={tabs} />
-                    </Col>
-                    <Col style={{ marginLeft: '1rem' }}>
-                        <FrameCadButtons callbackClick={(e: enBotoes) => callbackBotoesPrincipais(e)} inEdition={inEdition} />
-                    </Col>
-                </Row>
-                <ToastContainer />
-            </Spin>
+            <WrapperManutencao
+                callbackClickBotoes={callbackBotoesPrincipais}
+                inEdition={inEdition}
+                loading={loading}
+                tabs={tabs}
+                key={"wrapper_manutencao_pessoa"}
+            />
         </>
     )
 }

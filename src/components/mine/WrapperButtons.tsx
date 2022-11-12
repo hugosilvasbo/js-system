@@ -23,7 +23,7 @@ interface IProps {
     }
 }
 
-const FrameCadButtons = (props: IProps) => {
+const WrapperButtons = (props: IProps) => {
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
     const craftButtons = [
@@ -142,4 +142,4 @@ const FrameCadButtons = (props: IProps) => {
     )
 }
 
-export default FrameCadButtons;
+export default WrapperButtons;
