@@ -13,6 +13,10 @@ https://stackoverflow.com/questions/63124161/attempted-import-error-switch-is-no
 CORREÇAO DO WITHROUTER 
 https://stackoverflow.com/questions/62861269/attempted-import-error-usehistory-is-not-exported-from-react-router-dom
 
+COMPONENTE TIMELINE
+npm i snaphy-calendar-timeline
+npm install --save react-calendar-timeline
+
 ******** ANOTACOES
 Trocar porta: $env:PORT=5000
 

@@ -22,11 +22,13 @@
     "dayjs": "^1.11.6",
     "moment": "^2.29.4",
     "react": "^18.2.0",
+    "react-calendar-timeline": "^0.28.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^9.0.8",
     "sass": "^1.54.5",
+    "snaphy-calendar-timeline": "^0.18.4",
     "typescript": "^4.8.2",
     "web-vitals": "^2.1.4"
   },
@@ -53,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-calendar-timeline": "^0.26.7"
   }
 }

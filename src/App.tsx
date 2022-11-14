@@ -23,6 +23,7 @@ function App(props: any) {
       ],
     },
     { label: 'Agenda', key: 'mn-agenda', icon: <CalendarOutlined />, onClick: () => navigate('/agenda') }, // remember to pass the key prop
+    { label: 'Agenda 2', key: 'mn-agenda2', icon: <CalendarOutlined />, onClick: () => navigate('/agendamento') }, // remember to pass the key prop
   ];
 
   return (
@@ -30,11 +31,11 @@ function App(props: any) {
       <Menu items={menus} mode="horizontal" theme="dark" defaultSelectedKeys={['mn-home']} />
       <Layout style={{
         minHeight: "100vh",
-        padding: '0.6rem',
+        padding: '0.4rem',
       }}>
         <Content style={{
           backgroundColor: '#fff',
-          padding: '1rem',
+          padding: '0.6rem',
           borderRadius: '0.6rem'
         }} className='bx_10'>
           {props.children}

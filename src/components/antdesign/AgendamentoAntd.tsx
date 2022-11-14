@@ -1,7 +1,8 @@
-import { DeleteOutlined, ExpandAltOutlined } from '@ant-design/icons';
-import { Calendar, Col, DatePicker, Form, Input, Modal, PageHeader, Row, Space, Spin, Tooltip } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Calendar, Col, Form, Input, Modal, Row, Space, Spin, Table, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
+import { ColumnsType } from 'antd/lib/table';
 import axios from 'axios';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
@@ -11,6 +12,7 @@ import jCor from '../../assets/jasonCor.json';
 import jURL from '../../assets/jasonURLs.json';
 import AgendamentoModal from '../../classes/Agendamento';
 import FrameCadButtons, { enBotoes } from '../mine/WrapperButtons';
+import './AgendamentoAntd.scss';
 import InputSearch from './InputSearch';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
 
@@ -51,10 +53,10 @@ async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 
 const Agendamento = () => {
   const [dados, setDados] = useState({} as any);
-  const [hideNoDia, setHideNoDia] = useState(true);
   const [showModal, setShowModal] = useState(undefined as unknown as IModal)
   const [agendamentosDoDia, setAgendamentosDoDia] = useState({} as any)
   const [loading, setLoading] = useState({ descritivo: "", visivel: false })
+  const [layoutPadrao, setLayoutPadrao] = useState(!true);
 
   const [form_digitacao] = Form.useForm();
 
@@ -65,8 +67,6 @@ const Agendamento = () => {
   }
 
   useEffect(() => {
-    setHideNoDia(true);
-
     const fetchData = async () => {
       try {
         setLoading({ descritivo: "Consultando agendamentos...", visivel: true })
@@ -102,8 +102,7 @@ const Agendamento = () => {
     }
 
     const _onClickCedulaDoCalendario = (agendamento: any) => {
-      setAgendamentosDoDia(agendamento)
-      setHideNoDia(false)
+      setAgendamentosDoDia(agendamento);
     }
 
     return (
@@ -220,7 +219,6 @@ const Agendamento = () => {
       </>
     }
     return <>
-      <PageHeader onBack={() => { setHideNoDia(true) }} subTitle={"Esconder"} backIcon={<ExpandAltOutlined />} />
       {
 
         <Space direction={'vertical'} size={'small'} style={{ height: '800px', display: 'flex', overflowY: 'auto' }} >
@@ -256,20 +254,24 @@ const Agendamento = () => {
           setShowModal({ showModal: EnTipoModal.mInclusao })
           break;
         case enBotoes.eProcurar:
-          setShowModal({ showModal: EnTipoModal.mConsulta })
+          // apenas para teste
+          //setShowModal({ showModal: EnTipoModal.mConsulta })
+          setLayoutPadrao(!layoutPadrao);
           break;
       }
     }
 
-    return <FrameCadButtons
-      inEdition={false}
-      callbackClick={(e: enBotoes) => _callback(e)}
-      orientation={'horizontal'}
-      invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
-    />
+    return (
+      <FrameCadButtons
+        inEdition={false}
+        callbackClick={(e: enBotoes) => _callback(e)}
+        orientation={'horizontal'}
+        invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
+      />
+    );
   }
 
-  const ModalDeConfirmacao = () => {
+  const ModalDeConfirmacaoDeExclusao = () => {
     const _excluirAgendamento = async (_id: any) => {
       setLoading({ descritivo: "Excluindo agendamento...", visivel: true })
       var _agendamento = new AgendamentoModal({}, _id);
@@ -299,21 +301,249 @@ const Agendamento = () => {
       callback={_callback} />
   }
 
+  const MontagemDoConteudo = () => {
+    const Detalhado = () => {
+      interface TipoDado {
+        key: string;
+        schedule_time: string,
+        client: string,
+        situation: string
+      }
+
+      const dtSource = () => {
+        let horarios: any = [];
+
+        function RetornaDate(horario: string) {
+          let date = new Date();
+
+          let hora = parseInt(String(horario).substring(0, 2));
+          let minuto = parseInt(String(horario).substring(5, 3));
+
+          date.setHours(hora, minuto, 0);
+          return date;
+        }
+
+        // Obtém os agendamentos.
+        const _agendamentos = [
+          {
+            key: 1,
+            ini: '08:00',
+            end: '08:30',
+            client: 'Hugo Souza',
+            situation: 'Finalizado'
+          },
+          {
+            key: 2,
+            ini: '09:00',
+            end: '10:00',
+            client: 'Jorge',
+            situation: 'Cancelado'
+          },
+          {
+            key: 3,
+            ini: '12:00',
+            end: '15:30',
+            client: 'Desafio...',
+            situation: 'Pendente'
+          },
+        ];
+
+        let horarioDoInicioDoExpediente = RetornaDate("08:00:00");
+        let horarioDoFinalDoExpediente = RetornaDate("19:30:00");
+
+        // horarioBase = horário usado no laço para saber o inicio e o fim de horário que precisamos mostrar ao usuário.
+        let horarioBase = new Date();
+        horarioBase.setHours(
+          horarioDoInicioDoExpediente.getHours(),
+          horarioDoInicioDoExpediente.getMinutes(),
+          horarioDoInicioDoExpediente.getSeconds(),
+          0);
+
+        let _variacaoInicialMinutos = 30;
+
+        while (horarioBase.getTime() < horarioDoFinalDoExpediente.getTime()) {
+          let _variacao = _variacaoInicialMinutos;
+          let _keyHorario = moment(horarioBase).format('HH:mm');
+
+          let agendamento = _agendamentos.filter((value: any) => value.ini === _keyHorario);
+
+          if (agendamento.length > 0) {
+            _variacao = 60; // calcular o horario final com o horario inicial aqui...
+            // mostrar os dados abaixo
+
+            horarios.push({
+              key: _keyHorario,
+              schedule_time: _keyHorario,
+              client: '',
+              situation: 'Livre'
+            });
+          } else {
+            horarios.push({
+              key: _keyHorario,
+              schedule_time: _keyHorario,
+              client: '',
+              situation: 'Livre'
+            });
+          }
+
+          horarioBase.setMinutes(horarioBase.getMinutes() + _variacao);
+        }
+
+        return horarios;
+      }
+
+      /*
+      const dataSource = () => {
+        let todosHorarios: any = [];
+        let horariosAgendados: any = [];
+        let minutosVariacao = 30;
+
+        function GetHorario(horario: string) {
+          let date = new Date();
+          date.setHours(parseInt(String(horario).substring(0, 2)), 0, 0);
+          return date;
+        }
+
+        function MontarHorariosBase() {
+          let inicioHorarioExpediente = GetHorario('08:00:00');
+          let finalHorarioExpediente = GetHorario('19:00:00');
+
+          let horarioBase = new Date();
+          horarioBase.setHours(inicioHorarioExpediente.getHours(), 0, 0, 0);
+
+          while (horarioBase.getHours() < finalHorarioExpediente.getHours()) {
+            let horario = moment(horarioBase).format('HH:mm');
+
+            todosHorarios.push({
+              key: horario,
+              schedule_time: horario,
+              client: '',
+              situation: 'Livre'
+            });
+
+            horarioBase.setMinutes(horarioBase.getMinutes() + minutosVariacao);
+          }
+        }
+
+        function InputarAgendamentos() {
+          horariosAgendados = [
+            {
+              key: 1,
+              ini: '08:00',
+              end: '08:30',
+              client: 'Hugo Souza',
+              situation: 'Finalizado'
+            },
+            {
+              key: 2,
+              ini: '09:00',
+              end: '10:00',
+              client: 'Jorge',
+              situation: 'Cancelado'
+            },
+            {
+              key: 3,
+              ini: '12:00',
+              end: '15:30',
+              client: 'Desafio...',
+              situation: 'Pendente'
+            },
+          ];
+
+          _.map(todosHorarios, (value: any, key: string) => {
+            _.map(horariosAgendados, (agendamento: any) => {
+              if (value.key === agendamento.ini) {
+                todosHorarios[key] = {
+                  key,
+                  schedule_time: agendamento.ini + ' à ' + agendamento.end,
+                  client: agendamento.client,
+                  situation: agendamento.situation
+                }
+
+                let dateInicial = GetHorario(agendamento.ini);
+                let dateFinal = GetHorario(agendamento.end);
+
+                let horarioBase = new Date();
+                horarioBase.setHours(dateInicial.getHours(), 0, 0, 0);
+
+                console.log(horarioBase.getTime())
+                console.log(dateFinal.getTime())
+
+                while (horarioBase.getTime() <= dateFinal.getTime()) {
+                  let chave = moment(horarioBase.getDate()).format('HH:mm');
+                  console.log({ chaves: chave })
+
+                  todosHorarios = todosHorarios.filter(function (objeto: any) {
+                    return objeto.key !== chave
+                  });
+
+                  horarioBase.setMinutes(horarioBase.getMinutes() + minutosVariacao);
+                }
+              }
+            })
+          });
+        }
+
+        MontarHorariosBase();
+        InputarAgendamentos();
+
+        return todosHorarios;
+      }
+      */
+
+      const colunas: ColumnsType<TipoDado> = [
+        {
+          title: 'Horário',
+          dataIndex: 'schedule_time',
+          key: 'schedule_time'
+        },
+        {
+          title: 'Cliente',
+          dataIndex: 'client',
+          key: 'client'
+        },
+        {
+          title: 'Situação',
+          dataIndex: 'situation',
+          key: 'situation'
+        }
+      ];
+
+      return <>
+        <Table
+          pagination={false}
+          columns={colunas}
+          dataSource={dtSource()}
+          rowClassName={(record) =>
+            record.situation === 'Finalizado' ? 'table-row-finished' :
+              (record.situation === 'Cancelado' ? 'table-row-canceled' :
+                (record.situation === 'Livre' ? 'table-row-free' : 'table-row-pending'))}
+        />
+      </>
+    }
+
+    if (layoutPadrao) {
+      return <Calendar locale={locale} dateCellRender={dateCellRender} onPanelChange={panelChange} />;
+    } else {
+      return <Detalhado />
+    }
+  }
+
   return <>
     <Spin tip={loading.descritivo} spinning={loading.visivel}>
       <ModalManutencao />
-      <ModalDeConfirmacao />
+      <ModalDeConfirmacaoDeExclusao />
       <ModalBusca />
       <ToastContainer />
       <Row justify='end'>
         <FrameBotoesPrincipais />
       </Row>
       <Row>
-        <Col span={hideNoDia ? 0 : 4}>
-          <SidebarSelecao />
+        <Col span={5}>
+          {/*<SidebarSelecao />*/}
         </Col>
-        <Col span={hideNoDia ? 24 : 20} style={{ padding: '20px' }}>
-          <Calendar locale={locale} dateCellRender={dateCellRender} onPanelChange={panelChange} />
+        <Col span={19}>
+          <MontagemDoConteudo />
         </Col>
       </Row>
     </Spin>

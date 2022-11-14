@@ -1,0 +1,31 @@
+@import 'react-calendar-timeline/lib/Timeline.css';
+
+.react-calendar-timeline .rct-header-root {
+    background: #e6e6e6;
+    border-bottom: 0px;
+}
+
+.react-calendar-timeline .rct-dateHeader-primary {
+    background-color: initial;
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    color: #8a8a8a;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.react-calendar-timeline .rct-calendar-header {
+    border: 1px solid #fff;
+}
+
+.react-calendar-timeline .rct-dateHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border-bottom: 1px solid #bbb;
+    cursor: pointer;
+    font-size: 12px;
+    background-color: #f0f0f0;
+    border-left: 1px solid #bbb;
+}
