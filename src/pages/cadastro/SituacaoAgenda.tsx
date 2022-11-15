@@ -1,10 +1,10 @@
-import { Form, Table } from "antd";
+import { Form, Input, Table } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import SituacaoClass from '../../classes/AgendamentoSituacao';
 import { enBotoes } from "../../components/mine/WrapperButtons";
 import WrapperManutencao from "../../components/mine/WrapperManutencao";
-import SituacaoClass from '../../classes/AgendamentoSituacao';
-import { toast } from "react-toastify";
 
 const SituacaoAgenda = () => {
     const [inEdition, setInEdition] = useState(false);
@@ -13,9 +13,43 @@ const SituacaoAgenda = () => {
 
     const [formDigitacao] = Form.useForm();
 
+    const submit = async () => {
+        formDigitacao.validateFields()
+            .then(async (values: any) => {
+                setLoading({ descritivo: "Processando...", visivel: true });
+                var _situation = new SituacaoClass(values, values._id);
+
+                await _situation.send()
+                    .then((res: any) => toast.success(res.data.message))
+                    .catch((res: any) => toast.error("" + res))
+                    .finally(() => {
+                        setInEdition(false);
+                        setLoading({ descritivo: "", visivel: false });
+                    })
+            }).catch((errorInfo) => { toast.error(errorInfo) });
+    }
+
     const callbackBotoes = async (botaoSelecionado: enBotoes) => {
         let _sit = null;
         switch (botaoSelecionado) {
+            case enBotoes.eNovo: {
+                formDigitacao.resetFields();
+                setInEdition(true);
+                break;
+            }
+            case enBotoes.eAlterar: {
+                setInEdition(true);
+                break;
+            }
+            case enBotoes.eCancelar: {
+                formDigitacao.resetFields();
+                setInEdition(false);
+                break;
+            }
+            case enBotoes.eGravar: {
+                submit();
+                break;
+            }
             case enBotoes.eProcurar: {
                 _sit = new SituacaoClass({}, "");
                 setLoading({ descritivo: "Carregando situações...", visivel: true });
@@ -25,6 +59,12 @@ const SituacaoAgenda = () => {
                     .finally(() => { setLoading({ descritivo: "", visivel: false }) });
                 break;
             }
+            case enBotoes.eExcluir:
+                _sit = new SituacaoClass({}, formDigitacao.getFieldValue('_id'));
+                await _sit.delete()
+                    .then((res: any) => toast.success(res.data.message))
+                    .catch((e: any) => toast.error('' + e));
+                break;
         }
     }
 
@@ -34,6 +74,9 @@ const SituacaoAgenda = () => {
                 title: 'Descrição',
                 dataIndex: 'description',
                 key: 'description',
+                render(text: any, record: any) {
+                    return <span style={{ backgroundColor: record.color }}>{text}</span>;
+                }
             }
         ]
 
@@ -51,7 +94,19 @@ const SituacaoAgenda = () => {
     }
 
     const TabDigitacao = () => {
-        return <></>
+        return <>
+            <Form form={formDigitacao} layout="vertical">
+                <Form.Item label="ID" name="_id" hidden={true} >
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Descrição" name="description">
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+                <Form.Item label="Cor" name="color">
+                    <Input disabled={!inEdition} />
+                </Form.Item>
+            </Form>
+        </>
     }
 
     const tabs = [
@@ -60,7 +115,6 @@ const SituacaoAgenda = () => {
     ];
 
     return <>
-        <h1 style={{ color: 'red' }}>Apenas funcionando a consulta</h1>
         <WrapperManutencao
             inEdition={inEdition}
             loading={loading}

@@ -28,6 +28,19 @@ interface IProps {
 const WrapperButtons = (props: IProps) => {
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
+    let _customTooltip = {
+        search: "Procurar"
+    }
+
+    _.forEach(props.tooltipCaption, (value: any) => {
+        switch (value.button) {
+            case enBotoes.eProcurar: {
+                _customTooltip.search = value.caption
+                break;
+            }
+        }
+    });
+
     const craftButtons = [
         {
             onClick: () => props.callbackClick(enBotoes.eNovo),
@@ -77,7 +90,7 @@ const WrapperButtons = (props: IProps) => {
             type: 'button',
             key: 'search_button',
             icon: <SearchOutlined />,
-            tooltipTitle: _.map(props.tooltipCaption, (value: any) => value.button === enBotoes.eProcurar ? value.caption : "Pesquisar"),
+            tooltipTitle: _customTooltip.search,
             visible: !props.invisible?.includes(enBotoes.eProcurar)
         }
     ];

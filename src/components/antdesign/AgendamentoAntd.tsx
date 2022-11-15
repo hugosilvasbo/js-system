@@ -40,10 +40,10 @@ async function buscarNaAPIOsAgendamentosDoMes(value: Moment) {
 
   let res = await axios.get(_urlPadrao, {
     params: {
-      dia_inicial: _getFiltro(true),
-      dia_final: _getFiltro(false)
+      date: _getFiltro(true),
+      date_end: _getFiltro(false)
     }
-  })
+  });
 
   let _agrupar_por_data = _.groupBy(res.data, (r: any) => moment(r.date).format("DDMMYYYY"));
 
@@ -77,7 +77,8 @@ const Agendamento = () => {
       }
     }
 
-    fetchData().catch(console.error)
+    fetchData().catch(console.error);
+    console.log("Redenrizou a tela...")
   }, []);
 
   const dateCellRender = (value: Moment) => {
@@ -85,8 +86,7 @@ const Agendamento = () => {
     let agendamentos = _.pick(dados, formato);
 
     const ItemLista = (props: any) => {
-      const hora_mes = DateUtils.dateFormatHHmm(props.data.date)
-      console.log({ itemlista: props })
+      const hora_mes = DateUtils.dateFormatHHmm(props.data.date);
       return (
         <Tooltip placement='leftBottom' title='Clique para mais detalhes'>
           <p className='list-items' style={{ backgroundColor: props.data?.background }}>
@@ -115,11 +115,6 @@ const Agendamento = () => {
       }
       )
     );
-  }
-
-  const panelChange = async (value: Moment) => {
-    let res = await buscarNaAPIOsAgendamentosDoMes(value)
-    setDados(res)
   }
 
   const ModalManutencao = () => {
@@ -247,6 +242,7 @@ const Agendamento = () => {
   }
 
   const FrameBotoesPrincipais = () => {
+    console.log("Frame cad buttons cai aqui")
     const _callback = (_opcao: enBotoes) => {
       switch (_opcao) {
         case enBotoes.eNovo:
@@ -301,6 +297,12 @@ const Agendamento = () => {
   }
 
   const MontagemDoConteudo = () => {
+    console.log("Está redenrizando multiplas vezes...")
+    const panelChange = async (value: Moment) => {
+      let dados = await buscarNaAPIOsAgendamentosDoMes(value);
+      setDados(dados);
+    }
+
     const Detalhado = () => {
       interface TipoDado {
         key: string;
@@ -364,7 +366,7 @@ const Agendamento = () => {
             horarios.push({
               schedule_time: DateUtils.dateFormatHHmm(horarioDeTrabalho),
               client: "",
-              situation: { description: "Livre", color: "rgb(209 209 209)" },
+              situation: { description: "Livre", color: "rgb(139 139 139)" },
               key: new Date().getTime(),
             });
 
@@ -382,7 +384,7 @@ const Agendamento = () => {
           key: 'schedule_time',
           width: "5%",
           render(text, record) {
-            return <span style={{ color: record.situation.color }}>{record.schedule_time}</span>;
+            return <span style={{ color: record.situation?.color }}>{record.schedule_time}</span>;
           }
         },
         {
@@ -391,7 +393,7 @@ const Agendamento = () => {
           key: 'client',
           width: "75%",
           render(text, record) {
-            return <span style={{ color: record.situation.color }}>{record.client}</span>;
+            return <span style={{ color: record.situation?.color }}>{record.client}</span>;
           }
         },
         {
@@ -400,7 +402,7 @@ const Agendamento = () => {
           key: 'situation',
           width: "20%",
           render(text, record) {
-            return <span style={{ color: record.situation.color }}>{record.situation.description}</span>;
+            return <span style={{ color: record.situation?.color }}>{record.situation?.description}</span>;
           }
         }
       ];
