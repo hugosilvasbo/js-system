@@ -1,5 +1,6 @@
 .table-row-pending {
-    background-color: rgb(235, 252, 217);
+    color: white;
+    background-color: rgb(0, 146, 190);
 }
 
 .table-row-finished {
@@ -12,4 +13,10 @@
 
 .table-row-free {
     background-color: white;
+}
+
+.ant-table-tbody>tr.ant-table-row:hover>td,
+.ant-table-tbody>tr>td.ant-table-cell-row-hover {
+    color: black;
+    cursor: pointer;
 }

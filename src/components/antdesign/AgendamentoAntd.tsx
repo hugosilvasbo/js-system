@@ -15,6 +15,7 @@ import FrameCadButtons, { enBotoes } from '../mine/WrapperButtons';
 import './AgendamentoAntd.scss';
 import InputSearch from './InputSearch';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
+import DateUtils from '../../classes/utils/DateUtils';
 
 const _urlPadrao = `${jURL.url_api_barber}schedule`
 
@@ -313,199 +314,81 @@ const Agendamento = () => {
       const dtSource = () => {
         let horarios: any = [];
 
-        function RetornaDate(horario: string) {
-          let date = new Date();
+        let horarioDeTrabalho = new Date('2022-11-17' + "T00:00:00");
+        horarioDeTrabalho.setHours(8, 0, 0, 0);
 
-          let hora = parseInt(String(horario).substring(0, 2));
-          let minuto = parseInt(String(horario).substring(5, 3));
-
-          date.setHours(hora, minuto, 0);
-          return date;
-        }
-
-        // Obtém os agendamentos.
-        const _agendamentos = [
-          {
-            key: 1,
-            ini: '08:00',
-            end: '08:30',
-            client: 'Hugo Souza',
-            situation: 'Finalizado'
-          },
-          {
-            key: 2,
-            ini: '09:00',
-            end: '10:00',
-            client: 'Jorge',
-            situation: 'Cancelado'
-          },
-          {
-            key: 3,
-            ini: '12:00',
-            end: '15:30',
-            client: 'Desafio...',
-            situation: 'Pendente'
-          },
-        ];
-
-        let horarioDoInicioDoExpediente = RetornaDate("08:00:00");
-        let horarioDoFinalDoExpediente = RetornaDate("19:30:00");
-
-        // horarioBase = horário usado no laço para saber o inicio e o fim de horário que precisamos mostrar ao usuário.
-        let horarioBase = new Date();
-        horarioBase.setHours(
-          horarioDoInicioDoExpediente.getHours(),
-          horarioDoInicioDoExpediente.getMinutes(),
-          horarioDoInicioDoExpediente.getSeconds(),
-          0);
+        let horarioDoFinalDoExpediente = new Date('2022-11-17' + "T00:00:00");
+        horarioDoFinalDoExpediente.setHours(19, 30, 0, 0);
 
         let _variacaoInicialMinutos = 30;
 
-        while (horarioBase.getTime() < horarioDoFinalDoExpediente.getTime()) {
+        while (horarioDeTrabalho.getTime() < horarioDoFinalDoExpediente.getTime()) {
           let _variacao = _variacaoInicialMinutos;
-          let _keyHorario = moment(horarioBase).format('HH:mm');
 
-          let agendamento = _agendamentos.filter((value: any) => value.ini === _keyHorario);
+          /**
+           * Para incluir o agendamento na lista, deve-se:
+           * - Conforme a montagem do horário do looping, analisar se há horários agendados no dia para setagem de valor. 
+           * - Portanto, desde que esse ID não esteja incluso no Json "horarios", por conta do looping que pode cair no mesmo horário,
+           *   e duplicar o registro (é errado).
+           * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
+           */
 
-          if (agendamento.length > 0) {
-            _variacao = 60; // calcular o horario final com o horario inicial aqui...
-            // mostrar os dados abaixo
+          let _filtrarHorarios = _.filter(agendamentosDoDia, (agendamento: any) => {
+            let _jaIncluso = _.filter(horarios, (horario: any) => horario.key === agendamento._id);
 
-            horarios.push({
-              key: _keyHorario,
-              schedule_time: _keyHorario,
-              client: '',
-              situation: 'Livre'
-            });
-          } else {
-            horarios.push({
-              key: _keyHorario,
-              schedule_time: _keyHorario,
-              client: '',
-              situation: 'Livre'
+            return (new Date(agendamento.date).getHours() === horarioDeTrabalho.getHours()) && (_jaIncluso.length === 0);
+          });
+
+          if (_filtrarHorarios.length > 0) {
+            _.map(_filtrarHorarios, (value: any) => {
+              let _horarioInicial = new Date(value.date);
+              let _horarioFinal = new Date(value.date_end);
+
+              _variacao = DateUtils.obterVariacaoMinutosEntreDatas(horarioDeTrabalho, _horarioFinal);
+
+              horarios.push({
+                schedule_time: moment(_horarioInicial).format("HH:mm") + ' ' + moment(_horarioFinal).format("HH:mm"),
+                client: value.person.name,
+                situation: value?.situation,
+                key: value._id,
+              });
+
+              horarioDeTrabalho.setTime(_horarioFinal.getTime())
             });
           }
+          else {
+            horarios.push({
+              schedule_time: moment(horarioDeTrabalho).format("HH:mm"),
+              client: "",
+              situation: "Livre",
+              key: new Date().getTime(),
+            });
 
-          horarioBase.setMinutes(horarioBase.getMinutes() + _variacao);
+            horarioDeTrabalho.setMinutes(horarioDeTrabalho.getMinutes() + _variacao);
+          }
         }
 
         return horarios;
       }
 
-      /*
-      const dataSource = () => {
-        let todosHorarios: any = [];
-        let horariosAgendados: any = [];
-        let minutosVariacao = 30;
-
-        function GetHorario(horario: string) {
-          let date = new Date();
-          date.setHours(parseInt(String(horario).substring(0, 2)), 0, 0);
-          return date;
-        }
-
-        function MontarHorariosBase() {
-          let inicioHorarioExpediente = GetHorario('08:00:00');
-          let finalHorarioExpediente = GetHorario('19:00:00');
-
-          let horarioBase = new Date();
-          horarioBase.setHours(inicioHorarioExpediente.getHours(), 0, 0, 0);
-
-          while (horarioBase.getHours() < finalHorarioExpediente.getHours()) {
-            let horario = moment(horarioBase).format('HH:mm');
-
-            todosHorarios.push({
-              key: horario,
-              schedule_time: horario,
-              client: '',
-              situation: 'Livre'
-            });
-
-            horarioBase.setMinutes(horarioBase.getMinutes() + minutosVariacao);
-          }
-        }
-
-        function InputarAgendamentos() {
-          horariosAgendados = [
-            {
-              key: 1,
-              ini: '08:00',
-              end: '08:30',
-              client: 'Hugo Souza',
-              situation: 'Finalizado'
-            },
-            {
-              key: 2,
-              ini: '09:00',
-              end: '10:00',
-              client: 'Jorge',
-              situation: 'Cancelado'
-            },
-            {
-              key: 3,
-              ini: '12:00',
-              end: '15:30',
-              client: 'Desafio...',
-              situation: 'Pendente'
-            },
-          ];
-
-          _.map(todosHorarios, (value: any, key: string) => {
-            _.map(horariosAgendados, (agendamento: any) => {
-              if (value.key === agendamento.ini) {
-                todosHorarios[key] = {
-                  key,
-                  schedule_time: agendamento.ini + ' à ' + agendamento.end,
-                  client: agendamento.client,
-                  situation: agendamento.situation
-                }
-
-                let dateInicial = GetHorario(agendamento.ini);
-                let dateFinal = GetHorario(agendamento.end);
-
-                let horarioBase = new Date();
-                horarioBase.setHours(dateInicial.getHours(), 0, 0, 0);
-
-                console.log(horarioBase.getTime())
-                console.log(dateFinal.getTime())
-
-                while (horarioBase.getTime() <= dateFinal.getTime()) {
-                  let chave = moment(horarioBase.getDate()).format('HH:mm');
-                  console.log({ chaves: chave })
-
-                  todosHorarios = todosHorarios.filter(function (objeto: any) {
-                    return objeto.key !== chave
-                  });
-
-                  horarioBase.setMinutes(horarioBase.getMinutes() + minutosVariacao);
-                }
-              }
-            })
-          });
-        }
-
-        MontarHorariosBase();
-        InputarAgendamentos();
-
-        return todosHorarios;
-      }
-      */
-
       const colunas: ColumnsType<TipoDado> = [
         {
           title: 'Horário',
           dataIndex: 'schedule_time',
-          key: 'schedule_time'
+          key: 'schedule_time',
+          width: "5%",
         },
         {
           title: 'Cliente',
           dataIndex: 'client',
-          key: 'client'
+          key: 'client',
+          width: "75%",
         },
         {
           title: 'Situação',
           dataIndex: 'situation',
-          key: 'situation'
+          key: 'situation',
+          width: "20%",
         }
       ];
 
