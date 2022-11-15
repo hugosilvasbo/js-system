@@ -1,6 +1,7 @@
 import { CheckOutlined, DeleteOutlined, EditOutlined, FolderAddOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Row, Tooltip } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
+import _ from 'lodash';
 import { useState } from 'react';
 
 export enum enBotoes {
@@ -20,7 +21,8 @@ interface IProps {
     deleteConfirmationOptions?: {
         caption: string,
         content: string
-    }
+    },
+    tooltipCaption?: [{ button: enBotoes, caption: string }]
 }
 
 const WrapperButtons = (props: IProps) => {
@@ -75,7 +77,7 @@ const WrapperButtons = (props: IProps) => {
             type: 'button',
             key: 'search_button',
             icon: <SearchOutlined />,
-            tooltipTitle: 'Pesquisar',
+            tooltipTitle: _.map(props.tooltipCaption, (value: any) => value.button === enBotoes.eProcurar ? value.caption : "Pesquisar"),
             visible: !props.invisible?.includes(enBotoes.eProcurar)
         }
     ];

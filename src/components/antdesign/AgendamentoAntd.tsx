@@ -1,5 +1,5 @@
-import { DeleteOutlined } from '@ant-design/icons';
-import { Calendar, Col, Form, Input, Modal, Row, Space, Spin, Table, Tooltip } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { Calendar, Col, Form, Input, Modal, Row, Spin, Table, Tooltip } from 'antd';
 import locale from 'antd/es/date-picker/locale/pt_BR';
 import Card from 'antd/lib/card/Card';
 import { ColumnsType } from 'antd/lib/table';
@@ -8,20 +8,18 @@ import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import { useEffect, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import jCor from '../../assets/jasonCor.json';
 import jURL from '../../assets/jasonURLs.json';
 import AgendamentoModal from '../../classes/Agendamento';
+import DateUtils from '../../classes/utils/DateUtils';
 import FrameCadButtons, { enBotoes } from '../mine/WrapperButtons';
 import './AgendamentoAntd.scss';
 import InputSearch from './InputSearch';
 import ModalConfirm, { EnRetorno } from './ModalConfirm';
-import DateUtils from '../../classes/utils/DateUtils';
 
 const _urlPadrao = `${jURL.url_api_barber}schedule`
 
 export enum EnTipoModal {
   mIndefinido,
-  mConsulta,
   mExclusao,
   mManutencao,
   mAbrirModalConfirmExclusao,
@@ -57,7 +55,8 @@ const Agendamento = () => {
   const [showModal, setShowModal] = useState(undefined as unknown as IModal)
   const [agendamentosDoDia, setAgendamentosDoDia] = useState({} as any)
   const [loading, setLoading] = useState({ descritivo: "", visivel: false })
-  const [layoutPadrao, setLayoutPadrao] = useState(!true);
+  const [layoutPadrao, setLayoutPadrao] = useState(true);
+  const [hideSidebar, setHideSidebar] = useState(true);
 
   const [form_digitacao] = Form.useForm();
 
@@ -82,36 +81,34 @@ const Agendamento = () => {
   }, []);
 
   const dateCellRender = (value: Moment) => {
-    let formato = value.format("DDMMYYYY")
-    let agendamentos = _.pick(dados, formato)
-    let _style = {
-      background: jCor.celulasCalendario,
-      padding: '8px',
-      margin: '6px',
-      borderRadius: '10px',
-      color: 'white'
-    }
+    let formato = value.format("DDMMYYYY");
+    let agendamentos = _.pick(dados, formato);
 
     const ItemLista = (props: any) => {
-      const hora_mes = moment(props.data.date).format("HH:mm")
-
+      const hora_mes = DateUtils.dateFormatHHmm(props.data.date)
+      console.log({ itemlista: props })
       return (
         <Tooltip placement='leftBottom' title='Clique para mais detalhes'>
-          <p style={_style}>{`${hora_mes} - ${props.data.person}`}</p>
+          <p className='list-items' style={{ backgroundColor: props.data?.background }}>
+            {`${hora_mes} - ${props.data.person}`}
+          </p>
         </Tooltip>
       )
     }
 
-    const _onClickCedulaDoCalendario = (agendamento: any) => {
+    const onClickItem = (agendamento: any) => {
       setAgendamentosDoDia(agendamento);
+      setHideSidebar(false);
     }
 
     return (
       _.map(agendamentos, (agendamento: any) => {
         return <>
           {
-            <div style={{ height: '100%' }} onClick={() => _onClickCedulaDoCalendario(agendamento)}>
-              {_.map(agendamento, (a: any) => <ItemLista data={{ person: a.person?.name, date: a.date }} key={`li_${a._id}`} />)}
+            <div className='wrapper-cedule' onClick={() => onClickItem(agendamento)}>
+              {_.map(agendamento, (a: any) =>
+                <ItemLista data={{ person: a.person?.name, date: a.date, background: a.situation?.color }} key={`li_${a._id}`} />
+              )}
             </div>
           }
         </>
@@ -145,6 +142,7 @@ const Agendamento = () => {
     return <>
       <Modal
         {...defaultModalProperties}
+        width="90%"
         title={showModal?.showModal === EnTipoModal.mManutencao ? 'Manutenção' : 'Inclusão'}
         open={[EnTipoModal.mInclusao, EnTipoModal.mManutencao].includes(showModal?.showModal)}
         onOk={_onSubmitForm}
@@ -194,16 +192,14 @@ const Agendamento = () => {
   }
 
   const SidebarSelecao = () => {
-    const Manutencao = (props: any) => {
-      const _onClickItem = () => {
-        form_digitacao.setFieldsValue(props.agendamento);
-        setShowModal({ showModal: EnTipoModal.mManutencao })
-      }
+    /*const Manutencao = (props: any) => {
+
 
       const _onClickDelete = () => {
         setShowModal({ showModal: EnTipoModal.mAbrirModalConfirmExclusao, agendamentoID: props.agendamento._id })
       }
 
+      
       const _extra = <>
         <Tooltip placement='left' title={'Excluir'}>
           <DeleteOutlined style={{ color: 'red' }} onClick={_onClickDelete} />
@@ -211,40 +207,43 @@ const Agendamento = () => {
       </>
 
       return <>
-        <Card type="inner" title={moment(props.agendamento.date).format("DD/MM/YYYY HH:mm")} extra={_extra} style={{ cursor: 'pointer' }}>
-          <Row onClick={_onClickItem}>
-            <p>{props.agendamento.person?.name}</p>
-            <p>{props.agendamento.person?.cellphone}</p>
-          </Row>
-        </Card>
+
       </>
-    }
+    }*/
+
+    const _extraCardSidebar = <>
+      <Tooltip placement='bottom' title={'Fechar o painel'}>
+        <CloseOutlined onClick={() => setHideSidebar(true)} />
+      </Tooltip>
+    </>
+
     return <>
       {
-
-        <Space direction={'vertical'} size={'small'} style={{ height: '800px', display: 'flex', overflowY: 'auto' }} >
+        <Card
+          type='inner'
+          size='small'
+          title={`Detalhes (${agendamentosDoDia.length})`}
+          className="wrapper-sidebar-selection"
+          extra={_extraCardSidebar} >
           {
             _.map(agendamentosDoDia, (agendamento: any) => {
+              const _onClickItem = () => {
+                form_digitacao.setFieldsValue(agendamento);
+                setShowModal({ showModal: EnTipoModal.mManutencao })
+              }
+
               return <>
-                <Tooltip title="Clique para alterar" placement='right'>
-                  <Manutencao agendamento={agendamento} />
+                <Tooltip title={`Clique para alterar - ${agendamento.situation?.description}`}>
+                  <Row onClick={_onClickItem} className="sidebar-selection-item" style={{ borderLeft: `4px solid ${agendamento.situation?.color}` }}>
+                    {DateUtils.dateFormatHHmm(agendamento.date) + ' ' + agendamento.person?.name}
+                  </Row>
                 </Tooltip>
               </>
             })
           }
-        </Space>
+        </Card>
       }
     </>
-  }
-
-  const ModalBusca = () => {
-    return <Modal
-      {...defaultModalProperties}
-      title={"Buscar agendamento"}
-      open={showModal?.showModal === EnTipoModal.mConsulta}
-      onOk={() => { }}
-      onCancel={() => setShowModal({ showModal: EnTipoModal.mIndefinido })}
-    />
   }
 
   const FrameBotoesPrincipais = () => {
@@ -255,8 +254,6 @@ const Agendamento = () => {
           setShowModal({ showModal: EnTipoModal.mInclusao })
           break;
         case enBotoes.eProcurar:
-          // apenas para teste
-          //setShowModal({ showModal: EnTipoModal.mConsulta })
           setLayoutPadrao(!layoutPadrao);
           break;
       }
@@ -268,6 +265,7 @@ const Agendamento = () => {
         callbackClick={(e: enBotoes) => _callback(e)}
         orientation={'horizontal'}
         invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
+        tooltipCaption={[{ button: enBotoes.eProcurar, caption: "Mudar modo de visualização" }]}
       />
     );
   }
@@ -308,12 +306,18 @@ const Agendamento = () => {
         key: string;
         schedule_time: string,
         client: string,
-        situation: string
+        situation: {
+          description: string,
+          color: string
+        }
       }
 
       const dtSource = () => {
         let horarios: any = [];
 
+        /***
+         * Passar aqui o dia atual clicado...
+         */
         let horarioDeTrabalho = new Date('2022-11-17' + "T00:00:00");
         horarioDeTrabalho.setHours(8, 0, 0, 0);
 
@@ -336,7 +340,7 @@ const Agendamento = () => {
           let _filtrarHorarios = _.filter(agendamentosDoDia, (agendamento: any) => {
             let _jaIncluso = _.filter(horarios, (horario: any) => horario.key === agendamento._id);
 
-            return (new Date(agendamento.date).getHours() === horarioDeTrabalho.getHours()) && (_jaIncluso.length === 0);
+            return (new Date(agendamento.date).getHours() === horarioDeTrabalho.getHours()) && (_jaIncluso.length <= 0);
           });
 
           if (_filtrarHorarios.length > 0) {
@@ -347,9 +351,9 @@ const Agendamento = () => {
               _variacao = DateUtils.obterVariacaoMinutosEntreDatas(horarioDeTrabalho, _horarioFinal);
 
               horarios.push({
-                schedule_time: moment(_horarioInicial).format("HH:mm") + ' ' + moment(_horarioFinal).format("HH:mm"),
+                schedule_time: DateUtils.dateFormatHHmm(_horarioInicial) + ' ' + DateUtils.dateFormatHHmm(_horarioFinal),
                 client: value.person.name,
-                situation: value?.situation,
+                situation: value.situation,
                 key: value._id,
               });
 
@@ -358,9 +362,9 @@ const Agendamento = () => {
           }
           else {
             horarios.push({
-              schedule_time: moment(horarioDeTrabalho).format("HH:mm"),
+              schedule_time: DateUtils.dateFormatHHmm(horarioDeTrabalho),
               client: "",
-              situation: "Livre",
+              situation: { description: "Livre", color: "rgb(209 209 209)" },
               key: new Date().getTime(),
             });
 
@@ -377,18 +381,27 @@ const Agendamento = () => {
           dataIndex: 'schedule_time',
           key: 'schedule_time',
           width: "5%",
+          render(text, record) {
+            return <span style={{ color: record.situation.color }}>{record.schedule_time}</span>;
+          }
         },
         {
           title: 'Cliente',
           dataIndex: 'client',
           key: 'client',
           width: "75%",
+          render(text, record) {
+            return <span style={{ color: record.situation.color }}>{record.client}</span>;
+          }
         },
         {
           title: 'Situação',
-          dataIndex: 'situation',
+          dataIndex: ['situation', 'description'],
           key: 'situation',
           width: "20%",
+          render(text, record) {
+            return <span style={{ color: record.situation.color }}>{record.situation.description}</span>;
+          }
         }
       ];
 
@@ -396,17 +409,23 @@ const Agendamento = () => {
         <Table
           pagination={false}
           columns={colunas}
+          style={{ padding: '10px' }}
           dataSource={dtSource()}
-          rowClassName={(record) =>
-            record.situation === 'Finalizado' ? 'table-row-finished' :
-              (record.situation === 'Cancelado' ? 'table-row-canceled' :
-                (record.situation === 'Livre' ? 'table-row-free' : 'table-row-pending'))}
+          onRow={(data: TipoDado) => {
+            return {
+              onClick: event => {
+                console.log({ ClickTableManutencao: data })
+                //form_digitacao.setFieldsValue(data);
+                //setShowModal({ showModal: EnTipoModal.mManutencao })
+              }
+            }
+          }}
         />
       </>
     }
 
     if (layoutPadrao) {
-      return <Calendar locale={locale} dateCellRender={dateCellRender} onPanelChange={panelChange} />;
+      return <Calendar locale={locale} dateCellRender={dateCellRender} onPanelChange={panelChange} style={{ padding: '10px' }} />;
     } else {
       return <Detalhado />
     }
@@ -416,16 +435,15 @@ const Agendamento = () => {
     <Spin tip={loading.descritivo} spinning={loading.visivel}>
       <ModalManutencao />
       <ModalDeConfirmacaoDeExclusao />
-      <ModalBusca />
       <ToastContainer />
       <Row justify='end'>
         <FrameBotoesPrincipais />
       </Row>
       <Row>
-        <Col span={5}>
-          {/*<SidebarSelecao />*/}
+        <Col span={4} hidden={hideSidebar}>
+          <SidebarSelecao />
         </Col>
-        <Col span={19}>
+        <Col span={hideSidebar ? 24 : 20}>
           <MontagemDoConteudo />
         </Col>
       </Row>

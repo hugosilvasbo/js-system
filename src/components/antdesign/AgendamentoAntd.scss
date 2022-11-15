@@ -1,22 +1,31 @@
-.table-row-pending {
-    color: white;
-    background-color: rgb(0, 146, 190);
-}
-
-.table-row-finished {
-    background-color: rgb(194, 239, 218);
-}
-
-.table-row-canceled {
-    background-color: rgb(246, 205, 205);
-}
-
-.table-row-free {
-    background-color: white;
-}
-
 .ant-table-tbody>tr.ant-table-row:hover>td,
 .ant-table-tbody>tr>td.ant-table-cell-row-hover {
     color: black;
     cursor: pointer;
+}
+
+.list-items {
+    font-size: 12px;
+    padding: 4px;
+    margin: 0px 4px 4px 2px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.wrapper-cedule {
+    height: 100%;
+}
+
+.wrapper-sidebar-selection {
+    height: 100%;
+    overflow-y: auto;
+
+    .sidebar-selection-item {
+        border: 1px solid rgb(225, 225, 225);
+        padding: 5px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 }

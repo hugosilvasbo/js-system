@@ -9,7 +9,7 @@ const Agenda = () => {
     }
 
     const tabs = [
-        { label: 'Agendamentos', key: 'tab-consulta', children: <FrameConsulta /> },
+        { label: 'Minha agenda', key: 'tab-consulta', children: <FrameConsulta /> },
     ];
 
     return (

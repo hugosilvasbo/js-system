@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default class DateUtils {
 
     public static obterVariacaoMinutosEntreDatas(DtInicial: Date, dtFinal: Date) {
@@ -5,5 +7,9 @@ export default class DateUtils {
         _retorno = Math.round((_retorno / 1000) / 60);
 
         return _retorno;
+    }
+
+    public static dateFormatHHmm(pHorario: any) {
+        return moment(pHorario).format("HH:mm");
     }
 }
