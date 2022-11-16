@@ -66,6 +66,7 @@ const Agendamento = () => {
   const [agendamentosDoDia, setAgendamentosDoDia] = useState({} as any)
   const [layoutPadrao, setLayoutPadrao] = useState(true);
   const [hideSidebar, setHideSidebar] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(moment(new Date()));
 
   const [form_digitacao] = Form.useForm();
 
@@ -75,18 +76,18 @@ const Agendamento = () => {
     cancelText: 'Sair'
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const _idtoast = toast.loading("Buscando agendamentos...");
-      try {
-        let dados = await buscarNaAPIOsAgendamentosDoMes(moment(new Date()))
-        setDados(dados);
-      } finally {
-        toast.dismiss(_idtoast);
-      }
+  const fetchData = async (value: Moment) => {
+    const _idtoast = toast.loading("Buscando agendamentos...");
+    try {
+      let dados = await buscarNaAPIOsAgendamentosDoMes(value)
+      setDados(dados);
+    } finally {
+      toast.dismiss(_idtoast);
     }
+  }
 
-    fetchData().catch(console.error);
+  useEffect(() => {
+    fetchData(moment(new Date())).catch(console.error);
     console.log("Redenrizou a tela...")
   }, []);
 
@@ -108,6 +109,8 @@ const Agendamento = () => {
     const onClickItem = (agendamento: any) => {
       setAgendamentosDoDia(agendamento);
       setHideSidebar(false);
+      console.log("Caiu no selected date");
+      setSelectedDate(value);
     }
 
     return (
@@ -233,15 +236,21 @@ const Agendamento = () => {
   }
 
   function dtSourceModeloTabela() {
+    if (layoutPadrao === true) {
+      return;
+    }
+
     let horarios: any = [];
 
     /***
      * Passar aqui o dia atual clicado...
      */
-    let horarioDeTrabalho = new Date('2022-11-17' + "T00:00:00");
+    let _dataSelecionada = selectedDate.format("YYYY-MM-DDT00:00:00");
+
+    let horarioDeTrabalho = new Date(_dataSelecionada);
     horarioDeTrabalho.setHours(8, 0, 0, 0);
 
-    let horarioDoFinalDoExpediente = new Date('2022-11-17' + "T00:00:00");
+    let horarioDoFinalDoExpediente = new Date(_dataSelecionada);
     horarioDoFinalDoExpediente.setHours(19, 30, 0, 0);
 
     let _variacaoInicialMinutos = 30;
@@ -296,9 +305,7 @@ const Agendamento = () => {
   }
 
   async function panelChange(value: Moment) {
-    console.log("Calendar panel change")
-    let dados = await buscarNaAPIOsAgendamentosDoMes(value);
-    setDados(dados);
+    await fetchData(value);
   }
 
   const _callbackBotoes = (_opcao: enBotoes) => {
@@ -344,7 +351,6 @@ const Agendamento = () => {
   ];
 
   return <>
-    {/*<Spin tip={loading.descritivo} spinning={loading.visivel}>*/}
     <ModalManutencao />
     <ModalDeConfirmacaoDeExclusao />
     <ToastContainer />
@@ -410,7 +416,6 @@ const Agendamento = () => {
         </Col>
       </Col>
     </Row>
-    {/*</Spin> */}
   </>
 };
 
