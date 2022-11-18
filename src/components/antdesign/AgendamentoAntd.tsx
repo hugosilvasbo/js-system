@@ -109,6 +109,7 @@ const Agendamento = () => {
     const onClickItem = (agendamento: any) => {
       setAgendamentosDoDia(agendamento);
       setHideSidebar(false);
+      console.log("Caiu no selected date");
       setSelectedDate(value);
     }
 
@@ -415,6 +416,7 @@ const Agendamento = () => {
         </Col>
       </Col>
     </Row>
+    {/*</Spin> */}
   </>
 };
 

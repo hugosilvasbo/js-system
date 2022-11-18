@@ -1,0 +1,40 @@
+.ant-table-tbody>tr.ant-table-row:hover>td,
+.ant-table-tbody>tr>td.ant-table-cell-row-hover {
+    color: black;
+    cursor: pointer;
+}
+
+.list-items {
+    font-size: 12px;
+    padding: 6px;
+    margin: 0px 4px 10px 0px;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+}
+
+.wrapper-cedule {
+    height: 100%;
+}
+
+.wrapper-sidebar-selection {
+    height: 100%;
+    overflow-y: auto;
+
+    // remover isso dps noa uso mais no novo agendamento
+    .sidebar-selection-item {
+        border: 1px solid rgb(225, 225, 225);
+        padding: 5px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+}
+
+.item-sidebar {
+    padding: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
