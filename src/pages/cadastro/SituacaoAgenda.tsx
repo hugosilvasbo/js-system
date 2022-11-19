@@ -1,5 +1,10 @@
+/**
+ * Migrar para class component.
+ */
+
 import { Form, Input, Table } from "antd";
 import { Content } from "antd/lib/layout/layout";
+import React from "react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import SituacaoClass from '../../classes/AgendamentoSituacao';

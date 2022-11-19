@@ -17,6 +17,9 @@ COMPONENTE TIMELINE
 npm i snaphy-calendar-timeline
 npm install --save react-calendar-timeline
 
+REACT-COLOR
+npm install react-color --save
+
 ******** ANOTACOES
 Trocar porta: $env:PORT=5000
 

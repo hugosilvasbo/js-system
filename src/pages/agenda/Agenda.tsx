@@ -1,15 +1,16 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tooltip } from "antd";
+import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
 import _ from "lodash";
 import moment, { Moment } from "moment";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import InputSearch from "../../components/antdesign/InputSearch";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
+import AgendamentoModal from '../../classes/Agendamento';
 
 interface IPropsContent {
     calendarMode: boolean
@@ -45,7 +46,7 @@ export default class Agenda extends React.Component {
         scheduleDay: {},
         scheduleSelected: {},
         onSelectedDate: moment(new Date()),
-        openModal: "" as "edit" | ""
+        openModal: false
     }
 
     componentDidMount(): void {
@@ -95,8 +96,6 @@ export default class Agenda extends React.Component {
             <Col span={this.state.hideSidebar ? 0 : 4}>
                 <Card
                     title="Detalhamento"
-                    size="small"
-                    type="inner"
                     style={_styleCard}
                     extra={_extraCard}
                 >
@@ -112,12 +111,16 @@ export default class Agenda extends React.Component {
             const _style = { borderLeft: `4px solid ${_schedule.situation?.color ?? "#bbbbbb"}` };
 
             const _content = <>
-                <Col>
-                    {moment(_schedule.date).format("HH:ss")}
-                </Col>
-                <Col>
-                    {_schedule.person?.name}
-                </Col>
+                <Row justify="space-around">
+                    <Col>
+                        {moment(_schedule.date).format("HH:ss")} à {moment(_schedule.date_end).format("HH:ss")}
+                    </Col>
+                </Row>
+                <Row justify="center">
+                    <Col>
+                        {_schedule.person?.name}
+                    </Col>
+                </Row>
             </>;
 
             const _onClickItem = () => {
@@ -129,12 +132,12 @@ export default class Agenda extends React.Component {
             }
 
             return <Tooltip title="Clique para alterar">
-                <Row
-                    justify="space-evenly"
-                    className="item-sidebar"
+                <Row className="item-sidebar"
                     style={_style}
                     onClick={() => _onClickItem()}>
-                    {_content}
+                    <Col span={24}>
+                        {_content}
+                    </Col>
                 </Row>
             </Tooltip>
         }
@@ -187,6 +190,14 @@ export default class Agenda extends React.Component {
                     this.setState({ ...this.state, calendarMode: !this.state.calendarMode })
                     break;
                 }
+                case enBotoes.eNovo: {
+                    this.setState({
+                        ...this.state,
+                        scheduleSelected: {},
+                        openModal: true
+                    });
+                    break;
+                }
             }
         }
 
@@ -206,7 +217,7 @@ export default class Agenda extends React.Component {
     _onCloseModalManutencao = () => {
         this.setState({
             ...this.state,
-            openModal: "close"
+            openModal: ""
         })
     }
 
@@ -223,7 +234,7 @@ export default class Agenda extends React.Component {
             </Row>
             <ToastContainer />
             <ModalManutencao
-                openModal={this.state.openModal === "edit"}
+                openModal={this.state.openModal}
                 onCancel={this._onCloseModalManutencao}
                 schedule={this.state.scheduleSelected}
             />
@@ -321,15 +332,65 @@ class ModoTabela extends React.Component<IPropsContent, {}> {
     }
 }
 
-class ModalManutencao extends React.Component<IModalItem, {}> {
-    componentDidMount(): void {
-        console.log("Component did mount Modal Manutenção")
+const ModalManutencao = (props: IModalItem) => {
+    const [formController] = Form.useForm();
+    const [insertMode, setInsertMode] = useState(true);
+
+    useEffect(() => {
+        if (props.schedule._id) {
+            setInsertMode(false);
+            formController.setFieldsValue(props.schedule);
+        } else {
+            setInsertMode(true);
+            formController.resetFields();
+        }
+    }, [props.openModal]);
+
+    const _getTitle = insertMode ? "Incluir um novo agendamento" : "Alterar o agendamento";
+
+    const _onSubmit = async () => {
+        await formController.validateFields()
+            .then(async (values: any) => {
+                const _agendamento = new AgendamentoModal(values, values._id);
+                await _agendamento.send()
+                    .then((res: any) => console.log(res.data.message))
+                    .catch((e: any) => console.log("" + e))
+                    .finally(() => props.onCancel())
+
+            }).catch((e) => console.log(e))
+    };
+
+    const _onCancel = () => {
+        props.onCancel();
     }
 
-    Formulario = () => {
-        const [formController] = Form.useForm();
+    const _onDelete = async () => {
+        const _agendamento = new AgendamentoModal({}, formController.getFieldValue("_id"));
+        await _agendamento.delete()
+            .then((res: any) => console.log(res.data?.message))
+            .catch((e: any) => console.log("Falha ao excluir"));
+    }
 
-        return <>
+    const _footerButtons = [
+        <Button key="back-modal" onClick={_onCancel}>
+            Voltar
+        </Button>,
+        <Button danger key="delete-modal" type="primary" onClick={_onDelete} hidden={insertMode}>
+            Excluir
+        </Button>,
+        <Button key="submit-modal" type="primary" onClick={_onSubmit}>
+            Gravar
+        </Button>
+    ];
+
+    return <>
+        <Modal
+            title={_getTitle}
+            open={props.openModal}
+            onCancel={() => _onCancel()}
+            onOk={() => _onSubmit()}
+            footer={_footerButtons}
+            width="90%">
             <Form form={formController} layout={"vertical"}>
                 <Row>
                     <Col span={24} >
@@ -340,7 +401,7 @@ class ModalManutencao extends React.Component<IModalItem, {}> {
                         </Form.Item>
                     </Col>
                 </Row>
-                <Col span={6}>
+                <Col inputMode="tel">
                     <Form.Item label={"Celular"} name={['person', 'cellphone']}><Input /></Form.Item>
                 </Col>
                 <Col span={6}>
@@ -348,20 +409,7 @@ class ModalManutencao extends React.Component<IModalItem, {}> {
                     </Form.Item>
                 </Col>
             </Form>
-        </>
-    }
+        </Modal>
+    </>
 
-    render() {
-        return <>
-            <Modal
-                open={this.props.openModal}
-                width="90%"
-                okText="Gravar"
-                cancelText="Cancelar"
-                title="Manutenção"
-                onCancel={this.props.onCancel} >
-                <this.Formulario />
-            </Modal>
-        </>
-    }
 }
