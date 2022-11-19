@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Calendar, Card, CardProps, Col, Row, Table, Tooltip } from "antd";
+import { Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
@@ -7,11 +7,18 @@ import _ from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
+import InputSearch from "../../components/antdesign/InputSearch";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
 interface IPropsContent {
     calendarMode: boolean
+}
+
+interface IModalItem {
+    openModal: boolean,
+    onCancel: any,
+    schedule: any
 }
 
 interface IPropsContentCalendar extends IPropsContent {
@@ -36,7 +43,9 @@ export default class Agenda extends React.Component {
         calendarMode: true,
         scheduleMonth: {},
         scheduleDay: {},
+        scheduleSelected: {},
         onSelectedDate: moment(new Date()),
+        openModal: "" as "edit" | ""
     }
 
     componentDidMount(): void {
@@ -99,21 +108,34 @@ export default class Agenda extends React.Component {
 
     ItemsSidebar = () => {
         const Content = (props: any) => {
-            const _style = {
-                borderLeft: `4px solid ${props.schedule.situation?.color ?? "#bbbbbb"}`,
-            };
+            const _schedule = props.schedule;
+            const _style = { borderLeft: `4px solid ${_schedule.situation?.color ?? "#bbbbbb"}` };
 
             const _content = <>
                 <Col>
-                    {moment(props.schedule.date).format("HH:ss")}
+                    {moment(_schedule.date).format("HH:ss")}
                 </Col>
                 <Col>
-                    {props.schedule.person?.name}
+                    {_schedule.person?.name}
                 </Col>
-            </>
+            </>;
+
+            const _onClickItem = () => {
+                this.setState({
+                    ...this.state,
+                    openModal: "edit",
+                    scheduleSelected: _schedule
+                });
+            }
 
             return <Tooltip title="Clique para alterar">
-                <Row justify="space-evenly" className="item-sidebar" style={_style}>{_content}</Row>
+                <Row
+                    justify="space-evenly"
+                    className="item-sidebar"
+                    style={_style}
+                    onClick={() => _onClickItem()}>
+                    {_content}
+                </Row>
             </Tooltip>
         }
 
@@ -142,7 +164,7 @@ export default class Agenda extends React.Component {
         }
 
         return <>
-            <Col span={this.state.hideSidebar ? 24 : 20} style={{paddingLeft: '10px', paddingRight: '10px'}}>
+            <Col span={this.state.hideSidebar ? 24 : 20} style={{ paddingLeft: '10px', paddingRight: '10px' }}>
                 <ModoCalendario
                     calendarMode={this.state.calendarMode}
                     onPanelChange={_onPanelChange}
@@ -181,6 +203,13 @@ export default class Agenda extends React.Component {
         </>
     }
 
+    _onCloseModalManutencao = () => {
+        this.setState({
+            ...this.state,
+            openModal: "close"
+        })
+    }
+
     render() {
         return <>
             <Row justify="end">
@@ -193,6 +222,11 @@ export default class Agenda extends React.Component {
                 <this.WrapperContent />
             </Row>
             <ToastContainer />
+            <ModalManutencao
+                openModal={this.state.openModal === "edit"}
+                onCancel={this._onCloseModalManutencao}
+                schedule={this.state.scheduleSelected}
+            />
         </>
     }
 }
@@ -206,7 +240,9 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
         const ScheduleItem = (props: any) => {
             return (
                 <Tooltip placement='leftBottom' title='Clique para mais detalhes'>
-                    <li className='list-items' style={{ backgroundColor: props.background ?? '#fff' }}>
+                    <li key={`cal-item-${props._id}`}
+                        className='list-items'
+                        style={{ backgroundColor: props.background ?? '#fff' }}>
                         {props.children}
                     </li>
                 </Tooltip >
@@ -220,7 +256,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                 return <>{
                     <div className='wrapper-cedule'> {
                         _.map(schedule, (value: any) =>
-                            <ScheduleItem background={value.situation?.color}>
+                            <ScheduleItem _id={value._id} background={value.situation?.color}>
                                 {value.person?.name}
                             </ScheduleItem>)
                     }</div>
@@ -279,10 +315,53 @@ class ModoTabela extends React.Component<IPropsContent, {}> {
     render() {
         return <>
             <div hidden={this.props.calendarMode}>
-                <Table
-                    columns={this._columns}
-                />
+                <Table columns={this._columns} />
             </div>
+        </>
+    }
+}
+
+class ModalManutencao extends React.Component<IModalItem, {}> {
+    componentDidMount(): void {
+        console.log("Component did mount Modal Manutenção")
+    }
+
+    Formulario = () => {
+        const [formController] = Form.useForm();
+
+        return <>
+            <Form form={formController} layout={"vertical"}>
+                <Row>
+                    <Col span={24} >
+                        <Form.Item name={'_id'} hidden={true}><Input /></Form.Item>
+                        <Form.Item name={['person', '_id']} hidden={true}><Input /></Form.Item>
+                        <Form.Item label={"Cliente"} name={['person', 'name']}>
+                            <InputSearch tipo={"cliente"} formController={formController} formKeyName={['person', '_id']} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Col span={6}>
+                    <Form.Item label={"Celular"} name={['person', 'cellphone']}><Input /></Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item label={"Data"} name={"date"}>
+                    </Form.Item>
+                </Col>
+            </Form>
+        </>
+    }
+
+    render() {
+        return <>
+            <Modal
+                open={this.props.openModal}
+                width="90%"
+                okText="Gravar"
+                cancelText="Cancelar"
+                title="Manutenção"
+                onCancel={this.props.onCancel} >
+                <this.Formulario />
+            </Modal>
         </>
     }
 }
