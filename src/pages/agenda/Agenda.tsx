@@ -7,10 +7,11 @@ import _ from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import AgendamentoModal from '../../classes/Agendamento';
+import DateUtils from "../../classes/utils/DateUtils";
 import InputSearch from "../../components/antdesign/InputSearch";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
-import AgendamentoModal from '../../classes/Agendamento';
 
 interface IPropsContent {
     calendarMode: boolean
@@ -26,6 +27,10 @@ interface IPropsContentCalendar extends IPropsContent {
     onPanelChange: any,
     scheduleInMonth: {},
     onSelectedDate: any
+}
+
+interface IPropsContentTable extends IPropsContent {
+    scheduleDay: {}
 }
 
 interface TypeTableMode {
@@ -45,7 +50,6 @@ export default class Agenda extends React.Component {
         scheduleMonth: {},
         scheduleDay: {},
         scheduleSelected: {},
-        onSelectedDate: moment(new Date()),
         openModal: false
     }
 
@@ -174,7 +178,10 @@ export default class Agenda extends React.Component {
                     scheduleInMonth={this.state.scheduleMonth}
                     onSelectedDate={_onSelectedDate}
                 />
-                <ModoTabela calendarMode={this.state.calendarMode} />
+                <ModoTabela
+                    calendarMode={this.state.calendarMode}
+                    scheduleDay={this.state.scheduleDay}
+                />
             </Col>
         </>
     }
@@ -288,7 +295,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
     }
 }
 
-class ModoTabela extends React.Component<IPropsContent, {}> {
+class ModoTabela extends React.Component<IPropsContentTable, {}> {
     _columns: ColumnsType<TypeTableMode> = [
         {
             title: 'Horário',
@@ -319,6 +326,76 @@ class ModoTabela extends React.Component<IPropsContent, {}> {
         }
     ];
 
+    dataSource() {
+        if (this.props.calendarMode === true) {
+            return;
+        }
+
+        let horarios: any = [];
+
+        /***
+         * Passar aqui o dia atual clicado...
+         */
+        //######## TESTE
+        let _dataSelecionada = moment(new Date()).format("YYYY-MM-DDT00:00:00");
+
+        let horarioDeTrabalho = new Date(_dataSelecionada);
+        horarioDeTrabalho.setHours(8, 0, 0, 0);
+
+        let horarioDoFinalDoExpediente = new Date(_dataSelecionada);
+        horarioDoFinalDoExpediente.setHours(19, 30, 0, 0);
+
+        let _variacaoInicialMinutos = 30;
+
+        while (horarioDeTrabalho.getTime() < horarioDoFinalDoExpediente.getTime()) {
+            let _variacao = _variacaoInicialMinutos;
+
+            /**
+             * Para incluir o agendamento na lista, deve-se:
+             * - Conforme a montagem do horário do looping, analisar se há horários agendados no dia para setagem de valor. 
+             * - Portanto, desde que esse ID não esteja incluso no Json "horarios", por conta do looping que pode cair no mesmo horário,
+             *   e duplicar o registro (é errado).
+             * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
+             */
+
+            let _filtrarHorarios = _.filter(this.props.scheduleDay, (agendamento: any) => {
+                let _jaIncluso = _.filter(horarios, (horario: any) => horario.key === agendamento._id);
+
+                return (new Date(agendamento.date).getHours() === horarioDeTrabalho.getHours()) && (_jaIncluso.length <= 0);
+            });
+
+            if (_filtrarHorarios.length > 0) {
+                _.map(_filtrarHorarios, (value: any) => {
+                    let _horarioInicial = new Date(value.date);
+                    let _horarioFinal = new Date(value.date_end);
+
+                    _variacao = DateUtils.obterVariacaoMinutosEntreDatas(horarioDeTrabalho, _horarioFinal);
+
+                    horarios.push({
+                        schedule_time: DateUtils.dateFormatHHmm(_horarioInicial) + ' ' + DateUtils.dateFormatHHmm(_horarioFinal),
+                        client: value.person.name,
+                        situation: value.situation,
+                        key: value._id,
+                    });
+
+                    horarioDeTrabalho.setTime(_horarioFinal.getTime())
+                });
+            }
+            else {
+                horarios.push({
+                    schedule_time: DateUtils.dateFormatHHmm(horarioDeTrabalho),
+                    client: "",
+                    situation: { description: "Livre", color: "rgb(139 139 139)" },
+                    key: new Date().getTime(),
+                });
+
+                horarioDeTrabalho.setMinutes(horarioDeTrabalho.getMinutes() + _variacao);
+            }
+        }
+
+        return horarios;
+    }
+
     componentDidMount(): void {
         console.log("did mount do modo tabela")
     }
@@ -326,7 +403,11 @@ class ModoTabela extends React.Component<IPropsContent, {}> {
     render() {
         return <>
             <div hidden={this.props.calendarMode}>
-                <Table columns={this._columns} />
+                <Table
+                    columns={this._columns}
+                    dataSource={this.dataSource()}
+                    pagination={false}
+                />
             </div>
         </>
     }

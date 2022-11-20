@@ -28,7 +28,6 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^9.0.8",
-    "sass": "^1.54.5",
     "snaphy-calendar-timeline": "^0.18.4",
     "typescript": "^4.8.2",
     "web-vitals": "^2.1.4"
@@ -58,6 +57,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-calendar-timeline": "^0.26.7"
+    "@types/react-calendar-timeline": "^0.26.7",
+    "sass": "^1.56.1"
   }
 }
