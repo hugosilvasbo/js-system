@@ -3,7 +3,7 @@ import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table,
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
-import _, { filter, result } from "lodash";
+import _, { filter, mapValues, result } from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
@@ -55,11 +55,6 @@ export default class Agenda extends React.Component {
 
     componentDidMount(): void {
         console.log("Component did mount Agenda")
-    }
-
-    componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
-        console.log("Component did update Agenda");
-
     }
 
     async fetchMonthData(value: Moment) {
@@ -302,34 +297,32 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
             dataIndex: 'schedule_time',
             key: 'schedule_time',
             width: "5%",
-            //render(text, record) {
-            ///  return <span style={{ color: record.situation?.color }}>{record.schedule_time}</span>;
-            //}
+            render(text, record) {
+                return <span style={{ color: record.situation?.color }}>{text}</span>;
+            }
         },
         {
             title: 'Cliente',
             dataIndex: 'client',
             key: 'client',
             width: "75%",
-            //          render(text, record) {
-            //            return <span style={{ color: record.situation?.color }}>{record.client}</span>;
-            //      }
+            render(text, record) {
+                return <span style={{ color: record.situation?.color }}>{text}</span>;
+            }
         },
         {
             title: 'Situação',
             dataIndex: ['situation', 'description'],
             key: 'situation',
             width: "20%",
-            //   render(text, record) {
-            //     return <span style={{ color: record.situation?.color }}>{record.situation?.description}</span>;
-            //}
+            render(text, record) {
+                return <span style={{ color: record.situation?.color }}>{text}</span>;
+            }
         }
     ];
 
     dataSource() {
-        if (this.props.calendarMode === true) {
-            return;
-        }
+        if (this.props.calendarMode === true) return;
 
         //** o dia tanto faz, pois precisamos dessa variável de data apenas para trabalharmos com o horário */
         let _dateKey = moment(new Date()).format("YYYY-MM-DDT00:00:00");
@@ -340,58 +333,52 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
         let endJobTime = new Date(_dateKey);
         endJobTime.setHours(20, 0, 0, 0);
 
-        let _hoursAvailable: any = [];
-
         let _rangeTime = 30;
 
-        //@@@ - isso tá errado...
-        _.forEach(this.props.scheduleDay, (schedulesDay: any) => {
-            while (jobTime.getTime() < endJobTime.getTime()) {
-                let _NewRange = _rangeTime;
+        let _hoursAvailable: any = [];
 
-                /**
-                 * Para incluir o agendamento na lista, deve-se:
-                 * - Conforme a montagem do horário do looping, analisar se há horários agendados no dia para setagem de valor. 
-                 * - Portanto, desde que esse ID não esteja incluso no Json "horarios", por conta do looping que pode cair no mesmo horário,
-                 *   e duplicar o registro (é errado).
-                 * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
-                 */
-                let filterTime = _.filter(schedulesDay, (schedule: any) => {
-                    let included = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
-                    console.log({ "hourssss": jobTime.getHours() });
+        while (jobTime.getTime() < endJobTime.getTime()) {
+            let _NewRange = _rangeTime;
 
-                    return (new Date(schedule.date).getHours() === jobTime.getHours()) && (included.length <= 0);
+            // transformando o objeto em outra estrutura para utilizarmos aqui.
+            let _schedules: any = [];
+            _.forEach(this.props.scheduleDay, (_sch: any) => {
+                _schedules = _.map(_sch, (value: any) => { return { ..._schedules, ...value } });
+            });
+
+            // filtra apenas aqueles que ainda não foram inclusos na tabela.
+            let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
+                let everIncluded = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
+                return (new Date(schedule.date).getHours() === jobTime.getHours()) && (everIncluded.length <= 0);
+            });
+
+            if (_onlyAvailableSchedule.length > 0) {
+                _.map(_onlyAvailableSchedule, (value: any) => {
+                    let endTime = new Date(value.date_end);
+
+                    _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
+
+                    _hoursAvailable.push({
+                        schedule_time: DateUtils.dateFormatHHmm(new Date(value.date)) + ' à ' + DateUtils.dateFormatHHmm(endTime),
+                        client: value.person.name,
+                        situation: value.situation,
+                        key: `li-table-${value._id}`,
+                    });
+
+                    jobTime.setTime(endTime.getTime())
+                });
+            }
+            else {
+                _hoursAvailable.push({
+                    schedule_time: DateUtils.dateFormatHHmm(jobTime),
+                    client: "",
+                    situation: { description: "Disponível", color: "rgb(139 139 139)" },
+                    key: new Date().getUTCMilliseconds(),
                 });
 
-                if (filterTime.length > 0) {
-                    _.map(filterTime, (value: any) => {
-                        let startTime = new Date(value.date);
-                        let endTime = new Date(value.date_end);
-
-                        _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
-
-                        _hoursAvailable.push({
-                            schedule_time: DateUtils.dateFormatHHmm(startTime) + ' ' + DateUtils.dateFormatHHmm(endTime),
-                            client: value.person.name,
-                            situation: value.situation,
-                            key: `li-table-${value._id}`,
-                        });
-
-                        jobTime.setTime(endTime.getTime())
-                    });
-                }
-                else {
-                    _hoursAvailable.push({
-                        schedule_time: DateUtils.dateFormatHHmm(jobTime),
-                        client: "",
-                        situation: { description: "Livre", color: "rgb(139 139 139)" },
-                        key: new Date().getUTCMilliseconds(),
-                    });
-
-                    jobTime.setMinutes(jobTime.getMinutes() + _NewRange);
-                }
+                jobTime.setMinutes(jobTime.getMinutes() + _NewRange);
             }
-        });
+        }
 
         return _hoursAvailable;
     }
