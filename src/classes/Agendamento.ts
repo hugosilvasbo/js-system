@@ -1,3 +1,15 @@
+/**
+ * 
+ * 
+ * ARRUMAR:::
+ * - Quando há mais cadastros para o mesmo range de horário.
+ * - Exemplo dia 04/11/2022, pois pode haver casos de registros que foram cancelados
+ *   e o usuário precisa dessa informação.
+ * 
+ * 
+ * 
+ */
+
 import _ from "lodash";
 import moment from "moment";
 import DateUtils from "./utils/DateUtils";
@@ -22,6 +34,8 @@ export default class Agendamento extends _Geral {
             _schedules = _.map(schedule, (value: any) => { return { ..._schedules, ...value } });
         });
 
+        console.log({ _schedules: _schedules });
+
 
         let jobTime = new Date(_dateKey);
         jobTime.setHours(4, 0, 0, 0);
@@ -39,26 +53,38 @@ export default class Agendamento extends _Geral {
 
             let _NewRange = _rangeTime;
 
+            // ACHO QUE É AQUI Q TA ZUADO...
+
             // filtra apenas aqueles que ainda não foram inclusos na tabela.
-            let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
+            /*let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
                 let everIncluded = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
                 return (new Date(schedule.date).getHours() === jobTime.getHours()) && (everIncluded.length <= 0);
+            });*/
+
+            // apenas teste........... remover o comentario acima^ Arrumar ele
+            console.log(_schedules)
+            let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
+                return new Date(schedule.date).getHours() === jobTime.getHours();
             });
+            console.log(_onlyAvailableSchedule)
+            /////FIM DOP TESTE...NAO TA VINDO OS ITENS
 
             if (_onlyAvailableSchedule.length > 0) {
                 _.map(_onlyAvailableSchedule, (value: any) => {
+                    console.log({ _onlyAvailableScheduleMaiorQUEZero: value });
+
                     let endTime = new Date(value.date_end);
 
                     _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
 
                     _hoursAvailable.push({
                         schedule_time: DateUtils.dateFormatHHmm(new Date(value.date)) + ' à ' + DateUtils.dateFormatHHmm(endTime),
-                        client: value.person.name,
-                        situation: value.situation,
+                        client: value.person?.name,
+                        situation: value?.situation,
                         key: `li-table-${value._id}`,
                     });
 
-                    jobTime.setTime(endTime.getTime())
+                    jobTime.setTime(endTime.getTime());
                 });
             }
             else {

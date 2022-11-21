@@ -47,7 +47,7 @@ const CRON_TIME_SEC = '0,10 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
-        hideSidebar: false,
+        hideSidebar: true,
         calendarMode: true,
         scheduleMonth: {},
         scheduleDay: {} as any,
@@ -58,7 +58,6 @@ export default class Agenda extends React.Component {
 
     componentDidMount(): void {
         schedule.scheduleJob(CRON_TIME_SEC, async () => {
-            console.log("Atualizando consulta... Usando cron 10 segundos.");
             await this.fetchMonthData(this.state.calendarDateSelected);
         })
     }
@@ -163,8 +162,8 @@ export default class Agenda extends React.Component {
         }, []);
 
         const _onPanelChange = async (data: Moment) => {
-            await this.fetchMonthData(data);
             this.setState({ ...this.state, calendarDateSelected: data });
+            await this.fetchMonthData(data);
         }
 
         const _onSelectedDate = (date: Moment) => {
@@ -279,7 +278,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                     <div className='wrapper-cedule'> {
                         _.map(schedule, (value: any) =>
                             <ScheduleItem _id={value._id} color={value.situation?.color}>
-                                {value.person?.name}
+                                {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
                             </ScheduleItem>)
                     }</div>
                 }</>

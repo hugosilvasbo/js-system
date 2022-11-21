@@ -8,7 +8,7 @@ const Home = () => {
             <hr />
             <li>Incluir o colord dialog no cadastro de situaçoes</li>
             <li>Incluir no cadastro de situaçoes algo pra falar que o horario é reservado ou na inclusao do agendamento</li>
-            <h1>Trabalhar com CRON na tela de agendamento para atualizar os dados automaticamente.</h1>
+            {/**<h1>Trabalhar com CRON na tela de agendamento para atualizar os dados automaticamente.</h1>*/}
         </ul>
     )
 }
