@@ -265,7 +265,7 @@ const Agendamento = () => {
        *   e duplicar o registro (é errado).
        * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
        */
-
+      console.log({ "agendamentosDoDia": agendamentosDoDia });
       let _filtrarHorarios = _.filter(agendamentosDoDia, (agendamento: any) => {
         let _jaIncluso = _.filter(horarios, (horario: any) => horario.key === agendamento._id);
 

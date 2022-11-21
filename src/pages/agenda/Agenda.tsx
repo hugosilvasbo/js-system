@@ -3,7 +3,7 @@ import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table,
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
-import _ from "lodash";
+import _, { filter, result } from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
@@ -48,13 +48,18 @@ export default class Agenda extends React.Component {
         hideSidebar: false,
         calendarMode: true,
         scheduleMonth: {},
-        scheduleDay: {},
+        scheduleDay: {} as any,
         scheduleSelected: {},
         openModal: false
     }
 
     componentDidMount(): void {
         console.log("Component did mount Agenda")
+    }
+
+    componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any): void {
+        console.log("Component did update Agenda");
+
     }
 
     async fetchMonthData(value: Moment) {
@@ -79,8 +84,7 @@ export default class Agenda extends React.Component {
 
     getScheduleInDay = (date: Moment) => {
         let _keyFormat = date.format("YYYY-MM-DD");
-        let _schedulesInDay = _.pick(this.state.scheduleMonth, _keyFormat);
-        return _schedulesInDay;
+        return _.pick(this.state.scheduleMonth, _keyFormat);;
     }
 
     WrapperSidebar = (props: any) => {
@@ -117,7 +121,7 @@ export default class Agenda extends React.Component {
             const _content = <>
                 <Row justify="space-around">
                     <Col>
-                        {moment(_schedule.date).format("HH:ss")} à {moment(_schedule.date_end).format("HH:ss")}
+                        {moment(_schedule.date).format("HH:mm")} à {moment(_schedule.date_end).format("HH:mm")}
                     </Col>
                 </Row>
                 <Row justify="center">
@@ -250,10 +254,6 @@ export default class Agenda extends React.Component {
 }
 
 class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
-    componentDidMount(): void {
-        console.log("component did mount do Modocalendario")
-    }
-
     onDateCellRender = (value: Moment) => {
         const ScheduleItem = (props: any) => {
             return (
@@ -331,69 +331,69 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
             return;
         }
 
-        let horarios: any = [];
+        //** o dia tanto faz, pois precisamos dessa variável de data apenas para trabalharmos com o horário */
+        let _dateKey = moment(new Date()).format("YYYY-MM-DDT00:00:00");
 
-        /***
-         * Passar aqui o dia atual clicado...
-         */
-        //######## TESTE
-        let _dataSelecionada = moment(new Date()).format("YYYY-MM-DDT00:00:00");
+        let jobTime = new Date(_dateKey);
+        jobTime.setHours(8, 0, 0, 0);
 
-        let horarioDeTrabalho = new Date(_dataSelecionada);
-        horarioDeTrabalho.setHours(8, 0, 0, 0);
+        let endJobTime = new Date(_dateKey);
+        endJobTime.setHours(20, 0, 0, 0);
 
-        let horarioDoFinalDoExpediente = new Date(_dataSelecionada);
-        horarioDoFinalDoExpediente.setHours(19, 30, 0, 0);
+        let _hoursAvailable: any = [];
 
-        let _variacaoInicialMinutos = 30;
+        let _rangeTime = 30;
 
-        while (horarioDeTrabalho.getTime() < horarioDoFinalDoExpediente.getTime()) {
-            let _variacao = _variacaoInicialMinutos;
+        //@@@ - isso tá errado...
+        _.forEach(this.props.scheduleDay, (schedulesDay: any) => {
+            while (jobTime.getTime() < endJobTime.getTime()) {
+                let _NewRange = _rangeTime;
 
-            /**
-             * Para incluir o agendamento na lista, deve-se:
-             * - Conforme a montagem do horário do looping, analisar se há horários agendados no dia para setagem de valor. 
-             * - Portanto, desde que esse ID não esteja incluso no Json "horarios", por conta do looping que pode cair no mesmo horário,
-             *   e duplicar o registro (é errado).
-             * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
-             */
+                /**
+                 * Para incluir o agendamento na lista, deve-se:
+                 * - Conforme a montagem do horário do looping, analisar se há horários agendados no dia para setagem de valor. 
+                 * - Portanto, desde que esse ID não esteja incluso no Json "horarios", por conta do looping que pode cair no mesmo horário,
+                 *   e duplicar o registro (é errado).
+                 * - Se tudo ocorrer bem, o procedimento de inclusão é feito normalmente.
+                 */
+                let filterTime = _.filter(schedulesDay, (schedule: any) => {
+                    let included = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
+                    console.log({ "hourssss": jobTime.getHours() });
 
-            let _filtrarHorarios = _.filter(this.props.scheduleDay, (agendamento: any) => {
-                let _jaIncluso = _.filter(horarios, (horario: any) => horario.key === agendamento._id);
+                    return (new Date(schedule.date).getHours() === jobTime.getHours()) && (included.length <= 0);
+                });
 
-                return (new Date(agendamento.date).getHours() === horarioDeTrabalho.getHours()) && (_jaIncluso.length <= 0);
-            });
+                if (filterTime.length > 0) {
+                    _.map(filterTime, (value: any) => {
+                        let startTime = new Date(value.date);
+                        let endTime = new Date(value.date_end);
 
-            if (_filtrarHorarios.length > 0) {
-                _.map(_filtrarHorarios, (value: any) => {
-                    let _horarioInicial = new Date(value.date);
-                    let _horarioFinal = new Date(value.date_end);
+                        _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
 
-                    _variacao = DateUtils.obterVariacaoMinutosEntreDatas(horarioDeTrabalho, _horarioFinal);
+                        _hoursAvailable.push({
+                            schedule_time: DateUtils.dateFormatHHmm(startTime) + ' ' + DateUtils.dateFormatHHmm(endTime),
+                            client: value.person.name,
+                            situation: value.situation,
+                            key: `li-table-${value._id}`,
+                        });
 
-                    horarios.push({
-                        schedule_time: DateUtils.dateFormatHHmm(_horarioInicial) + ' ' + DateUtils.dateFormatHHmm(_horarioFinal),
-                        client: value.person.name,
-                        situation: value.situation,
-                        key: value._id,
+                        jobTime.setTime(endTime.getTime())
+                    });
+                }
+                else {
+                    _hoursAvailable.push({
+                        schedule_time: DateUtils.dateFormatHHmm(jobTime),
+                        client: "",
+                        situation: { description: "Livre", color: "rgb(139 139 139)" },
+                        key: new Date().getUTCMilliseconds(),
                     });
 
-                    horarioDeTrabalho.setTime(_horarioFinal.getTime())
-                });
+                    jobTime.setMinutes(jobTime.getMinutes() + _NewRange);
+                }
             }
-            else {
-                horarios.push({
-                    schedule_time: DateUtils.dateFormatHHmm(horarioDeTrabalho),
-                    client: "",
-                    situation: { description: "Livre", color: "rgb(139 139 139)" },
-                    key: new Date().getTime(),
-                });
+        });
 
-                horarioDeTrabalho.setMinutes(horarioDeTrabalho.getMinutes() + _variacao);
-            }
-        }
-
-        return horarios;
+        return _hoursAvailable;
     }
 
     componentDidMount(): void {
@@ -487,6 +487,10 @@ const ModalManutencao = (props: IModalItem) => {
                 </Col>
                 <Col span={6}>
                     <Form.Item label={"Data"} name={"date"}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label={"Data final"} name={"date_end"}>
+                        <Input />
                     </Form.Item>
                 </Col>
             </Form>

@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import Agendamento from "../../components/antdesign/AgendamentoAntd";
 
-const Agenda = () => {
+const Agenda_ = () => {
     const FrameConsulta = () => {
         return <>
             <Agendamento />
@@ -19,4 +19,4 @@ const Agenda = () => {
     )
 }
 
-export default Agenda;
+export default Agenda_;
