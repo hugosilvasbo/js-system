@@ -2,7 +2,7 @@
  * Migrar para class component.
  */
 
-import { Form, Input, Table } from "antd";
+import { Form, Input, Table, Tag } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import React from "react";
 import { useState } from "react";
@@ -80,7 +80,7 @@ const SituacaoAgenda = () => {
                 dataIndex: 'description',
                 key: 'description',
                 render(text: any, record: any) {
-                    return <span style={{ backgroundColor: record.color }}>{text}</span>;
+                    return <Tag color={record.color ?? '#fff'}>{text}</Tag>
                 }
             }
         ]

@@ -17,8 +17,9 @@ COMPONENTE TIMELINE
 npm i snaphy-calendar-timeline
 npm install --save react-calendar-timeline
 
-REACT-COLOR
-npm install react-color --save
+CRON
+https://www.luiztools.com.br/post/como-executar-tarefas-agendadas-com-node-schedule/
+npm i node-schedule
 
 ******** ANOTACOES
 Trocar porta: $env:PORT=5000

@@ -1,14 +1,14 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tooltip } from "antd";
+import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
-import _, { filter, mapValues, result } from "lodash";
+import _ from "lodash";
 import moment, { Moment } from "moment";
+import schedule from 'node-schedule';
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import AgendamentoModal from '../../classes/Agendamento';
-import DateUtils from "../../classes/utils/DateUtils";
 import InputSearch from "../../components/antdesign/InputSearch";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
@@ -43,6 +43,8 @@ interface TypeTableMode {
     }
 }
 
+const CRON_TIME_SEC = '0,10 * * * * *';
+
 export default class Agenda extends React.Component {
     state = {
         hideSidebar: false,
@@ -50,11 +52,15 @@ export default class Agenda extends React.Component {
         scheduleMonth: {},
         scheduleDay: {} as any,
         scheduleSelected: {},
+        calendarDateSelected: moment(new Date()),
         openModal: false
     }
 
     componentDidMount(): void {
-        console.log("Component did mount Agenda")
+        schedule.scheduleJob(CRON_TIME_SEC, async () => {
+            console.log("Atualizando consulta... Usando cron 10 segundos.");
+            await this.fetchMonthData(this.state.calendarDateSelected);
+        })
     }
 
     async fetchMonthData(value: Moment) {
@@ -74,7 +80,10 @@ export default class Agenda extends React.Component {
 
         let groupByDate = _.groupBy(res.data, (r: any) => moment(r.date).format("YYYY-MM-DD"));
 
-        return groupByDate;
+        this.setState({
+            ...this.state,
+            scheduleMonth: groupByDate
+        });
     }
 
     getScheduleInDay = (date: Moment) => {
@@ -154,9 +163,8 @@ export default class Agenda extends React.Component {
         }, []);
 
         const _onPanelChange = async (data: Moment) => {
-            let _scheduleInMonth = await this.fetchMonthData(data);
-
-            this.setState({ ...this.state, scheduleMonth: _scheduleInMonth });
+            await this.fetchMonthData(data);
+            this.setState({ ...this.state, calendarDateSelected: data });
         }
 
         const _onSelectedDate = (date: Moment) => {
@@ -165,7 +173,8 @@ export default class Agenda extends React.Component {
             this.setState({
                 ...this.state,
                 scheduleDay: _schedulesInDay,
-                hideSidebar: false
+                hideSidebar: false,
+                calendarDateSelected: date
             });
         }
 
@@ -255,7 +264,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                 <Tooltip placement='leftBottom' title='Clique para mais detalhes'>
                     <li key={`cal-item-${props._id}`}
                         className='list-items'
-                        style={{ backgroundColor: props.background ?? '#fff' }}>
+                        style={{ borderTop: `2px solid ${props.color}`, background: "#fff" }}>
                         {props.children}
                     </li>
                 </Tooltip >
@@ -269,7 +278,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                 return <>{
                     <div className='wrapper-cedule'> {
                         _.map(schedule, (value: any) =>
-                            <ScheduleItem _id={value._id} background={value.situation?.color}>
+                            <ScheduleItem _id={value._id} color={value.situation?.color}>
                                 {value.person?.name}
                             </ScheduleItem>)
                     }</div>
@@ -293,94 +302,32 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
 class ModoTabela extends React.Component<IPropsContentTable, {}> {
     _columns: ColumnsType<TypeTableMode> = [
         {
+            title: 'Situação',
+            dataIndex: ['situation', 'description'],
+            key: 'situation',
+            width: "5%",
+            render(text, record) {
+                return <Tag color={record.situation?.color}>{text}</Tag>
+            }
+        },
+        {
             title: 'Horário',
             dataIndex: 'schedule_time',
             key: 'schedule_time',
-            width: "5%",
-            render(text, record) {
-                return <span style={{ color: record.situation?.color }}>{text}</span>;
-            }
+            width: "5%"
         },
         {
             title: 'Cliente',
             dataIndex: 'client',
             key: 'client',
-            width: "75%",
-            render(text, record) {
-                return <span style={{ color: record.situation?.color }}>{text}</span>;
-            }
-        },
-        {
-            title: 'Situação',
-            dataIndex: ['situation', 'description'],
-            key: 'situation',
-            width: "20%",
-            render(text, record) {
-                return <span style={{ color: record.situation?.color }}>{text}</span>;
-            }
+            width: "90%"
         }
     ];
 
     dataSource() {
-        if (this.props.calendarMode === true) return;
-
-        //** o dia tanto faz, pois precisamos dessa variável de data apenas para trabalharmos com o horário */
-        let _dateKey = moment(new Date()).format("YYYY-MM-DDT00:00:00");
-
-        let jobTime = new Date(_dateKey);
-        jobTime.setHours(8, 0, 0, 0);
-
-        let endJobTime = new Date(_dateKey);
-        endJobTime.setHours(20, 0, 0, 0);
-
-        let _rangeTime = 30;
-
-        let _hoursAvailable: any = [];
-
-        while (jobTime.getTime() < endJobTime.getTime()) {
-            let _NewRange = _rangeTime;
-
-            // transformando o objeto em outra estrutura para utilizarmos aqui.
-            let _schedules: any = [];
-            _.forEach(this.props.scheduleDay, (_sch: any) => {
-                _schedules = _.map(_sch, (value: any) => { return { ..._schedules, ...value } });
-            });
-
-            // filtra apenas aqueles que ainda não foram inclusos na tabela.
-            let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
-                let everIncluded = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
-                return (new Date(schedule.date).getHours() === jobTime.getHours()) && (everIncluded.length <= 0);
-            });
-
-            if (_onlyAvailableSchedule.length > 0) {
-                _.map(_onlyAvailableSchedule, (value: any) => {
-                    let endTime = new Date(value.date_end);
-
-                    _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
-
-                    _hoursAvailable.push({
-                        schedule_time: DateUtils.dateFormatHHmm(new Date(value.date)) + ' à ' + DateUtils.dateFormatHHmm(endTime),
-                        client: value.person.name,
-                        situation: value.situation,
-                        key: `li-table-${value._id}`,
-                    });
-
-                    jobTime.setTime(endTime.getTime())
-                });
-            }
-            else {
-                _hoursAvailable.push({
-                    schedule_time: DateUtils.dateFormatHHmm(jobTime),
-                    client: "",
-                    situation: { description: "Disponível", color: "rgb(139 139 139)" },
-                    key: new Date().getUTCMilliseconds(),
-                });
-
-                jobTime.setMinutes(jobTime.getMinutes() + _NewRange);
-            }
-        }
-
-        return _hoursAvailable;
+        if (this.props.calendarMode === true)
+            return;
+        return AgendamentoModal.getSetupDaySchedules(this.props.scheduleDay);
     }
 
     componentDidMount(): void {
@@ -472,13 +419,20 @@ const ModalManutencao = (props: IModalItem) => {
                 <Col inputMode="tel">
                     <Form.Item label={"Celular"} name={['person', 'cellphone']}><Input /></Form.Item>
                 </Col>
-                <Col span={6}>
-                    <Form.Item label={"Data"} name={"date"}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label={"Data final"} name={"date_end"}>
-                        <Input />
-                    </Form.Item>
+                <Row justify="space-evenly">
+                    <Col>
+                        <Form.Item label={"Data"} name={"date"}>
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col>
+                        <Form.Item label={"Data final"} name={"date_end"}>
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Col>
+                    Incluir as situações...
                 </Col>
             </Form>
         </Modal>
