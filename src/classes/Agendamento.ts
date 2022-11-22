@@ -1,15 +1,3 @@
-/**
- * 
- * 
- * ARRUMAR:::
- * - Quando há mais cadastros para o mesmo range de horário.
- * - Exemplo dia 04/11/2022, pois pode haver casos de registros que foram cancelados
- *   e o usuário precisa dessa informação.
- * 
- * 
- * 
- */
-
 import _ from "lodash";
 import moment from "moment";
 import DateUtils from "./utils/DateUtils";
@@ -20,12 +8,10 @@ export default class Agendamento extends _Geral {
         super('schedule', pValuesJson, pID);
     }
 
-    /**
-     * 
-     * @param pScheduleDay -> objeto contendo os agendamentos do mês no formato: 2022-01-01: {0: {...}. 1: {...}}
-     * @returns -> Retorna os agendamentos livres e agendados no horário.
-     */
     static getSetupDaySchedules(pScheduleDay: any) {
+        //-------------------------------------------------------------------------------------------------------------
+        //                                              Interfaces
+        //-------------------------------------------------------------------------------------------------------------
         interface IPropriedades {
             schedule_time: string,
             client: string,
@@ -34,14 +20,34 @@ export default class Agendamento extends _Geral {
             hour: number
         }
 
-        /**
-         * Preenche os horários vazios faltantes.
-         */
+        interface IVariaveis {
+            agendamentos: [],
+            retorno: any,
+            chaveData: string,
+            horarioBase: Date,
+            horarioFinalExpediente: Date,
+            tempoVariacao: number
+        };
+
+        //-------------------------------------------------------------------------------------------------------------
+        //                                              Variáveis
+        //-------------------------------------------------------------------------------------------------------------
+        let _propriedades = {} as IPropriedades;
+
+        let _variaveis = {} as IVariaveis;
+        _variaveis.retorno = [];
+
+        //-------------------------------------------------------------------------------------------------------------
+        //                                              Funções
+        //-------------------------------------------------------------------------------------------------------------
+
         function preencherHorariosVazios() {
-            while (inicioExp.getTime() < finalExp.getTime()) {
+            let inicioExp = _variaveis.horarioBase;
+
+            while (inicioExp.getTime() < _variaveis.horarioFinalExpediente.getTime()) {
                 let _inicio = moment(inicioExp.getTime()).format("HH:mm");
 
-                inicioExp.setMinutes(inicioExp.getMinutes() + tempoVariacao);
+                inicioExp.setMinutes(inicioExp.getMinutes() + _variaveis.tempoVariacao);
 
                 _propriedades = {
                     ..._propriedades,
@@ -49,95 +55,100 @@ export default class Agendamento extends _Geral {
                     hour: inicioExp.getTime()
                 }
 
-                _result.push({ ..._propriedades });
+                _variaveis.retorno.push({ ..._propriedades });
             }
         }
 
-        /**
-         * Cria o objeto no padrão a ser utilizado aqui
-         */
         function transformaObjetoAgendamento() {
             _.forEach(pScheduleDay, (schedule: any, keyDate) => {
-                _chaveData = `${keyDate}T00:00:00`;
+                let _agendamentos: any = [];
 
                 _agendamentos =
                     _.chain(schedule)
-                        //.orderBy(["date", "date_end"], ["asc", "asc"])
                         .map(value => { return { ..._agendamentos, ...value } })
                         .value();
+
+                _variaveis = {
+                    ..._variaveis,
+                    agendamentos: _agendamentos,
+                    chaveData: `${keyDate}T00:00:00`
+                }
             });
         }
 
-        function retornarTempoDeVariacao() {
-            return 30; // buscar do banco depois...
+        function preencherTempos() {
+            // Por enquanto fixo, mas precisa buscar da api o horario de inicio e fim
+            let _inicio = new Date(_variaveis.chaveData);
+            _inicio.setHours(8, 0, 0, 0);
+
+            let _fim = new Date(_variaveis.chaveData);
+            _fim.setHours(23, 0, 0, 0);
+
+            const _tempoVariacao = 15;
+
+            _variaveis = {
+                ..._variaveis,
+                horarioBase: _inicio,
+                horarioFinalExpediente: _fim,
+                tempoVariacao: _tempoVariacao, // buscar depois...
+            }
         }
 
-        let _agendamentos: any = [];
-        let _result: any = [];
-        let _chaveData = "";
+        //-------------------------------------------------------------------------------------------------------------
+        //                                            Começa aqui...
+        //-------------------------------------------------------------------------------------------------------------
 
         transformaObjetoAgendamento();
+        preencherTempos();
 
         //@@@@@@@@
         // precisa passar o dia clicado tbm... tratar quando nao ha agendamentos..
-        //_chaveData = "2022-11-05T00:00:00";
+        //_chaveData = "2022-11-05T00:00:00"
 
-        let inicioExp = new Date(_chaveData);
-        inicioExp.setHours(8, 0, 0, 0);
-
-        let finalExp = new Date(_chaveData);
-        finalExp.setHours(23, 59, 0, 0);
-
-        let tempoVariacao = retornarTempoDeVariacao();
-        /**
-         * Inicio do processo que geramos os horários...
-         */
-        //while (inicioExp.getTime() < finalExp.getTime()) {
-        let _propriedades = {} as IPropriedades;
-
-        if (_agendamentos.length <= 0) {
+        if (_variaveis.agendamentos.length <= 0) {
             preencherHorariosVazios();
         } else {
-            _.forEach(_agendamentos, (value: any) => {
+            _.forEach(_variaveis.agendamentos, (value: any) => {
                 let horaInicialDoAgendamento = new Date(value.date)
 
                 // vejo quantos minutos de variação tem entre o horario atual do loop e o horario inicial do agendamento 
                 // portanto, só é feito se nao for a situação Cancelado.
                 let minutos_variacao = 0;
 
+                // se for cancelado, nao deve entrar no cálculo de horário
                 if (value.situation.description !== "Cancelado")
-                    minutos_variacao = DateUtils.obterVariacaoMinutosEntreDatas(inicioExp, horaInicialDoAgendamento);
+                    minutos_variacao = DateUtils.obterVariacaoMinutosEntreDatas(_variaveis.horarioBase, horaInicialDoAgendamento);
 
                 // e com isso, vou preenchendo os intervalores vagos com os horários livres
                 while (minutos_variacao > 0) {
                     _propriedades = {
                         ..._propriedades,
-                        hour: inicioExp.getTime(),
-                        schedule_time: `${moment(inicioExp.getTime()).format("HH:mm")} à `,
-                        situation: "Disponível"
+                        hour: _variaveis.horarioBase.getTime(),
+                        schedule_time: `${moment(_variaveis.horarioBase.getTime()).format("HH:mm")} à `
                     }
 
-                    if (minutos_variacao > tempoVariacao || minutos_variacao === 0) {
-                        inicioExp.setMinutes(inicioExp.getMinutes() + tempoVariacao);
+                    // para separar de tempo em tempo de variação
+                    if (minutos_variacao > _variaveis.tempoVariacao || minutos_variacao === 0) {
+                        _variaveis.horarioBase.setMinutes(_variaveis.horarioBase.getMinutes() + _variaveis.tempoVariacao);
                     } else {
-                        inicioExp.setMinutes(inicioExp.getMinutes() + minutos_variacao);
+                        _variaveis.horarioBase.setMinutes(_variaveis.horarioBase.getMinutes() + minutos_variacao);
                     }
 
                     _propriedades = {
                         ..._propriedades,
-                        schedule_time: `${_propriedades.schedule_time} ${moment(inicioExp.getTime()).format("HH:mm")}`,
-                        key: inicioExp.getDate().toString()
+                        schedule_time: `${_propriedades.schedule_time} ${moment(_variaveis.horarioBase.getTime()).format("HH:mm")}`,
+                        key: _variaveis.horarioBase.getDate().toString()
                     }
 
-                    _result.push({ ..._propriedades });
+                    _variaveis.retorno.push({ ..._propriedades })
 
-                    minutos_variacao = minutos_variacao - tempoVariacao;
+                    minutos_variacao = minutos_variacao - _variaveis.tempoVariacao;
                 }
 
                 //** só dai eu posso incluir o agendamento */
                 let dataFinal = new Date(value.date_end);
 
-                _result.push({
+                _variaveis.retorno.push({
                     schedule_time: moment(horaInicialDoAgendamento).format("HH:mm") + ' à ' + moment(dataFinal).format("HH:mm"),
                     client: value.person?.name,
                     situation: value?.situation,
@@ -149,7 +160,7 @@ export default class Agendamento extends _Geral {
                 // que nao interferem no horario
                 // E quando a situaçao do horario nao é para considerar no calculo de minutos, nada é feito.
                 if (value?.situation?.description !== 'Cancelado') {
-                    inicioExp.setTime(dataFinal.getTime());
+                    _variaveis.horarioBase.setTime(dataFinal.getTime());
                 }
             });
 
@@ -157,6 +168,6 @@ export default class Agendamento extends _Geral {
             preencherHorariosVazios();
         }
 
-        return _.chain(_result).orderBy(["hour"], ["asc"]).value();
+        return _.chain(_variaveis.retorno).orderBy(["hour"], ["asc"]).value();
     }
 }
