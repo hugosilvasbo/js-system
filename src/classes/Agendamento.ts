@@ -77,14 +77,16 @@ export default class Agendamento extends _Geral {
         }
 
         function preencherTempos() {
+            _variaveis.chaveData = !_variaveis.agendamentos ? moment(new Date()).format("YYYY-MM-DDT00:00:00") : _variaveis.chaveData;
+
             // Por enquanto fixo, mas precisa buscar da api o horario de inicio e fim
             let _inicio = new Date(_variaveis.chaveData);
-            _inicio.setHours(8, 0, 0, 0);
+            _inicio.setHours(16, 30, 0, 0);
 
             let _fim = new Date(_variaveis.chaveData);
             _fim.setHours(23, 0, 0, 0);
 
-            const _tempoVariacao = 15;
+            const _tempoVariacao = 30;
 
             _variaveis = {
                 ..._variaveis,
@@ -99,13 +101,10 @@ export default class Agendamento extends _Geral {
         //-------------------------------------------------------------------------------------------------------------
 
         transformaObjetoAgendamento();
+
         preencherTempos();
 
-        //@@@@@@@@
-        // precisa passar o dia clicado tbm... tratar quando nao ha agendamentos..
-        //_chaveData = "2022-11-05T00:00:00"
-
-        if (_variaveis.agendamentos.length <= 0) {
+        if (!_variaveis.agendamentos) {
             preencherHorariosVazios();
         } else {
             _.forEach(_variaveis.agendamentos, (value: any) => {

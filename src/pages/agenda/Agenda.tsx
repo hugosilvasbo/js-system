@@ -301,6 +301,12 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
 class ModoTabela extends React.Component<IPropsContentTable, {}> {
     _columns: ColumnsType<TypeTableMode> = [
         {
+            title: 'Horário',
+            dataIndex: 'schedule_time',
+            key: 'schedule_time',
+            width: "5%"
+        },
+        {
             title: 'Situação',
             dataIndex: ['situation', 'description'],
             key: 'situation',
@@ -308,12 +314,6 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
             render(text, record) {
                 return <Tag color={record.situation?.color}>{text}</Tag>
             }
-        },
-        {
-            title: 'Horário',
-            dataIndex: 'schedule_time',
-            key: 'schedule_time',
-            width: "5%"
         },
         {
             title: 'Cliente',
@@ -326,7 +326,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     dataSource() {
         if (this.props.calendarMode === true)
             return;
-            
+
         return AgendamentoModal.getSetupDaySchedules(this.props.scheduleDay);
     }
 
