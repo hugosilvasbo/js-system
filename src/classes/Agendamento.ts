@@ -26,80 +26,137 @@ export default class Agendamento extends _Geral {
      * @returns -> Retorna os agendamentos livres e agendados no horário.
      */
     static getSetupDaySchedules(pScheduleDay: any) {
-        let _schedules: any = [];
-        let _dateKey = "";
+        interface IPropriedades {
+            schedule_time: string,
+            client: string,
+            situation: string,
+            key: string,
+            hour: number
+        }
 
-        _.forEach(pScheduleDay, (schedule: any, keyDate) => {
-            _dateKey = `${keyDate}T00:00:00`;
-            _schedules = _.map(schedule, (value: any) => { return { ..._schedules, ...value } });
-        });
+        /**
+         * Preenche os horários vazios faltantes.
+         */
+        function preencherHorariosVazios() {
+            while (inicioExp.getTime() < finalExp.getTime()) {
+                let _inicio = moment(inicioExp.getTime()).format("HH:mm");
 
-        console.log({ _schedules: _schedules });
+                inicioExp.setMinutes(inicioExp.getMinutes() + tempoVariacao);
 
+                _propriedades = {
+                    ..._propriedades,
+                    schedule_time: `${_inicio} à ${moment(inicioExp.getTime()).format("HH:mm")}`,
+                    hour: inicioExp.getTime()
+                }
 
-        let jobTime = new Date(_dateKey);
-        jobTime.setHours(4, 0, 0, 0);
-
-        let endJobTime = new Date(_dateKey);
-        endJobTime.setHours(21, 30, 0, 0);
-
-        let _rangeTime = 30;
-
-        let _hoursAvailable: any = [];
-
-        while (jobTime.getTime() < endJobTime.getTime()) {
-            console.log("Horario atual...", moment(jobTime.getTime()).format("HH:mm"));
-            console.log("Horario final...", moment(endJobTime.getTime()).format("HH:mm"));
-
-            let _NewRange = _rangeTime;
-
-            // ACHO QUE É AQUI Q TA ZUADO...
-
-            // filtra apenas aqueles que ainda não foram inclusos na tabela.
-            /*let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
-                let everIncluded = _.filter(_hoursAvailable, (horario: any) => horario.key === schedule._id);
-                return (new Date(schedule.date).getHours() === jobTime.getHours()) && (everIncluded.length <= 0);
-            });*/
-
-            // apenas teste........... remover o comentario acima^ Arrumar ele
-            console.log(_schedules)
-            let _onlyAvailableSchedule = _.filter(_schedules, (schedule: any) => {
-                return new Date(schedule.date).getHours() === jobTime.getHours();
-            });
-            console.log(_onlyAvailableSchedule)
-            /////FIM DOP TESTE...NAO TA VINDO OS ITENS
-
-            if (_onlyAvailableSchedule.length > 0) {
-                _.map(_onlyAvailableSchedule, (value: any) => {
-                    console.log({ _onlyAvailableScheduleMaiorQUEZero: value });
-
-                    let endTime = new Date(value.date_end);
-
-                    _NewRange = DateUtils.obterVariacaoMinutosEntreDatas(jobTime, endTime);
-
-                    _hoursAvailable.push({
-                        schedule_time: DateUtils.dateFormatHHmm(new Date(value.date)) + ' à ' + DateUtils.dateFormatHHmm(endTime),
-                        client: value.person?.name,
-                        situation: value?.situation,
-                        key: `li-table-${value._id}`,
-                    });
-
-                    jobTime.setTime(endTime.getTime());
-                });
-            }
-            else {
-                _hoursAvailable.push({
-                    schedule_time: DateUtils.dateFormatHHmm(jobTime),
-                    client: "",
-                    situation: { description: "Disponível", color: "rgb(195 195 195 / 85%)" },
-                    key: new Date().getUTCMilliseconds(),
-                });
-
-                jobTime.setMinutes(jobTime.getMinutes() + _NewRange);
+                _result.push({ ..._propriedades });
             }
         }
 
-        console.log("Fim...")
-        return _hoursAvailable;
+        /**
+         * Cria o objeto no padrão a ser utilizado aqui
+         */
+        function transformaObjetoAgendamento() {
+            _.forEach(pScheduleDay, (schedule: any, keyDate) => {
+                _chaveData = `${keyDate}T00:00:00`;
+
+                _agendamentos =
+                    _.chain(schedule)
+                        //.orderBy(["date", "date_end"], ["asc", "asc"])
+                        .map(value => { return { ..._agendamentos, ...value } })
+                        .value();
+            });
+        }
+
+        function retornarTempoDeVariacao() {
+            return 30; // buscar do banco depois...
+        }
+
+        let _agendamentos: any = [];
+        let _result: any = [];
+        let _chaveData = "";
+
+        transformaObjetoAgendamento();
+
+        //@@@@@@@@
+        // precisa passar o dia clicado tbm... tratar quando nao ha agendamentos..
+        //_chaveData = "2022-11-05T00:00:00";
+
+        let inicioExp = new Date(_chaveData);
+        inicioExp.setHours(8, 0, 0, 0);
+
+        let finalExp = new Date(_chaveData);
+        finalExp.setHours(23, 59, 0, 0);
+
+        let tempoVariacao = retornarTempoDeVariacao();
+        /**
+         * Inicio do processo que geramos os horários...
+         */
+        //while (inicioExp.getTime() < finalExp.getTime()) {
+        let _propriedades = {} as IPropriedades;
+
+        if (_agendamentos.length <= 0) {
+            preencherHorariosVazios();
+        } else {
+            _.forEach(_agendamentos, (value: any) => {
+                let horaInicialDoAgendamento = new Date(value.date)
+
+                // vejo quantos minutos de variação tem entre o horario atual do loop e o horario inicial do agendamento 
+                // portanto, só é feito se nao for a situação Cancelado.
+                let minutos_variacao = 0;
+
+                if (value.situation.description !== "Cancelado")
+                    minutos_variacao = DateUtils.obterVariacaoMinutosEntreDatas(inicioExp, horaInicialDoAgendamento);
+
+                // e com isso, vou preenchendo os intervalores vagos com os horários livres
+                while (minutos_variacao > 0) {
+                    _propriedades = {
+                        ..._propriedades,
+                        hour: inicioExp.getTime(),
+                        schedule_time: `${moment(inicioExp.getTime()).format("HH:mm")} à `,
+                        situation: "Disponível"
+                    }
+
+                    if (minutos_variacao > tempoVariacao || minutos_variacao === 0) {
+                        inicioExp.setMinutes(inicioExp.getMinutes() + tempoVariacao);
+                    } else {
+                        inicioExp.setMinutes(inicioExp.getMinutes() + minutos_variacao);
+                    }
+
+                    _propriedades = {
+                        ..._propriedades,
+                        schedule_time: `${_propriedades.schedule_time} ${moment(inicioExp.getTime()).format("HH:mm")}`,
+                        key: inicioExp.getDate().toString()
+                    }
+
+                    _result.push({ ..._propriedades });
+
+                    minutos_variacao = minutos_variacao - tempoVariacao;
+                }
+
+                //** só dai eu posso incluir o agendamento */
+                let dataFinal = new Date(value.date_end);
+
+                _result.push({
+                    schedule_time: moment(horaInicialDoAgendamento).format("HH:mm") + ' à ' + moment(dataFinal).format("HH:mm"),
+                    client: value.person?.name,
+                    situation: value?.situation,
+                    key: `li-table-${value._id}`,
+                    hour: horaInicialDoAgendamento.getTime()
+                });
+
+                // @@@@@@ tratar isso aqui com algum combobox, para incrementar os horarios apenas se nao for situaçoes
+                // que nao interferem no horario
+                // E quando a situaçao do horario nao é para considerar no calculo de minutos, nada é feito.
+                if (value?.situation?.description !== 'Cancelado') {
+                    inicioExp.setTime(dataFinal.getTime());
+                }
+            });
+
+            // No final, preenchemos o restante dos horários livres até o horario final do expediente.
+            preencherHorariosVazios();
+        }
+
+        return _.chain(_result).orderBy(["hour"], ["asc"]).value();
     }
 }

@@ -43,7 +43,7 @@ interface TypeTableMode {
     }
 }
 
-const CRON_TIME_SEC = '0,10 * * * * *';
+const CRON_TIME_SEC = '0,03 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
@@ -326,6 +326,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     dataSource() {
         if (this.props.calendarMode === true)
             return;
+            
         return AgendamentoModal.getSetupDaySchedules(this.props.scheduleDay);
     }
 
