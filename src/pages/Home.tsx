@@ -2,13 +2,12 @@
 const Home = () => {
     return (
         <ul>
-            <li>Confirmar se data e hora está correta no agendamento.</li>
-            <li>Terminar a inclusão do agendamento, passando o objeto do funcionario, situaçao para o crud.</li>
-            <li>Criar filtros no agendamento tanto na consulta modal quanto nos horários.</li>
-            <hr />
-            <li>Incluir o colord dialog no cadastro de situaçoes</li>
-            <li>Incluir no cadastro de situaçoes algo pra falar que o horario é reservado ou na inclusao do agendamento</li>
-            {/**<h1>Trabalhar com CRON na tela de agendamento para atualizar os dados automaticamente.</h1>*/}
+            <h3>ToDo</h3>
+            <li>Terminar a inclusão do agendamento, exemplo: Passando o componente de data e hora, funcionário etc.</li>
+            <li>Incluir componente de color dialog no cadastro de situações</li>
+            <li>Incluir um Input Search para situações e pintar conforme sua cor...</li>
+            <li>Fazer as inclusões de iten</li>
+            <li><h1>Refazer o Search Input Component</h1></li>
         </ul>
     )
 }

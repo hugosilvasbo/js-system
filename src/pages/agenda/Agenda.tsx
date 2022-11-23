@@ -1,12 +1,11 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, CardProps, Col, Form, Input, Modal, Row, Table, Tag, Tooltip } from "antd";
+import { Calendar, Card, CardProps, Col, Drawer, Form, Input, Row, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
 import _ from "lodash";
 import moment, { Moment } from "moment";
-import schedule from 'node-schedule';
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import AgendamentoModal from '../../classes/Agendamento';
 import InputSearch from "../../components/antdesign/InputSearch";
@@ -17,8 +16,8 @@ interface IPropsContent {
     calendarMode: boolean
 }
 
-interface IModalItem {
-    openModal: boolean,
+interface IDrawerMaintence {
+    open: boolean,
     onCancel: any,
     schedule: any
 }
@@ -43,7 +42,7 @@ interface TypeTableMode {
     }
 }
 
-const CRON_TIME_SEC = '0,03 * * * * *';
+const CRON_TIME_SEC = '0,3 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
@@ -53,13 +52,13 @@ export default class Agenda extends React.Component {
         scheduleDay: {} as any,
         scheduleSelected: {},
         calendarDateSelected: moment(new Date()),
-        openModal: false
+        openMaintence: false
     }
 
     componentDidMount(): void {
-        schedule.scheduleJob(CRON_TIME_SEC, async () => {
+        /*schedule.scheduleJob(CRON_TIME_SEC, async () => {
             await this.fetchMonthData(this.state.calendarDateSelected);
-        })
+        })*/
     }
 
     async fetchMonthData(value: Moment) {
@@ -137,7 +136,7 @@ export default class Agenda extends React.Component {
             const _onClickItem = () => {
                 this.setState({
                     ...this.state,
-                    openModal: "edit",
+                    openMaintence: true,
                     scheduleSelected: _schedule
                 });
             }
@@ -190,6 +189,11 @@ export default class Agenda extends React.Component {
                     scheduleDay={this.state.scheduleDay}
                 />
             </Col>
+            <MaintainceDetail
+                open={this.state.openMaintence}
+                onCancel={() => this.setState({ ...this.state, openMaintence: false })}
+                schedule={this.state.scheduleSelected}
+            />
         </>
     }
 
@@ -208,7 +212,7 @@ export default class Agenda extends React.Component {
                     this.setState({
                         ...this.state,
                         scheduleSelected: {},
-                        openModal: true
+                        openMaintence: true
                     });
                     break;
                 }
@@ -228,13 +232,6 @@ export default class Agenda extends React.Component {
         </>
     }
 
-    _onCloseModalManutencao = () => {
-        this.setState({
-            ...this.state,
-            openModal: ""
-        })
-    }
-
     render() {
         return <>
             <Row justify="end">
@@ -247,11 +244,6 @@ export default class Agenda extends React.Component {
                 <this.WrapperContent />
             </Row>
             <ToastContainer />
-            <ModalManutencao
-                openModal={this.state.openModal}
-                onCancel={this._onCloseModalManutencao}
-                schedule={this.state.scheduleSelected}
-            />
         </>
     }
 }
@@ -347,6 +339,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     }
 }
 
+/*
 const ModalManutencao = (props: IModalItem) => {
     const [formController] = Form.useForm();
     const [insertMode, setInsertMode] = useState(true);
@@ -402,13 +395,20 @@ const ModalManutencao = (props: IModalItem) => {
         <Modal
             title={_getTitle}
             open={props.openModal}
-            onCancel={() => _onCancel()}
+            onCancel={() => ()}
             onOk={() => _onSubmit()}
             footer={_footerButtons}
             width="90%">
             <Form form={formController} layout={"vertical"}>
-                <Row>
-                    <Col span={24} >
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name={'_id'} hidden={true}><Input /></Form.Item>
+                        <Form.Item name={['person', '_id']} hidden={true}><Input /></Form.Item>
+                        <Form.Item label={"Profissional"} name={['person', 'name']}>
+                            <InputSearch tipo={"cliente"} formController={formController} formKeyName={['person', '_id']} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
                         <Form.Item name={'_id'} hidden={true}><Input /></Form.Item>
                         <Form.Item name={['person', '_id']} hidden={true}><Input /></Form.Item>
                         <Form.Item label={"Cliente"} name={['person', 'name']}>
@@ -416,26 +416,174 @@ const ModalManutencao = (props: IModalItem) => {
                         </Form.Item>
                     </Col>
                 </Row>
-                <Col inputMode="tel">
-                    <Form.Item label={"Celular"} name={['person', 'cellphone']}><Input /></Form.Item>
-                </Col>
-                <Row justify="space-evenly">
-                    <Col>
-                        <Form.Item label={"Data"} name={"date"}>
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col>
-                        <Form.Item label={"Data final"} name={"date_end"}>
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Col>
-                    Incluir as situações...
-                </Col>
             </Form>
         </Modal>
     </>
 
+}*/
+
+class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
+    //@@@@ arrumar...
+    columns = [
+        {
+            title: 'Descrição',
+            dataIndex: 'description',
+            key: 'item-description',
+        },
+        {
+            title: 'Tempo',
+            dataIndex: 'time',
+            key: 'item-time',
+        },
+        {
+            title: 'Valor',
+            dataIndex: 'value',
+            key: 'item-value',
+        },
+    ];
+
+    dataSource = () => {
+        return [
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+            {
+                description: "Batata",
+                dataIndex: "description",
+                value: 50
+            },
+        ]
+    }
+
+    FormEdition = () => {
+        const [formController] = Form.useForm();
+
+        useEffect(() => {
+            console.log("Initial use Effect formulario MaintanceDetail");
+        }, []);
+
+        useEffect(() => {
+            const _schedule = this.props.schedule;
+            _schedule._id ? formController.setFieldsValue(_schedule) : formController.resetFields();
+        }, [this.props.open]);
+
+        return <>
+            <Form form={formController} layout={"vertical"}>
+                <Row gutter={16}>
+                    <Col span={12} >
+                        <Form.Item name={'_id'} hidden={true}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name={['person', '_id']} hidden={true}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label={"Profissional"} name={['person', 'name']}>
+                            <InputSearch
+                                formController={formController}
+                                tipo={"cliente"}
+                                formKeyName={['person', '_id']}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12} >
+                        <Form.Item name={['person', '_id']} hidden={true}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label={"Cliente"} name={['person', 'name']}>
+                            <InputSearch
+                                formController={formController}
+                                tipo={"funcionario"}
+                                formKeyName={['person', '_id']}
+                            />
+                        </Form.Item>
+                    </Col>{/*}
+                    <Col span={12}>
+                        <Form.Item
+                            name="date"
+                            label="Data"
+                        >
+                            <DatePicker.RangePicker
+                                showTime={true}
+                                showSecond={false}
+                                locale={local}
+                                format={"DD-MM-YYYY HH:mm"}
+                            />
+                        </Form.Item>
+    </Col>*/}
+                    <Col span={12}>
+                        <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item label={"Situação"} name={['situation', 'description']}>
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            columns={this.columns}
+                            size={"small"}
+                            dataSource={this.dataSource()}
+                        />
+                    </Col>
+                    <Col span={8}>
+                        <h4>Tempo total: </h4>
+                    </Col>
+                    <Col span={8} offset={8}>
+                        <h4>Valor total: </h4>
+                    </Col>
+                </Row>
+            </Form>
+        </>
+    }
+
+    render() {
+        return <>
+            <Drawer
+                title={"Detalhes"}
+                open={this.props.open}
+                onClose={this.props.onCancel}
+                width={720}>
+                <this.FormEdition />
+            </Drawer>
+        </>
+    }
 }
