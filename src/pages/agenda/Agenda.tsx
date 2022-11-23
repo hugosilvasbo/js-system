@@ -8,7 +8,7 @@ import moment, { Moment } from "moment";
 import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import AgendamentoModal from '../../classes/Agendamento';
-import InputSearch from "../../components/antdesign/InputSearch";
+import SearchInput, { EnTipo } from "../../components/antdesign/SearchInput";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
@@ -52,7 +52,7 @@ export default class Agenda extends React.Component {
         scheduleDay: {} as any,
         scheduleSelected: {},
         calendarDateSelected: moment(new Date()),
-        openMaintence: false
+        openMaintence: !false
     }
 
     componentDidMount(): void {
@@ -507,18 +507,18 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
         return <>
             <Form form={formController} layout={"vertical"}>
                 <Row gutter={16}>
+                    <Form.Item name={'_id'} hidden={true}>
+                        <Input />
+                    </Form.Item>
                     <Col span={12} >
-                        <Form.Item name={'_id'} hidden={true}>
+                        <Form.Item name={['employee', '_id']} hidden={true}>
                             <Input />
                         </Form.Item>
-                        <Form.Item name={['person', '_id']} hidden={true}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item label={"Profissional"} name={['person', 'name']}>
-                            <InputSearch
+                        <Form.Item label={"Profissional"} name={['employee', 'name']}>
+                            <SearchInput
                                 formController={formController}
-                                tipo={"cliente"}
-                                formKeyName={['person', '_id']}
+                                type={EnTipo.tFuncionario}
+                                formKeyName={['employee', '_id']}
                             />
                         </Form.Item>
                     </Col>
@@ -527,9 +527,9 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                             <Input />
                         </Form.Item>
                         <Form.Item label={"Cliente"} name={['person', 'name']}>
-                            <InputSearch
+                            <SearchInput
                                 formController={formController}
-                                tipo={"funcionario"}
+                                type={EnTipo.tCliente}
                                 formKeyName={['person', '_id']}
                             />
                         </Form.Item>
@@ -553,8 +553,15 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label={"Situação"} name={['situation', 'description']}>
+                        <Form.Item name={['employee', '_id']} hidden={true}>
                             <Input />
+                        </Form.Item>
+                        <Form.Item label={"Situação"} name={['situation', 'description']}>
+                            <SearchInput
+                                formController={formController}
+                                type={EnTipo.tSituacaoAgendamento}
+                                formKeyName={['employee', '_id']}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
