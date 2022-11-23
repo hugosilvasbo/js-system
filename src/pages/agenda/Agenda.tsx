@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Calendar, Card, CardProps, Col, Drawer, Form, Input, Row, Table, Tag, Tooltip } from "antd";
+import { Calendar, Card, CardProps, Col, DatePicker, Drawer, Form, Input, Row, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
@@ -504,6 +504,14 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
             _schedule._id ? formController.setFieldsValue(_schedule) : formController.resetFields();
         }, [this.props.open]);
 
+        const configDate = {
+            showTime: true,
+            showSecond: false,
+            format: "DD/MM/YYYY HH:mm",
+            locale: { ...local },
+            defaultValue: moment(new Date())
+        }
+
         return <>
             <Form form={formController} layout={"vertical"}>
                 <Row gutter={16}>
@@ -533,7 +541,18 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                                 formKeyName={['person', '_id']}
                             />
                         </Form.Item>
-                    </Col>{/*}
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item name="date" label="Início">
+                            <DatePicker  {...configDate} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item name="date_end" label="Fim">
+                            <DatePicker  {...configDate} />
+                        </Form.Item>
+                    </Col>
+                    {/*}
                     <Col span={12}>
                         <Form.Item
                             name="date"
@@ -547,12 +566,7 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                             />
                         </Form.Item>
     </Col>*/}
-                    <Col span={12}>
-                        <Form.Item label={"Celular"} name={['person', 'cellphone']}>
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <Form.Item name={['employee', '_id']} hidden={true}>
                             <Input />
                         </Form.Item>
@@ -562,6 +576,11 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                                 type={EnTipo.tSituacaoAgendamento}
                                 formKeyName={['employee', '_id']}
                             />
+                        </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                        <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={24}>

@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import SituacaoClass from '../../classes/AgendamentoSituacao';
 import { enBotoes } from "../../components/mine/WrapperButtons";
 import WrapperManutencao from "../../components/mine/WrapperManutencao";
+import { ColorResult, SketchPicker } from 'react-color';
 
 const SituacaoAgenda = () => {
     const [inEdition, setInEdition] = useState(false);
@@ -99,6 +100,12 @@ const SituacaoAgenda = () => {
     }
 
     const TabDigitacao = () => {
+        const [color, setColor] = useState("");
+
+        const onChangeColor = (color: ColorResult) => {
+            setColor(color.hex);
+        }
+
         return <>
             <Form form={formDigitacao} layout="vertical">
                 <Form.Item label="ID" name="_id" hidden={true} >
@@ -107,8 +114,13 @@ const SituacaoAgenda = () => {
                 <Form.Item label="Descrição" name="description">
                     <Input disabled={!inEdition} />
                 </Form.Item>
+                Estudar o controller para salvar...
                 <Form.Item label="Cor" name="color">
-                    <Input disabled={!inEdition} />
+                    <SketchPicker
+                        color={color}
+                        onChange={onChangeColor}
+                        onChangeComplete={onChangeColor}
+                    />
                 </Form.Item>
             </Form>
         </>
