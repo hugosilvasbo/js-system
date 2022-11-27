@@ -1,7 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
 import DateUtils from "./DateUtils";
-import _Geral from "../../adapters/_Geral";
 
 export default class Agendamento {
     static getSetupDaySchedules(pScheduleDay: any) {

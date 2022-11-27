@@ -326,11 +326,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     render() {
         return <>
             <div hidden={this.props.calendarMode}>
-                <Table
-                    columns={this._columns}
-                    dataSource={this.dataSource()}
-                    pagination={false}
-                />
+                <Table columns={this._columns} dataSource={this.dataSource()} pagination={false} />
             </div>
         </>
     }
