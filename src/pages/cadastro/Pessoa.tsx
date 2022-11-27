@@ -15,7 +15,7 @@ const Pessoa = () => {
     const [formDigitacao] = Form.useForm();
 
     const handleFormSubmit = async () => {
-        await formDigitacao.validateFields()
+         formDigitacao.validateFields()
             .then(async (values) => {
                 var _cliente = new Cliente(values, values._id);
 

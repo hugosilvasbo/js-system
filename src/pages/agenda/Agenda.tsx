@@ -1,12 +1,13 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Calendar, Card, CardProps, Col, DatePicker, Drawer, Form, Input, Row, Table, Tag, Tooltip } from "antd";
+import { Button, Calendar, Card, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Space, Statistic, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
 import _ from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import AgendamentoAdapter from "../../adapters/AgendaAdapter";
 import AgendamentoModal from '../../classes/Agendamento';
 import SearchInput, { EnTipo } from "../../components/antdesign/SearchInput";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
@@ -334,6 +335,10 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
 
 class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
 
+    state = {
+        submit: false
+    }
+
     dataSource = () => {
         return [
             {
@@ -384,9 +389,7 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
         ]
     }
 
-    FormEdition = () => {
-        const [fcontrol] = Form.useForm();
-
+    FormEdition = ({ submit }: any) => {
         const _properties = {
             formDate: {
                 getValueFromEvent: (onChange: any) => moment(onChange ? onChange : undefined),
@@ -415,6 +418,24 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
             ]
         }
 
+        const [fcontrol] = Form.useForm();
+
+        useEffect(() => {
+            if (submit === false) return;
+
+            const submitData = async () => {
+                fcontrol.validateFields()
+                    .then(async (value: any) => {
+                        let agenda = new AgendamentoAdapter(value, value._id);
+                        await agenda.send()
+                            .then((res: any) => toast.success(res.data.message))
+                            .catch((reason: any) => toast.error(reason.message));
+                    });
+            }
+
+            submitData().catch();
+        }, [submit]);
+
         useEffect(() => {
             this.props.schedule._id ?
                 fcontrol.setFieldsValue(this.props.schedule) :
@@ -424,6 +445,8 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
         const { Item } = Form;
 
         return <>
+            <this.Totalization />
+            <Divider />
             <Form form={fcontrol} layout={"vertical"}>
                 <Row gutter={16}>
                     <Item name={'_id'} hidden={true}>
@@ -459,7 +482,7 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                         </Item>
                     </Col>
                     <Col span={6}>
-                        <Item label='Final' name='date_end'  {..._properties.formDate} >
+                        <Item label='Fim' name='date_end'  {..._properties.formDate} >
                             <DatePicker {..._properties.datePicker} showTime />
                         </Item>
                     </Col>
@@ -487,15 +510,31 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                             dataSource={this.dataSource()}
                         />
                     </Col>
-                    <Col span={8}>
-                        <h4>Tempo total: </h4>
-                    </Col>
-                    <Col span={8} offset={8}>
-                        <h4>Valor total: </h4>
-                    </Col>
                 </Row>
             </Form>
         </>
+    }
+
+    Totalization = () => {
+        useEffect(() => {
+            console.log("Use Effect Totalization...");
+        }, []);
+
+        return <>
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Statistic title="Tempo total" value={0} />
+                </Col>
+                <Col span={12}>
+                    <Statistic title="Valor total" value={0} precision={2} />
+                </Col>
+            </Row>
+        </>
+    }
+
+    _onClose = () => {
+        this.setState({ ...this.state, submit: false });
+        this.props.onCancel();
     }
 
     render() {
@@ -503,9 +542,19 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
             <Drawer
                 title={"Detalhes"}
                 open={this.props.open}
-                onClose={this.props.onCancel}
-                width={720}>
-                <this.FormEdition />
+                onClose={this._onClose}
+                width={720}
+                placement={"left"}
+                extra={
+                    <Space>
+                        <Button onClick={this.props.onCancel}>Fechar</Button>
+                        <Button onClick={() => this.setState({ ...this.state, submit: true })} type="primary">
+                            Gravar
+                        </Button>
+                    </Space>
+                }
+            >
+                <this.FormEdition submit={this.state.submit} />
             </Drawer>
         </>
     }

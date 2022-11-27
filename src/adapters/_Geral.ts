@@ -1,5 +1,4 @@
 import axios from 'axios';
-import jsonURL from '../assets/jasonURLs.json';
 
 export default abstract class _Geral {
     public url: string;
@@ -7,12 +6,13 @@ export default abstract class _Geral {
     public _id: string;
 
     constructor(pEndPointName: string, pValuesJson: any, pID: string) {
-        this.url = `${jsonURL.url_api_barber}${pEndPointName}/`;
+        this.url = `http://localhost:3000/${pEndPointName}/`;
         this.valuesJSON = pValuesJson;
         this._id = pID;
     }
 
     async send() {
+        console.log("send", this.valuesJSON);
         let res = null;
         this._id ?
             res = await axios.patch(this.url + this._id, this.valuesJSON) :
