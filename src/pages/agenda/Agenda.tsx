@@ -52,7 +52,7 @@ export default class Agenda extends React.Component {
         scheduleDay: {} as any,
         scheduleSelected: {},
         calendarDateSelected: moment(new Date()),
-        openMaintence: !false
+        openMaintence: false
     }
 
     componentDidMount(): void {
@@ -117,42 +117,39 @@ export default class Agenda extends React.Component {
 
     ItemsSidebar = () => {
         const Content = (props: any) => {
+            const getDate = (value: any) => moment(value).format("HH:mm");
+
             const _schedule = props.schedule;
-            const _style = { borderLeft: `4px solid ${_schedule.situation?.color ?? "#bbbbbb"}` };
 
             const _content = <>
                 <Row justify="space-around">
-                    <Col>
-                        {moment(_schedule.date).format("HH:mm")} à {moment(_schedule.date_end).format("HH:mm")}
-                    </Col>
+                    <Col>{`${getDate(_schedule.date)} à ${getDate(_schedule.date_end)}`}</Col>
                 </Row>
                 <Row justify="center">
-                    <Col>
-                        {_schedule.person?.name}
-                    </Col>
+                    <Col>{_schedule.person?.name}</Col>
                 </Row>
             </>;
 
-            const _onClickItem = () => {
-                this.setState({
-                    ...this.state,
-                    openMaintence: true,
-                    scheduleSelected: _schedule
-                });
-            }
-
-            return <Tooltip title="Clique para alterar">
-                <Row className="item-sidebar"
-                    style={_style}
-                    onClick={() => _onClickItem()}>
-                    <Col span={24}>
-                        {_content}
-                    </Col>
-                </Row>
-            </Tooltip>
+            return <>
+                <Tooltip title="Clique para alterar">
+                    <Row className="item-sidebar"
+                        style={{ borderLeft: `4px solid ${_schedule.situation?.color ?? "#bbbbbb"}` }}
+                        onClick={() => {
+                            this.setState({
+                                ...this.state,
+                                openMaintence: true,
+                                scheduleSelected: _schedule
+                            });
+                        }}>
+                        <Col span={24}>{_content}</Col>
+                    </Row>
+                </Tooltip>
+            </>
         }
 
-        return <>{_.map(this.state.scheduleDay, (schedules: any) => _.map(schedules, (schedule: any) => <Content schedule={schedule} />))}</>
+        return <>{
+            _.map(this.state.scheduleDay, (schedules: any) =>
+                _.map(schedules, (schedule: any) => <Content schedule={schedule} />))}</>
     }
 
     WrapperContent = () => {
@@ -339,108 +336,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     }
 }
 
-/*
-const ModalManutencao = (props: IModalItem) => {
-    const [formController] = Form.useForm();
-    const [insertMode, setInsertMode] = useState(true);
-
-    useEffect(() => {
-        if (props.schedule._id) {
-            setInsertMode(false);
-            formController.setFieldsValue(props.schedule);
-        } else {
-            setInsertMode(true);
-            formController.resetFields();
-        }
-    }, [props.openModal]);
-
-    const _getTitle = insertMode ? "Incluir um novo agendamento" : "Alterar o agendamento";
-
-    const _onSubmit = async () => {
-        await formController.validateFields()
-            .then(async (values: any) => {
-                const _agendamento = new AgendamentoModal(values, values._id);
-                await _agendamento.send()
-                    .then((res: any) => console.log(res.data.message))
-                    .catch((e: any) => console.log("" + e))
-                    .finally(() => props.onCancel())
-
-            }).catch((e) => console.log(e))
-    };
-
-    const _onCancel = () => {
-        props.onCancel();
-    }
-
-    const _onDelete = async () => {
-        const _agendamento = new AgendamentoModal({}, formController.getFieldValue("_id"));
-        await _agendamento.delete()
-            .then((res: any) => console.log(res.data?.message))
-            .catch((e: any) => console.log("Falha ao excluir"));
-    }
-
-    const _footerButtons = [
-        <Button key="back-modal" onClick={_onCancel}>
-            Voltar
-        </Button>,
-        <Button danger key="delete-modal" type="primary" onClick={_onDelete} hidden={insertMode}>
-            Excluir
-        </Button>,
-        <Button key="submit-modal" type="primary" onClick={_onSubmit}>
-            Gravar
-        </Button>
-    ];
-
-    return <>
-        <Modal
-            title={_getTitle}
-            open={props.openModal}
-            onCancel={() => ()}
-            onOk={() => _onSubmit()}
-            footer={_footerButtons}
-            width="90%">
-            <Form form={formController} layout={"vertical"}>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item name={'_id'} hidden={true}><Input /></Form.Item>
-                        <Form.Item name={['person', '_id']} hidden={true}><Input /></Form.Item>
-                        <Form.Item label={"Profissional"} name={['person', 'name']}>
-                            <InputSearch tipo={"cliente"} formController={formController} formKeyName={['person', '_id']} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name={'_id'} hidden={true}><Input /></Form.Item>
-                        <Form.Item name={['person', '_id']} hidden={true}><Input /></Form.Item>
-                        <Form.Item label={"Cliente"} name={['person', 'name']}>
-                            <InputSearch tipo={"cliente"} formController={formController} formKeyName={['person', '_id']} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
-        </Modal>
-    </>
-
-}*/
-
 class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
-    //@@@@ arrumar...
-    columns = [
-        {
-            title: 'Descrição',
-            dataIndex: 'description',
-            key: 'item-description',
-        },
-        {
-            title: 'Tempo',
-            dataIndex: 'time',
-            key: 'item-time',
-        },
-        {
-            title: 'Valor',
-            dataIndex: 'value',
-            key: 'item-value',
-        },
-    ];
 
     dataSource = () => {
         return [
@@ -493,99 +389,104 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
     }
 
     FormEdition = () => {
-        const [formController] = Form.useForm();
+        const [fcontrol] = Form.useForm();
 
-        useEffect(() => {
-            console.log("Initial use Effect formulario MaintanceDetail");
-        }, []);
-
-        useEffect(() => {
-            const _schedule = this.props.schedule;
-            _schedule._id ? formController.setFieldsValue(_schedule) : formController.resetFields();
-        }, [this.props.open]);
-
-        const configDate = {
-            showTime: true,
-            showSecond: false,
-            format: "DD/MM/YYYY HH:mm",
-            locale: { ...local },
-            defaultValue: moment(new Date())
+        const _properties = {
+            formDate: {
+                getValueFromEvent: (onChange: any) => moment(onChange ? onChange : undefined),
+                getValueProps: (i: any) => ({ value: moment(i) })
+            },
+            datePicker: {
+                format: "DD/MM/YYYY HH:mm",
+                locale: local
+            },
+            colsTable: [
+                {
+                    title: 'Descrição',
+                    dataIndex: 'description',
+                    key: 'item-description',
+                },
+                {
+                    title: 'Tempo',
+                    dataIndex: 'time',
+                    key: 'item-time',
+                },
+                {
+                    title: 'Valor',
+                    dataIndex: 'value',
+                    key: 'item-value',
+                },
+            ]
         }
 
+        useEffect(() => {
+            this.props.schedule._id ?
+                fcontrol.setFieldsValue(this.props.schedule) :
+                fcontrol.resetFields();
+        }, [this.props.open]);
+
+        const { Item } = Form;
+
         return <>
-            <Form form={formController} layout={"vertical"}>
+            <Form form={fcontrol} layout={"vertical"}>
                 <Row gutter={16}>
-                    <Form.Item name={'_id'} hidden={true}>
+                    <Item name={'_id'} hidden={true}>
                         <Input />
-                    </Form.Item>
+                    </Item>
                     <Col span={12} >
-                        <Form.Item name={['employee', '_id']} hidden={true}>
+                        <Item name={['employee', '_id']} hidden={true}>
                             <Input />
-                        </Form.Item>
-                        <Form.Item label={"Profissional"} name={['employee', 'name']}>
+                        </Item>
+                        <Item label={"Profissional"} name={['employee', 'name']}>
                             <SearchInput
-                                formController={formController}
+                                formController={fcontrol}
                                 type={EnTipo.tFuncionario}
                                 formKeyName={['employee', '_id']}
                             />
-                        </Form.Item>
+                        </Item>
                     </Col>
                     <Col span={12} >
-                        <Form.Item name={['person', '_id']} hidden={true}>
+                        <Item name={['person', '_id']} hidden={true}>
                             <Input />
-                        </Form.Item>
-                        <Form.Item label={"Cliente"} name={['person', 'name']}>
+                        </Item>
+                        <Item label={"Cliente"} name={['person', 'name']}>
                             <SearchInput
-                                formController={formController}
+                                formController={fcontrol}
                                 type={EnTipo.tCliente}
                                 formKeyName={['person', '_id']}
                             />
-                        </Form.Item>
+                        </Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item name="date" label="Início">
-                            <DatePicker  {...configDate} />
-                        </Form.Item>
+                        <Item label='Início' name='date'  {..._properties.formDate} >
+                            <DatePicker {..._properties.datePicker} showTime />
+                        </Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item name="date_end" label="Fim">
-                            <DatePicker  {...configDate} />
-                        </Form.Item>
+                        <Item label='Final' name='date_end'  {..._properties.formDate} >
+                            <DatePicker {..._properties.datePicker} showTime />
+                        </Item>
                     </Col>
-                    {/*}
-                    <Col span={12}>
-                        <Form.Item
-                            name="date"
-                            label="Data"
-                        >
-                            <DatePicker.RangePicker
-                                showTime={true}
-                                showSecond={false}
-                                locale={local}
-                                format={"DD-MM-YYYY HH:mm"}
-                            />
-                        </Form.Item>
-    </Col>*/}
                     <Col span={6}>
-                        <Form.Item name={['employee', '_id']} hidden={true}>
+                        <Item name={['employee', '_id']} hidden={true}>
                             <Input />
-                        </Form.Item>
-                        <Form.Item label={"Situação"} name={['situation', 'description']}>
+                        </Item>
+                        <Item label={"Situação"} name={['situation', 'description']}>
                             <SearchInput
-                                formController={formController}
+                                formController={fcontrol}
                                 type={EnTipo.tSituacaoAgendamento}
                                 formKeyName={['employee', '_id']}
                             />
-                        </Form.Item>
+                        </Item>
                     </Col>
                     <Col span={6}>
-                        <Form.Item label={"Celular"} name={['person', 'cellphone']}>
+                        <Item label={"Celular"} name={['person', 'cellphone']}>
                             <Input />
-                        </Form.Item>
+                        </Item>
                     </Col>
                     <Col span={24}>
                         <Table
-                            columns={this.columns}
+                            columns={_properties.colsTable}
                             size={"small"}
                             dataSource={this.dataSource()}
                         />

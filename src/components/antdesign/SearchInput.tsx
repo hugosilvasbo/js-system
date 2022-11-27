@@ -1,9 +1,9 @@
 import { Button, Col, FormInstance, Input, Modal, Row, Table } from "antd";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import ClienteClass from "../../classes/Cliente";
-import FuncionarioClass from "../../classes/Funcionario";
-import AgendamentoSituacaoClass from "../../classes/AgendamentoSituacao";
+import AgendamentoSituacaoClass from "../../adapters/AgendamentoSituacaoAdapter";
+import ClienteClass from "../../adapters/ClienteAdapter";
+import FuncionarioClass from "../../adapters/FuncionarioAdapter";
 
 export enum EnTipo {
     tCliente,

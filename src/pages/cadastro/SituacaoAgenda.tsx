@@ -7,7 +7,7 @@ import { Content } from "antd/lib/layout/layout";
 import React from "react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import SituacaoClass from '../../classes/AgendamentoSituacao';
+import SituacaoClass from '../../adapters/AgendamentoSituacaoAdapter';
 import { enBotoes } from "../../components/mine/WrapperButtons";
 import WrapperManutencao from "../../components/mine/WrapperManutencao";
 import { ColorResult, SketchPicker } from 'react-color';
@@ -114,7 +114,6 @@ const SituacaoAgenda = () => {
                 <Form.Item label="Descrição" name="description">
                     <Input disabled={!inEdition} />
                 </Form.Item>
-                Estudar o controller para salvar...
                 <Form.Item label="Cor" name="color">
                     <SketchPicker
                         color={color}

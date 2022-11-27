@@ -4,7 +4,7 @@ import { Content } from "antd/lib/layout/layout";
 import { useState } from "react";
 import { enBotoes } from "../../components/mine/WrapperButtons";
 import WrapperManutencao from "../../components/mine/WrapperManutencao";
-import ItemClass from '../../classes/Item';
+import ItemClass from '../../adapters/ItemAdapter';
 import { toast } from "react-toastify";
 
 const Item = () => {

@@ -4,7 +4,7 @@ import Input from "antd/lib/input/Input";
 import { Content } from "antd/lib/layout/layout";
 import { useState } from "react";
 import { toast } from 'react-toastify';
-import FuncionarioClass from '../../classes/Funcionario';
+import FuncionarioClass from '../../adapters/FuncionarioAdapter';
 import { enBotoes } from "../../components/mine/WrapperButtons";
 import WrapperManutencao from "../../components/mine/WrapperManutencao";
 

@@ -2,7 +2,7 @@ import { Checkbox, Form, Input, Table } from 'antd';
 import { Content } from 'antd/lib/layout/layout';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import Cliente from '../../classes/Cliente';
+import Cliente from '../../adapters/ClienteAdapter';
 import { enBotoes } from '../../components/mine/WrapperButtons';
 import WrapperManutencao from '../../components/mine/WrapperManutencao';
 import '../../style/vars.scss';
