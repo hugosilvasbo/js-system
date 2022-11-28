@@ -150,6 +150,10 @@ const Component = (props: ISearch) => {
 }
 
 const SearchInput = (props: IProps) => {
+    useState(() => {
+        console.log("SearchInput", props.value);
+    });
+
     const { Search } = Input;
     const [showModal, setShowModal] = useState(false);
     const [internalValue, setInternalValue] = useState("")

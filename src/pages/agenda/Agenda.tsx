@@ -37,7 +37,7 @@ interface TypeTableMode {
     key: string;
     schedule_time: string,
     client: string,
-    situation: {
+    scheduleSituation: {
         description: string,
         color: string
     }
@@ -134,7 +134,7 @@ export default class Agenda extends React.Component {
             return <>
                 <Tooltip title="Clique para alterar">
                     <Row className="item-sidebar"
-                        style={{ borderLeft: `4px solid ${_schedule.situation?.color ?? "#bbbbbb"}` }}
+                        style={{ borderLeft: `4px solid ${_schedule.scheduleSituation?.color ?? "#bbbbbb"}` }}
                         onClick={() => {
                             this.setState({
                                 ...this.state,
@@ -267,7 +267,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                 return <>{
                     <div className='wrapper-cedule'> {
                         _.map(schedule, (value: any) =>
-                            <ScheduleItem _id={value._id} color={value.situation?.color}>
+                            <ScheduleItem _id={value._id} color={value.scheduleSituation?.color}>
                                 {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
                             </ScheduleItem>)
                     }</div>
@@ -298,11 +298,11 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
         },
         {
             title: 'Situação',
-            dataIndex: ['situation', 'description'],
-            key: 'situation',
+            dataIndex: ['scheduleSituation', 'description'],
+            key: 'scheduleSituation',
             width: "5%",
             render(text, record) {
-                return <Tag color={record.situation?.color}>{text}</Tag>
+                return <Tag color={record.scheduleSituation?.color}>{text}</Tag>
             }
         },
         {
@@ -392,7 +392,7 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
     FormEdition = ({ submit }: any) => {
         const _properties = {
             formDate: {
-                getValueFromEvent: (onChange: any) => moment(onChange ? onChange : undefined),
+                getValueFromEvent: (onChange: any) => moment(onChange ? onChange : undefined).toISOString(),
                 getValueProps: (i: any) => ({ value: moment(i) })
             },
             datePicker: {
@@ -487,14 +487,14 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
                         </Item>
                     </Col>
                     <Col span={6}>
-                        <Item name={['employee', '_id']} hidden={true}>
+                        <Item name={['scheduleSituation', '_id']} hidden={true}>
                             <Input />
                         </Item>
-                        <Item label={"Situação"} name={['situation', 'description']}>
+                        <Item label={"Situação"} name={['scheduleSituation', 'description']}>
                             <SearchInput
                                 formController={fcontrol}
                                 type={EnTipo.tSituacaoAgendamento}
-                                formKeyName={['employee', '_id']}
+                                formKeyName={['scheduleSituation', '_id']}
                             />
                         </Item>
                     </Col>

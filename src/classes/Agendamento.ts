@@ -10,7 +10,7 @@ export default class Agendamento {
         interface IPropriedades {
             schedule_time: string,
             client: string,
-            situation: string,
+            scheduleSituation: string,
             key: string,
             hour: number
         }
@@ -110,7 +110,7 @@ export default class Agendamento {
                 let minutos_variacao = 0;
 
                 // se for cancelado, nao deve entrar no cálculo de horário
-                if (value.situation.description !== "Cancelado")
+                if (value.scheduleSituation.description !== "Cancelado")
                     minutos_variacao = DateUtils.obterVariacaoMinutosEntreDatas(_variaveis.horarioBase, horaInicialDoAgendamento);
 
                 // e com isso, vou preenchendo os intervalores vagos com os horários livres
@@ -145,7 +145,7 @@ export default class Agendamento {
                 _variaveis.retorno.push({
                     schedule_time: moment(horaInicialDoAgendamento).format("HH:mm") + ' à ' + moment(dataFinal).format("HH:mm"),
                     client: value.person?.name,
-                    situation: value?.situation,
+                    scheduleSituation: value?.scheduleSituation,
                     key: `li-table-${value._id}`,
                     hour: horaInicialDoAgendamento.getTime()
                 });
@@ -153,7 +153,7 @@ export default class Agendamento {
                 // @@@@@@ tratar isso aqui com algum combobox, para incrementar os horarios apenas se nao for situaçoes
                 // que nao interferem no horario
                 // E quando a situaçao do horario nao é para considerar no calculo de minutos, nada é feito.
-                if (value?.situation?.description !== 'Cancelado') {
+                if (value?.scheduleSituation?.description !== 'Cancelado') {
                     _variaveis.horarioBase.setTime(dataFinal.getTime());
                 }
             });
