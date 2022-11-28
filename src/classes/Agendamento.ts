@@ -110,7 +110,7 @@ export default class Agendamento {
                 let minutos_variacao = 0;
 
                 // se for cancelado, nao deve entrar no cálculo de horário
-                if (value.scheduleSituation.description !== "Cancelado")
+                if (value.scheduleSituation?.description !== "Cancelado")
                     minutos_variacao = DateUtils.obterVariacaoMinutosEntreDatas(_variaveis.horarioBase, horaInicialDoAgendamento);
 
                 // e com isso, vou preenchendo os intervalores vagos com os horários livres
