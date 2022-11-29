@@ -47,7 +47,7 @@ const CRON_TIME_SEC = '0,3 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
-        hideSidebar: true,
+        openSidebar: false,
         calendarMode: true,
         scheduleMonth: {},
         scheduleDay: {} as any,
@@ -97,22 +97,20 @@ export default class Agenda extends React.Component {
             className: "wrapper-sidebar-selection"
         }
 
-        const _extraCard = (
+        /*const _extraCard = (
             <Tooltip placement='bottom' title={'Fechar o painel'}>
                 <CloseOutlined onClick={() => this.setState({ ...this.state, hideSidebar: true })} />
             </Tooltip>
-        );
+        );*/
 
         return <>
-            <Col span={this.state.hideSidebar ? 0 : 4}>
-                <Card
-                    title="Detalhamento"
-                    style={_styleCard}
-                    extra={_extraCard}
-                >
-                    {props.children}
-                </Card>
-            </Col>
+            <Drawer
+                open={this.state.openSidebar}
+                onClose={() => this.setState({ ...this.state, openSidebar: false })}
+                title="Detalhamento"
+                style={_styleCard}>
+                {props.children}
+            </Drawer>
         </>
     }
 
@@ -169,13 +167,13 @@ export default class Agenda extends React.Component {
             this.setState({
                 ...this.state,
                 scheduleDay: _schedulesInDay,
-                hideSidebar: false,
-                calendarDateSelected: date
+                calendarDateSelected: date,
+                openSidebar: true
             });
         }
 
         return <>
-            <Col span={this.state.hideSidebar ? 24 : 20} style={{ paddingLeft: '10px', paddingRight: '10px' }}>
+            <Col span={24} style={{ paddingLeft: '10px', paddingRight: '10px' }}>
                 <ModoCalendario
                     calendarMode={this.state.calendarMode}
                     onPanelChange={_onPanelChange}
@@ -265,15 +263,25 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
         return (
             _.map(_schedulesInDay, (schedule: any) => {
                 return <>{
-                    <div className='wrapper-cedule'> {
-                        _.map(schedule, (value: any) =>
-                            <ScheduleItem _id={value._id} color={value.scheduleSituation?.color}>
-                                {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
-                            </ScheduleItem>)
-                    }</div>
+                    <Row>
+                        <Col span={24}>
+                            {
+                                _.map(schedule, (value: any) =>
+                                    <ScheduleItem
+                                        _id={value._id}
+                                        color={value.scheduleSituation?.color} >
+                                        {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
+                                    </ScheduleItem>)
+                            }
+                        </Col>
+                    </Row>
                 }</>
             })
         );
+    }
+
+    _onSelectDate = (date: Moment) => {
+        this.props.onSelectedDate(date);
     }
 
     render() {
@@ -282,7 +290,7 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
                 locale={local}
                 onPanelChange={date => this.props.onPanelChange(date)}
                 dateCellRender={this.onDateCellRender}
-                onSelect={(date: Moment) => this.props.onSelectedDate(date)}
+                onSelect={this._onSelectDate}
             />
         </div>
     }
