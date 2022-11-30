@@ -1,6 +1,7 @@
-import { CloseOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Space, Statistic, Table, Tag, Tooltip } from "antd";
+import { AppstoreOutlined, BarsOutlined } from "@ant-design/icons";
+import { Button, Calendar, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
+import { SegmentedValue } from "antd/lib/segmented";
 import { ColumnsType } from "antd/lib/table";
 import axios from "axios";
 import _ from "lodash";
@@ -13,8 +14,10 @@ import SearchInput, { EnTipo } from "../../components/antdesign/SearchInput";
 import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
+type typeCalendar = "calendar-mode" | "table-mode";
+
 interface IPropsContent {
-    calendarMode: boolean
+    calendarMode: typeCalendar
 }
 
 interface IDrawerMaintence {
@@ -48,7 +51,7 @@ const CRON_TIME_SEC = '0,3 * * * * *';
 export default class Agenda extends React.Component {
     state = {
         openSidebar: false,
-        calendarMode: true,
+        calendarMode: "calendar-mode" as typeCalendar,
         scheduleMonth: {},
         scheduleDay: {} as any,
         scheduleSelected: {},
@@ -96,12 +99,6 @@ export default class Agenda extends React.Component {
             type: "inner",
             className: "wrapper-sidebar-selection"
         }
-
-        /*const _extraCard = (
-            <Tooltip placement='bottom' title={'Fechar o painel'}>
-                <CloseOutlined onClick={() => this.setState({ ...this.state, hideSidebar: true })} />
-            </Tooltip>
-        );*/
 
         return <>
             <Drawer
@@ -201,7 +198,8 @@ export default class Agenda extends React.Component {
         const _callback = (clique: enBotoes) => {
             switch (clique) {
                 case enBotoes.eProcurar: {
-                    this.setState({ ...this.state, calendarMode: !this.state.calendarMode })
+                    //nao uso mais
+                    //this.setState({ ...this.state, calendarMode: !this.state.calendarMode });
                     break;
                 }
                 case enBotoes.eNovo: {
@@ -228,10 +226,44 @@ export default class Agenda extends React.Component {
         </>
     }
 
+    WrapperCalendarMode = () => {
+        useEffect(() => {
+            console.log("Use Effect Calendar Mode");
+        }, []);
+
+        const handleCalendarMode = (value: SegmentedValue) => {
+            console.log(value);
+            this.setState({ ...this.state, calendarMode: value });
+        }
+
+        return <>
+            <Segmented
+                onChange={handleCalendarMode}
+                options={[
+                    {
+                        label: 'Calendário',
+                        value: 'calendar-mode',
+                        icon: <AppstoreOutlined />
+                    },
+                    {
+                        label: 'Tabela',
+                        value: 'table-mode',
+                        icon: <BarsOutlined />
+                    }
+                ]}
+            />
+        </>
+    }
+
     render() {
         return <>
-            <Row justify="end">
-                <this.WrapperMainButtons />
+            <Row justify="space-between">
+                <Col>
+                    <this.WrapperMainButtons />
+                </Col>
+                <Col>
+                    <this.WrapperCalendarMode />
+                </Col>
             </Row>
             <Row>
                 <this.WrapperSidebar>
@@ -285,14 +317,14 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
     }
 
     render() {
-        return <div hidden={!this.props.calendarMode}>
+        return <>
             <Calendar
                 locale={local}
                 onPanelChange={date => this.props.onPanelChange(date)}
                 dateCellRender={this.onDateCellRender}
                 onSelect={this._onSelectDate}
             />
-        </div>
+        </>
     }
 }
 
@@ -322,7 +354,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     ];
 
     dataSource() {
-        if (this.props.calendarMode === true)
+        if (this.props.calendarMode === "calendar-mode")
             return;
 
         return AgendamentoModal.getSetupDaySchedules(this.props.scheduleDay);
@@ -334,9 +366,9 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
 
     render() {
         return <>
-            <div hidden={this.props.calendarMode}>
+            <>
                 <Table columns={this._columns} dataSource={this.dataSource()} pagination={false} />
-            </div>
+            </>
         </>
     }
 }
