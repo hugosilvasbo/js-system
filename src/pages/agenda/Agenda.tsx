@@ -1,5 +1,5 @@
 import { AppstoreOutlined, BarsOutlined } from "@ant-design/icons";
-import { Button, Calendar, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
+import { Button, Calendar, Card, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { SegmentedValue } from "antd/lib/segmented";
 import { ColumnsType } from "antd/lib/table";
@@ -15,7 +15,7 @@ import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
 type typeCalendar = "calendar-mode" | "table-mode";
- 
+
 interface IPropsContent {
     calendarMode: typeCalendar
 }
@@ -170,18 +170,28 @@ export default class Agenda extends React.Component {
         }
 
         return <>
-            <Col span={24} style={{ paddingLeft: '10px', paddingRight: '10px' }}>
-                <ModoCalendario
-                    calendarMode={this.state.calendarMode}
-                    onPanelChange={_onPanelChange}
-                    scheduleInMonth={this.state.scheduleMonth}
-                    onSelectedDate={_onSelectedDate}
-                />
-                <ModoTabela
-                    calendarMode={this.state.calendarMode}
-                    scheduleDay={this.state.scheduleDay}
-                />
-            </Col>
+            <Card
+                title="Meus compromissos"
+                size="small"
+                bordered={true}
+                style={{ width: "100%" }}
+                headStyle={{ backgroundColor: "rgb(240 240 240)" }}
+            >
+                <Col span={24} hidden={this.state.calendarMode !== "calendar-mode"}>
+                    <ModoCalendario
+                        calendarMode={this.state.calendarMode}
+                        onPanelChange={_onPanelChange}
+                        scheduleInMonth={this.state.scheduleMonth}
+                        onSelectedDate={_onSelectedDate}
+                    />
+                </Col>
+                <Col span={24} hidden={this.state.calendarMode !== "table-mode"}>
+                    <ModoTabela
+                        calendarMode={this.state.calendarMode}
+                        scheduleDay={this.state.scheduleDay}
+                    />
+                </Col>
+            </Card>
             <MaintainceDetail
                 open={this.state.openMaintence}
                 onCancel={() => this.setState({ ...this.state, openMaintence: false })}
@@ -340,7 +350,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
             title: 'Situação',
             dataIndex: ['scheduleSituation', 'description'],
             key: 'scheduleSituation',
-            width: "5%",
+            width: "15%",
             render(text, record) {
                 return <Tag color={record.scheduleSituation?.color}>{text}</Tag>
             }
@@ -349,7 +359,7 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
             title: 'Cliente',
             dataIndex: 'client',
             key: 'client',
-            width: "90%"
+            width: "80%"
         }
     ];
 
@@ -366,9 +376,13 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
 
     render() {
         return <>
-            <>
-                <Table columns={this._columns} dataSource={this.dataSource()} pagination={false} />
-            </>
+            <Table
+                columns={this._columns}
+                dataSource={this.dataSource()}
+                pagination={false}
+                size={"small"}
+                style={{ width: "100%" }}
+            />
         </>
     }
 }
