@@ -50,7 +50,6 @@ const CRON_TIME_SEC = '0,3 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
-        openSidebar: false,
         calendarMode: "calendar-mode" as typeCalendar,
         scheduleMonth: {},
         scheduleDay: {} as any,
@@ -93,59 +92,43 @@ export default class Agenda extends React.Component {
         return _.pick(this.state.scheduleMonth, _keyFormat);;
     }
 
-    WrapperSidebar = (props: any) => {
-        const _styleCard: CardProps = {
-            size: "small",
-            type: "inner",
-            className: "wrapper-sidebar-selection"
-        }
-
-        return <>
-            <Drawer
-                open={this.state.openSidebar}
-                onClose={() => this.setState({ ...this.state, openSidebar: false })}
-                title="Detalhamento"
-                style={_styleCard}>
-                {props.children}
-            </Drawer>
-        </>
-    }
-
-    ItemsSidebar = () => {
+    ScheduleInDay = () => {
         const Content = (props: any) => {
             const getDate = (value: any) => moment(value).format("HH:mm");
 
             const _schedule = props.schedule;
 
-            const _content = <>
-                <Row justify="space-around">
-                    <Col>{`${getDate(_schedule.date)} à ${getDate(_schedule.date_end)}`}</Col>
-                </Row>
-                <Row justify="center">
-                    <Col>{_schedule.person?.name}</Col>
-                </Row>
-            </>;
+            const _onCardClick = () => {
+                this.setState({ ...this.state, openMaintence: true, scheduleSelected: _schedule });
+            }
 
-            return <>
-                <Tooltip title="Clique para alterar">
-                    <Row className="item-sidebar"
-                        style={{ borderLeft: `4px solid ${_schedule.scheduleSituation?.color ?? "#bbbbbb"}` }}
-                        onClick={() => {
-                            this.setState({
-                                ...this.state,
-                                openMaintence: true,
-                                scheduleSelected: _schedule
-                            });
-                        }}>
-                        <Col span={24}>{_content}</Col>
-                    </Row>
-                </Tooltip>
-            </>
+            const _styleCard = {
+                title: _schedule.person?.name,
+                onClick: _onCardClick,
+                style: {
+                    marginRight: '1rem',
+                    cursor: "pointer",
+                },
+                headStyle: {
+                    borderTop: `3px solid ${_schedule.scheduleSituation?.color}`
+                }
+            }
+
+            return (
+                <Card size="small" {..._styleCard}>
+                    <Tooltip title="Clique para visualizar/alterar!">
+                        <p>
+                            {`${getDate(_schedule.date)} à ${getDate(_schedule.date_end)}`}
+                        </p>
+                    </Tooltip>
+                </Card >
+            )
         }
 
         return <>{
             _.map(this.state.scheduleDay, (schedules: any) =>
-                _.map(schedules, (schedule: any) => <Content schedule={schedule} />))}</>
+                _.map(schedules, (schedule: any) => <Content schedule={schedule} />))
+        }</>
     }
 
     WrapperContent = () => {
@@ -164,34 +147,40 @@ export default class Agenda extends React.Component {
             this.setState({
                 ...this.state,
                 scheduleDay: _schedulesInDay,
-                calendarDateSelected: date,
-                openSidebar: true
+                calendarDateSelected: date
             });
         }
 
+        const _cardStyle = {
+            bordered: true,
+            style: { width: "100%" },
+            headStyle: { backgroundColor: "rgb(248 245 245)" }
+        }
+
         return <>
-            <Card
-                title="Meus compromissos"
-                size="small"
-                bordered={true}
-                style={{ width: "100%" }}
-                headStyle={{ backgroundColor: "rgb(240 240 240)" }}
-            >
-                <Col span={24} hidden={this.state.calendarMode !== "calendar-mode"}>
-                    <ModoCalendario
-                        calendarMode={this.state.calendarMode}
-                        onPanelChange={_onPanelChange}
-                        scheduleInMonth={this.state.scheduleMonth}
-                        onSelectedDate={_onSelectedDate}
-                    />
-                </Col>
-                <Col span={24} hidden={this.state.calendarMode !== "table-mode"}>
-                    <ModoTabela
-                        calendarMode={this.state.calendarMode}
-                        scheduleDay={this.state.scheduleDay}
-                    />
-                </Col>
-            </Card>
+            <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                <Card title="No dia"  {..._cardStyle} style={{ overflowY: "auto" }} size={"small"} hidden={Object.values(this.state.scheduleDay).length === 0} >
+                    <div style={{ display: "flex", marginRight: "1rem" }}>
+                        <this.ScheduleInDay />
+                    </div>
+                </Card>
+                <Card title="Compromissos" {..._cardStyle} size={"small"}>
+                    <Col hidden={this.state.calendarMode !== "calendar-mode"}>
+                        <ModoCalendario
+                            calendarMode={this.state.calendarMode}
+                            onPanelChange={_onPanelChange}
+                            scheduleInMonth={this.state.scheduleMonth}
+                            onSelectedDate={_onSelectedDate}
+                        />
+                    </Col>
+                    <Col hidden={this.state.calendarMode !== "table-mode"}>
+                        <ModoTabela
+                            calendarMode={this.state.calendarMode}
+                            scheduleDay={this.state.scheduleDay}
+                        />
+                    </Col>
+                </Card>
+            </Space>
             <MaintainceDetail
                 open={this.state.openMaintence}
                 onCancel={() => this.setState({ ...this.state, openMaintence: false })}
@@ -276,9 +265,6 @@ export default class Agenda extends React.Component {
                 </Col>
             </Row>
             <Row>
-                <this.WrapperSidebar>
-                    <this.ItemsSidebar />
-                </this.WrapperSidebar>
                 <this.WrapperContent />
             </Row>
             <ToastContainer />
@@ -381,7 +367,6 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
                 dataSource={this.dataSource()}
                 pagination={false}
                 size={"small"}
-                style={{ width: "100%" }}
             />
         </>
     }
