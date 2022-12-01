@@ -106,8 +106,10 @@ export default class Agenda extends React.Component {
                 title: _schedule.person?.name,
                 onClick: _onCardClick,
                 style: {
-                    marginRight: '1rem',
+                    marginRight: '1.5rem',
                     cursor: "pointer",
+                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px"
+
                 },
                 headStyle: {
                     borderTop: `3px solid ${_schedule.scheduleSituation?.color}`
@@ -154,7 +156,7 @@ export default class Agenda extends React.Component {
         const _cardStyle = {
             bordered: true,
             style: { width: "100%" },
-            headStyle: { backgroundColor: "rgb(248 245 245)" }
+            headStyle: { backgroundColor: "rgb(248 245 245)" },
         }
 
         return <>
