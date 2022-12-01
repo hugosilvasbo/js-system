@@ -15,7 +15,7 @@ import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
 type typeCalendar = "calendar-mode" | "table-mode";
-
+ 
 interface IPropsContent {
     calendarMode: typeCalendar
 }
