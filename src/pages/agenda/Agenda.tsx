@@ -1,5 +1,5 @@
 import { AppstoreOutlined, BarsOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, CardProps, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
+import { Button, Calendar, Card, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
 import { SegmentedValue } from "antd/lib/segmented";
 import { ColumnsType } from "antd/lib/table";
@@ -11,7 +11,6 @@ import { toast, ToastContainer } from "react-toastify";
 import AgendamentoAdapter from "../../adapters/AgendaAdapter";
 import AgendamentoModal from '../../classes/Agendamento';
 import SearchInput, { EnTipo } from "../../components/antdesign/SearchInput";
-import WrapperButtons, { enBotoes } from "../../components/mine/WrapperButtons";
 import './Agenda.scss';
 
 type typeCalendar = "calendar-mode" | "table-mode";
@@ -44,6 +43,11 @@ interface TypeTableMode {
         description: string,
         color: string
     }
+}
+
+const toolstipsMessages = {
+    clickCalendar: 'Clique para carregar os dados do dia no modo "Tabela"',
+    newButton: "Incluir um novo"
 }
 
 const CRON_TIME_SEC = '0,3 * * * * *';
@@ -92,47 +96,6 @@ export default class Agenda extends React.Component {
         return _.pick(this.state.scheduleMonth, _keyFormat);;
     }
 
-    ScheduleInDay = () => {
-        const Content = (props: any) => {
-            const getDate = (value: any) => moment(value).format("HH:mm");
-
-            const _schedule = props.schedule;
-
-            const _onCardClick = () => {
-                this.setState({ ...this.state, openMaintence: true, scheduleSelected: _schedule });
-            }
-
-            const _styleCard = {
-                title: _schedule.person?.name,
-                onClick: _onCardClick,
-                style: {
-                    marginRight: '1.5rem',
-                    cursor: "pointer",
-                    boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px"
-
-                },
-                headStyle: {
-                    borderTop: `3px solid ${_schedule.scheduleSituation?.color}`
-                }
-            }
-
-            return (
-                <Card size="small" {..._styleCard}>
-                    <Tooltip title="Clique para visualizar/alterar!">
-                        <p>
-                            {`${getDate(_schedule.date)} à ${getDate(_schedule.date_end)}`}
-                        </p>
-                    </Tooltip>
-                </Card >
-            )
-        }
-
-        return <>{
-            _.map(this.state.scheduleDay, (schedules: any) =>
-                _.map(schedules, (schedule: any) => <Content schedule={schedule} />))
-        }</>
-    }
-
     WrapperContent = () => {
         useEffect(() => {
             console.log("Wrapper content use effect.")
@@ -161,11 +124,6 @@ export default class Agenda extends React.Component {
 
         return <>
             <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                <Card title="No dia"  {..._cardStyle} style={{ overflowY: "auto" }} size={"small"} hidden={Object.values(this.state.scheduleDay).length === 0} >
-                    <div style={{ display: "flex", marginRight: "1rem" }}>
-                        <this.ScheduleInDay />
-                    </div>
-                </Card>
                 <Card title="Compromissos" {..._cardStyle} size={"small"}>
                     <Col hidden={this.state.calendarMode !== "calendar-mode"}>
                         <ModoCalendario
@@ -196,34 +154,20 @@ export default class Agenda extends React.Component {
             console.log("Use effect wrapper main buttons")
         }, []);
 
-        const _callback = (clique: enBotoes) => {
-            switch (clique) {
-                case enBotoes.eProcurar: {
-                    //nao uso mais
-                    //this.setState({ ...this.state, calendarMode: !this.state.calendarMode });
-                    break;
-                }
-                case enBotoes.eNovo: {
-                    this.setState({
-                        ...this.state,
-                        scheduleSelected: {},
-                        openMaintence: true
-                    });
-                    break;
-                }
-            }
+        const handleNew = () => {
+            this.setState({
+                ...this.state,
+                scheduleSelected: {},
+                openMaintence: true
+            });
         }
 
         return <>
-            <Row justify='end'>
-                <WrapperButtons
-                    inEdition={false}
-                    callbackClick={_callback}
-                    orientation={'horizontal'}
-                    invisible={[enBotoes.eAlterar, enBotoes.eExcluir, enBotoes.eGravar, enBotoes.eCancelar]}
-                    tooltipCaption={[{ button: enBotoes.eProcurar, caption: "Mudar modo de visualização" }]}
-                />
-            </Row>
+            <Tooltip title={toolstipsMessages.newButton}>
+                <Button type="primary" onClick={handleNew} >
+                    Novo
+                </Button>
+            </Tooltip>
         </>
     }
 
@@ -266,6 +210,7 @@ export default class Agenda extends React.Component {
                     <this.WrapperCalendarMode />
                 </Col>
             </Row>
+            <Divider />
             <Row>
                 <this.WrapperContent />
             </Row>
@@ -277,11 +222,15 @@ export default class Agenda extends React.Component {
 class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
     onDateCellRender = (value: Moment) => {
         const ScheduleItem = (props: any) => {
+            const _style = {
+                borderTop: `2px solid ${props.color}`, background: "#fff"
+            }
+
             return (
-                <Tooltip placement='leftBottom' title='Clique para mais detalhes'>
+                <Tooltip title={toolstipsMessages.clickCalendar}>
                     <li key={`cal-item-${props._id}`}
                         className='list-items'
-                        style={{ borderTop: `2px solid ${props.color}`, background: "#fff" }}>
+                        style={_style}>
                         {props.children}
                     </li>
                 </Tooltip >
@@ -364,12 +313,23 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
 
     render() {
         return <>
-            <Table
-                columns={this._columns}
-                dataSource={this.dataSource()}
-                pagination={false}
-                size={"small"}
-            />
+            <Row gutter={16}>
+                <Col md={6}>
+                    <Card title={"Calendário (Chamar igual o outro)"} size={"small"}>
+                        <Calendar locale={local} fullscreen={false} />
+                    </Card>
+                </Col>
+                <Col md={18}>
+                    <Card title={"No dia"} size={"small"}>
+                        <Table
+                            columns={this._columns}
+                            dataSource={this.dataSource()}
+                            pagination={false}
+                            size={"small"}
+                        />
+                    </Card>
+                </Col>
+            </Row>
         </>
     }
 }

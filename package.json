@@ -26,6 +26,7 @@
     "react-calendar-timeline": "^0.28.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
+    "react-floating-action-button": "^1.0.5",
     "react-hook-form": "^7.39.5",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
