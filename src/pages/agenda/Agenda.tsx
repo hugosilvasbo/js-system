@@ -1,23 +1,14 @@
-import { AppstoreOutlined, BarsOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, Col, DatePicker, Divider, Drawer, Form, Input, Row, Segmented, Space, Statistic, Table, Tag, Tooltip } from "antd";
+import { Button, Calendar, Card, Checkbox, Col, DatePicker, Divider, Drawer, Form, Input, Row, Space, Statistic, Table, Tag, Tooltip } from "antd";
 import local from 'antd/es/date-picker/locale/pt_BR';
-import { SegmentedValue } from "antd/lib/segmented";
 import { ColumnsType } from "antd/lib/table";
-import axios from "axios";
 import _ from "lodash";
 import moment, { Moment } from "moment";
 import React, { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import AgendamentoAdapter from "../../adapters/AgendaAdapter";
 import AgendamentoModal from '../../classes/Agendamento';
 import SearchInput, { EnTipo } from "../../components/antdesign/SearchInput";
+import AgendamentoAdapter from './../../adapters/AgendaAdapter';
 import './Agenda.scss';
-
-type typeCalendar = "calendar-mode" | "table-mode";
-
-interface IPropsContent {
-    calendarMode: typeCalendar
-}
 
 interface IDrawerMaintence {
     open: boolean,
@@ -25,13 +16,13 @@ interface IDrawerMaintence {
     schedule: any
 }
 
-interface IPropsContentCalendar extends IPropsContent {
+interface IPropsContentCalendar {
     onPanelChange: any,
     scheduleInMonth: {},
     onSelectedDate: any
 }
 
-interface IPropsContentTable extends IPropsContent {
+interface IPropsContentTable {
     scheduleDay: {}
 }
 
@@ -46,7 +37,6 @@ interface TypeTableMode {
 }
 
 const toolstipsMessages = {
-    clickCalendar: 'Clique para carregar os dados do dia no modo "Tabela"',
     newButton: "Incluir um novo"
 }
 
@@ -54,7 +44,6 @@ const CRON_TIME_SEC = '0,3 * * * * *';
 
 export default class Agenda extends React.Component {
     state = {
-        calendarMode: "calendar-mode" as typeCalendar,
         scheduleMonth: {},
         scheduleDay: {} as any,
         scheduleSelected: {},
@@ -62,33 +51,10 @@ export default class Agenda extends React.Component {
         openMaintence: false
     }
 
-    componentDidMount(): void {
-        /*schedule.scheduleJob(CRON_TIME_SEC, async () => {
-            await this.fetchMonthData(this.state.calendarDateSelected);
-        })*/
-    }
-
     async fetchMonthData(value: Moment) {
-        const _urlPadrao = `http://localhost:3000/schedule`;
-
-        function getFilter(firstData: boolean) {
-            let _clone = value.clone();
-            return (firstData ? _clone.startOf('month') : _clone.endOf('month')).format("YYYY-MM-DD");
-        }
-
-        let res = await axios.get(_urlPadrao, {
-            params: {
-                date: getFilter(true),
-                date_end: getFilter(false)
-            }
-        });
-
-        let groupByDate = _.groupBy(res.data, (r: any) => moment(r.date).format("YYYY-MM-DD"));
-
-        this.setState({
-            ...this.state,
-            scheduleMonth: groupByDate
-        });
+        let res = new AgendamentoAdapter({}, "");
+        let schedules = await res.getSchedulesInMonth(value);
+        this.setState({ ...this.state, scheduleMonth: schedules });
     }
 
     getScheduleInDay = (date: Moment) => {
@@ -97,10 +63,6 @@ export default class Agenda extends React.Component {
     }
 
     WrapperContent = () => {
-        useEffect(() => {
-            console.log("Wrapper content use effect.")
-        }, []);
-
         const _onPanelChange = async (data: Moment) => {
             this.setState({ ...this.state, calendarDateSelected: data });
             await this.fetchMonthData(data);
@@ -119,28 +81,35 @@ export default class Agenda extends React.Component {
         const _cardStyle = {
             bordered: true,
             style: { width: "100%" },
-            headStyle: { backgroundColor: "rgb(248 245 245)" },
+            headStyle: { borderTop: "2px solid #f3f3f3" },
+        }
+
+        const WrapperFilter = () => {
+            return <>
+                <Checkbox>Pendentes</Checkbox>
+            </>
         }
 
         return <>
-            <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                <Card title="Compromissos" {..._cardStyle} size={"small"}>
-                    <Col hidden={this.state.calendarMode !== "calendar-mode"}>
-                        <ModoCalendario
-                            calendarMode={this.state.calendarMode}
-                            onPanelChange={_onPanelChange}
-                            scheduleInMonth={this.state.scheduleMonth}
-                            onSelectedDate={_onSelectedDate}
-                        />
-                    </Col>
-                    <Col hidden={this.state.calendarMode !== "table-mode"}>
-                        <ModoTabela
-                            calendarMode={this.state.calendarMode}
-                            scheduleDay={this.state.scheduleDay}
-                        />
-                    </Col>
-                </Card>
-            </Space>
+            <Row gutter={20} wrap>
+                <Col md={6}>
+                    <Space direction="vertical" size={"large"}>
+                        <Card size="small" {..._cardStyle}>
+                            <ModoCalendario
+                                onPanelChange={_onPanelChange}
+                                scheduleInMonth={this.state.scheduleMonth}
+                                onSelectedDate={_onSelectedDate}
+                            />
+                        </Card>
+                        <Card size={"small"} {..._cardStyle} title={"Filtros"}>
+                            <WrapperFilter />
+                        </Card>
+                    </Space>
+                </Col>
+                <Col md={18}>
+                    <ModoTabela scheduleDay={this.state.scheduleDay} />
+                </Col>
+            </Row>
             <MaintainceDetail
                 open={this.state.openMaintence}
                 onCancel={() => this.setState({ ...this.state, openMaintence: false })}
@@ -150,10 +119,6 @@ export default class Agenda extends React.Component {
     }
 
     WrapperMainButtons = () => {
-        useEffect(() => {
-            console.log("Use effect wrapper main buttons")
-        }, []);
-
         const handleNew = () => {
             this.setState({
                 ...this.state,
@@ -171,13 +136,8 @@ export default class Agenda extends React.Component {
         </>
     }
 
-    WrapperCalendarMode = () => {
-        useEffect(() => {
-            console.log("Use Effect Calendar Mode");
-        }, []);
-
+    /*WrapperCalendarMode = () => {
         const handleCalendarMode = (value: SegmentedValue) => {
-            console.log(value);
             this.setState({ ...this.state, calendarMode: value });
         }
 
@@ -198,16 +158,13 @@ export default class Agenda extends React.Component {
                 ]}
             />
         </>
-    }
+    }*/
 
     render() {
         return <>
             <Row justify="space-between">
                 <Col>
                     <this.WrapperMainButtons />
-                </Col>
-                <Col>
-                    <this.WrapperCalendarMode />
                 </Col>
             </Row>
             <Divider />
@@ -220,7 +177,7 @@ export default class Agenda extends React.Component {
 }
 
 class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
-    onDateCellRender = (value: Moment) => {
+    /*onDateCellRender = (value: Moment) => {
         const ScheduleItem = (props: any) => {
             const _style = {
                 borderTop: `2px solid ${props.color}`, background: "#fff"
@@ -240,42 +197,50 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
         let _schedulesInDay = _.pick(this.props.scheduleInMonth, value.format("YYYY-MM-DD"));
 
         return (
-            _.map(_schedulesInDay, (schedule: any) => {
-                return <>{
-                    <Row>
-                        <Col span={24}>
-                            {
-                                _.map(schedule, (value: any) =>
-                                    <ScheduleItem
-                                        _id={value._id}
-                                        color={value.scheduleSituation?.color} >
-                                        {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
-                                    </ScheduleItem>)
-                            }
-                        </Col>
-                    </Row>
-                }</>
-            })
+            _.map(
+                _schedulesInDay, (schedule: any) => {
+                    return <>{
+                        <Row>
+                            <Col span={24}>
+                                {
+                                    _.map(schedule, (value: any) =>
+                                        <ScheduleItem _id={value._id} color={value.scheduleSituation?.color} >
+                                            {`${moment(value.date).format("HH:mm")} - ${value.person?.name}`}
+                                        </ScheduleItem>)
+                                }
+                            </Col>
+                        </Row>
+                    }</>
+                })
         );
-    }
-
-    _onSelectDate = (date: Moment) => {
-        this.props.onSelectedDate(date);
-    }
+    }*/
 
     render() {
         return <>
             <Calendar
+                fullscreen={false}
                 locale={local}
                 onPanelChange={date => this.props.onPanelChange(date)}
-                dateCellRender={this.onDateCellRender}
-                onSelect={this._onSelectDate}
+                //dateCellRender={this.onDateCellRender}
+                onSelect={this.props.onSelectedDate}
             />
         </>
     }
 }
 
 class ModoTabela extends React.Component<IPropsContentTable, {}> {
+
+    state = {
+        filter: {
+            pendingSituation: true
+        },
+        scheduleDay: {}
+    }
+
+    componentDidMount(): void {
+        console.log("Riiii")
+    }
+
     _columns: ColumnsType<TypeTableMode> = [
         {
             title: 'Horário',
@@ -301,26 +266,14 @@ class ModoTabela extends React.Component<IPropsContentTable, {}> {
     ];
 
     dataSource() {
-        if (this.props.calendarMode === "calendar-mode")
-            return;
-
         return AgendamentoModal.getSetupDaySchedules(this.props.scheduleDay);
-    }
-
-    componentDidMount(): void {
-        console.log("did mount do modo tabela")
     }
 
     render() {
         return <>
-            <Row gutter={16}>
-                <Col md={6}>
-                    <Card title={"Calendário (Chamar igual o outro)"} size={"small"}>
-                        <Calendar locale={local} fullscreen={false} />
-                    </Card>
-                </Col>
-                <Col md={18}>
-                    <Card title={"No dia"} size={"small"}>
+            <Row gutter={[20, 20]}>
+                <Col md={24}>
+                    <Card title={"Detalhes"} size={"small"}>
                         <Table
                             columns={this._columns}
                             dataSource={this.dataSource()}
@@ -517,10 +470,6 @@ class MaintainceDetail extends React.Component<IDrawerMaintence, {}> {
     }
 
     Totalization = () => {
-        useEffect(() => {
-            console.log("Use Effect Totalization...");
-        }, []);
-
         return <>
             <Row gutter={16}>
                 <Col span={12}>

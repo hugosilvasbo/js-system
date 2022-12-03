@@ -45,13 +45,10 @@ function App(props: any) {
       <Menu items={menus} mode="horizontal" theme="dark" defaultSelectedKeys={['mn-home']} />
       <Layout style={{
         minHeight: "100vh",
-        padding: '0.4rem',
+        padding: '1rem',
+        backgroundColor: "rgb(241 241 241)"
       }}>
-        <Content style={{
-          backgroundColor: '#fff',
-          padding: '0.6rem',
-          borderRadius: '0.6rem'
-        }} className='bx_10'>
+        <Content style={{ backgroundColor: "#fff", padding: '20px', borderRadius: '10px' }}>
           {props.children}
         </Content>
       </Layout>
