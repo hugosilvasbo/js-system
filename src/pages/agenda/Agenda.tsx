@@ -85,8 +85,26 @@ export default class Agenda extends React.Component {
         }
 
         const WrapperFilter = () => {
+            const CreateComponentes = () => {
+                let _result;
+
+                for (let i in this.state.scheduleDay) {
+                    let _situations = _.chain(this.state.scheduleDay[i])
+                        .map(a => a.scheduleSituation?.description)
+                        .value();
+
+                    _result = _.chain(_situations)
+                        .filter((v: any, k: any) => _situations.indexOf(v) === k)
+                        .sort()
+                        .value();
+                }
+                return <>{
+                    _.map(_result, value => <Row><Checkbox>{value}</Checkbox></Row>)
+                }</>
+            }
+
             return <>
-                <Checkbox>Pendentes</Checkbox>
+                <CreateComponentes />
             </>
         }
 
@@ -229,18 +247,6 @@ class ModoCalendario extends React.Component<IPropsContentCalendar, {}> {
 }
 
 class ModoTabela extends React.Component<IPropsContentTable, {}> {
-
-    state = {
-        filter: {
-            pendingSituation: true
-        },
-        scheduleDay: {}
-    }
-
-    componentDidMount(): void {
-        console.log("Riiii")
-    }
-
     _columns: ColumnsType<TypeTableMode> = [
         {
             title: 'Horário',
